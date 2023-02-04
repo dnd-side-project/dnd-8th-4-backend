@@ -3,8 +3,6 @@ name: DND Share Diary
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 env:
   S3_BUCKET_NAME: dnd-diary-deploy
@@ -49,3 +47,11 @@ jobs:
         aws s3 cp \
         --region ap-northeast-2 \
         ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
+
+    - name: Code Deploy
+      run: |
+        aws deploy create-deployment \
+        --application-name DND-dirary-CodeDeploy \
+        --deployment-config-name CodeDeployDefault.AllAtOnce \
+        --deployment-group-name deploy \
+        --s3-location bucket=$S3_BUCKET_NAME, bundleType=zip, key=$PROJECT_NAME/$GITHUB_SHA.zip
