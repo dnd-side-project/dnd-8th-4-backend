@@ -54,4 +54,5 @@ jobs:
         --application-name DND-dirary-CodeDeploy \
         --deployment-config-name CodeDeployDefault.AllAtOnce \
         --deployment-group-name deploy \
-        --s3-location bucket=$S3_BUCKET_NAME, bundleType=zip, key=$PROJECT_NAME/$GITHUB_SHA.zip
+        --file-exists-behavior OVERWRITE \
+        --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
