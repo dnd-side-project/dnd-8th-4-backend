@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    include: dev
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
