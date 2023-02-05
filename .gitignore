@@ -4,3 +4,4 @@ HELP.md
 *.lock
 *.bin
 *.xml
+src/main/resources/application-dev.yml
