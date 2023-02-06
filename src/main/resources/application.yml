@@ -1,9 +1,14 @@
 spring:
   profiles:
     include: dev
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
+    jpa:
       hibernate:
-        format_sql: true
+        ddl-auto: create
+      properties:
+        hibernate:
+          format_sql: true
