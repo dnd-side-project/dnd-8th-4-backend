@@ -4,10 +4,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ConnectionTest {
+public class HealthCheckController {
 
-    @GetMapping("/test")
-    public String ec2ConnectionTest() {
-        return "Hello world!";
+    @GetMapping("/health")
+    public String healthCheck() {
+        return "OK!";
     }
 }
