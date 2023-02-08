@@ -51,7 +51,7 @@ jobs:
     - name: Code Deploy
       run: |
         aws deploy create-deployment \
-        --application-name DND-dirary-CodeDeploy \
+        --application-name DND-diary-CodeDeploy \
         --deployment-config-name CodeDeployDefault.AllAtOnce \
         --deployment-group-name deploy \
         --file-exists-behavior OVERWRITE \
