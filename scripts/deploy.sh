@@ -22,7 +22,7 @@ echo "> deploy new application"
 
 echo "> copy build file"
 
-cp $REPOSITORY/*.jar $REPOSITORY/jar/
+cp $REPOSITORY/build/libs/*.jar $REPOSITORY/jar/
 
 JAR_NAME=$(ls -tr $REPOSITORY/jar/*.jar | tail -n 1)
 
