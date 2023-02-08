@@ -5,16 +5,14 @@ files:
     destination: /home/ec2-user/app/deploy/dnd-8th-4-backend   # 프로젝트 이름
     overwrite: yes
 
-file_exists_behavior: OVERWRITE
-
-permissions:
-  - object: /
-    pattern: "**"
-    owner: ec2-user
-    group: ec2-user
-
 hooks:
   ApplicationStart:
-    - location: /scripts/deploy.sh
+    - location: scripts/run_new_was.sh
+      timeout: 60
+      runas: ec2-user
+    - location: scripts/health_check.sh
+      timeout: 60
+      runas: ec2-user
+    - location: scripts/switch.sh
       timeout: 60
       runas: ec2-user
