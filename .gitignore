@@ -5,3 +5,7 @@ HELP.md
 *.bin
 *.xml
 src/main/resources/application-dev.yml
+*.class
+*.iml
+*.meta
+*.probe
