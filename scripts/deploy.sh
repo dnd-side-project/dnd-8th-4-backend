@@ -1,10 +1,10 @@
 #!/bin/bash
 
-REPOSITORY=/home/ec2-user/app/deploy
+REPOSITORY=/home/ec2-user/app/deploy/dnd-8th-4-backend
 
 echo">check running pid"
 
-CURRENT_PID=$(pgrep -f dnd-8th-4-backend)
+CURRENT_PID=$(pgrep -f $REPOSITORY)
 
 echo "> CURRENT_PID"
 
