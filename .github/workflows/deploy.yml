@@ -28,6 +28,18 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
 
+    - name: make application-dev.yml
+      run: |
+        # create application-dev.yml
+        cd ./src/main/resources
+
+        # application-dev.yml 파일 생성
+        touch ./application-dev.yml
+
+        # GitHub-Actions 에서 설정한 값을 application-dev.yml 파일에 쓰기
+        echo "${{ secrets.PROPERTIES_DEV }}" >> ./application-dev.yml
+      shell: bash
+
     - name: Build with Gradle
       run: ./gradlew clean build -x test
 
