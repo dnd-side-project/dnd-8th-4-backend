@@ -9,3 +9,4 @@ src/main/resources/application-dev.yml
 *.iml
 *.meta
 *.probe
+/build/*
