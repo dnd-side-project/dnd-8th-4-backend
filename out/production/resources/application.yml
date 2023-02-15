@@ -1,14 +1,16 @@
 spring:
-  profiles:
-    include: dev
+  config:
+    import: application-dev.yml
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
   jpa:
-    jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
       hibernate:
-        ddl-auto: create
-      properties:
-        hibernate:
-          format_sql: true
+        format_sql: true
+        show-sql: true
+        globally_quoted_identifiers: true   # SQL 문이 실행될 때 틸드(`)로 테이블과 컬럼을 자동으로 감싸주는 설정
+        generate_statistics: true   # 쿼리 수행 통계를 확인

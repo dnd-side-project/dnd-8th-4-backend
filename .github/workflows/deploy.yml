@@ -30,12 +30,10 @@ jobs:
 
     - name: make application.yml
       run: |
-
         cd ./src/main/resources
-        
-        touch ./application.yml
-        
-        echo "${{ secrets.PROPERTIES }}" > ./application.yml
+        touch ./application-dev.yml
+        echo "${{ secrets.PROPERTIES_DEV }}" > ./application-dev.yml
+
       shell: bash
 
     - name: Build with Gradle

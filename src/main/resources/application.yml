@@ -1,6 +1,6 @@
 spring:
-  profiles:
-    include: dev
+  config:
+    import: application-dev.yml
   servlet:
     multipart:
       max-file-size: 10MB
