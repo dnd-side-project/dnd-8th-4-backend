@@ -38,6 +38,7 @@ jobs:
 
         # GitHub-Actions 에서 설정한 값을 application-dev.yml 파일에 쓰기
         echo "${{ secrets.PROPERTIES_DEV }}" >> ./application-dev.yml
+        echo "${{ secrets.PROPERTIES }}" >> ./application.yml
       shell: bash
 
     - name: Build with Gradle
