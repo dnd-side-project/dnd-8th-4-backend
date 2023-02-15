@@ -39,6 +39,14 @@ jobs:
         # GitHub-Actions 에서 설정한 값을 application-dev.yml 파일에 덮어쓰기
         echo "${{ secrets.PROPERTIES_DEV }}" > ./application-dev.yml
       shell: bash
+      
+    - name: write application.yml
+      run: |
+
+        cd ./src/main/resources
+        
+        echo "${{ secrets.PROPERTIES }}" > ./application.yml
+      shell: bash
 
     - name: Build with Gradle
       run: ./gradlew clean build -x test
