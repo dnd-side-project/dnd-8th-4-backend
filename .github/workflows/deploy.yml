@@ -31,8 +31,8 @@ jobs:
     - name: make application.yml
       run: |
         cd ./src/main/resources
-        touch ./application-dev.yml
-        echo "${{ secrets.PROPERTIES_DEV }}" > ./application-dev.yml
+        touch ./application.yml
+        echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./application.yml
 
       shell: bash
 
