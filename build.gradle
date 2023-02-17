@@ -3,7 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '2.7.1'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 
-	id 'org.asciidoctor.convert' version '1.5.9'
+	id "org.asciidoctor.jvm.convert" version "3.3.2"
 }
 
 group = 'dnd'
@@ -29,7 +29,6 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-	asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
 	testCompileOnly 'org.projectlombok:lombok' // 테스트 의존성 추가
 	testAnnotationProcessor 'org.projectlombok:lombok' // 테스트 의존성 추가
