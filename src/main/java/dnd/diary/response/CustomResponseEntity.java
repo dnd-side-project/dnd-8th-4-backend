@@ -3,8 +3,12 @@ package dnd.diary.response;
 import dnd.diary.enumeration.Result;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
+@NoArgsConstructor
 public class CustomResponseEntity<T> {
 
 	private int code;
@@ -16,6 +20,13 @@ public class CustomResponseEntity<T> {
 			.code(Result.OK.getCode())
 			.message(Result.OK.getMessage())
 			.data(data)
+			.build();
+	}
+
+	public static <T> CustomResponseEntity<T> success() {
+		return CustomResponseEntity.<T>builder()
+			.code(Result.OK.getCode())
+			.message(Result.OK.getMessage())
 			.build();
 	}
 
