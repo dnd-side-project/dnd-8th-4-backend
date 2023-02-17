@@ -1,9 +1,10 @@
 package dnd.diary.domain.content;
 
+import dnd.diary.enumeration.EnumType;
 import lombok.Getter;
 
 @Getter
-public enum EmotionStatus {
+public enum EmotionStatus implements EnumType {
     LOVE(0, "LOVE"),
     LIKE(1, "LIKE"),
     NICE(2, "NICE"),
