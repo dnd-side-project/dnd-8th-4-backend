@@ -7,6 +7,8 @@
 :sectlinks:
 :docinfo: shared-head
 :hardbreaks:
+:basedir: {docdir}/../../../
+:snippets: {basedir}/build/generated-snippets
 
 [[introduction]]
 == Service URL
