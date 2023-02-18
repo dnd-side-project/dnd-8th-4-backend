@@ -30,9 +30,9 @@ jobs:
 
     - name: make application.yml
       run: |
-        cd ./src/main/resources
-        touch ./application.yml
-        echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./application.yml
+        touch ./src/main/resources/application.yml
+        echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yml
+        cat ./src/main/resources/application.yml
 
       shell: bash
 
