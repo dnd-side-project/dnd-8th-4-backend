@@ -29,10 +29,9 @@ jobs:
       run: chmod +x ./gradlew
 
     - name: make application.yml
-      run: |
-        touch ./src/main/resources/application.yml
-        echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yml
-        cat ./src/main/resources/application.yml
+    - run : touch ./src/main/resources/application.yml
+    - run : echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yml
+    - run : cat ./src/main/resources/application.yml
 
       shell: bash
 
