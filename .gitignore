@@ -5,8 +5,7 @@ HELP.md
 *.xml
 src/main/resources/application-dev.yml
 src/main/resources/application.yml
-src/test/java/dnd/diary/common/CommonDocumentationTests.java
-src/test/java/dnd/diary/controller/HealthCheckControllerTest.java
+src/test/java/*
 *.class
 *.iml
 *.meta
