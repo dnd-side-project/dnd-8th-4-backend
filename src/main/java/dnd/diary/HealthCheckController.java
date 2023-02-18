@@ -16,6 +16,6 @@ public class HealthCheckController {
 
     @GetMapping("/test")
     public CustomResponseEntity<TestResponse> testCheck() {
-        return CustomResponseEntity.success(new TestResponse("TEST 성공"));
+        return CustomResponseEntity.success(new TestResponse("배포 확인,,"));
     }
 }
