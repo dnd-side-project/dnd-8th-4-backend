@@ -1,6 +1,5 @@
 
 HELP.md
-*.properties
 *.lock
 *.bin
 *.xml
