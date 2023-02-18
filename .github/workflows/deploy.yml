@@ -28,7 +28,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
 
-    - name: make application.yml
+    - uses: actions/checkout@v2
     - run : touch ./src/main/resources/application.yml
     - run : echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yml
     - run : cat ./src/main/resources/application.yml
