@@ -24,7 +24,7 @@ public class GroupController {
 	 	return CustomResponseEntity.success(groupService.createGroup(request));
 	 }
 
-	 @PutMapping("/update")
+	 @PatchMapping("/update")
 	public CustomResponseEntity<GroupUpdateResponse> updateGroup(@RequestBody GroupUpdateRequest request) {
 		 groupValidator.checkGroupName(request.getGroupName());
 		 return CustomResponseEntity.success(groupService.updateGroup(request));
