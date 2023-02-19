@@ -2,12 +2,10 @@ package dnd.diary.controller;
 
 import dnd.diary.dto.UserDto;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -35,5 +33,10 @@ public class UserController {
     public CustomResponseEntity<UserDto.InfoDto> userMyList(
     ) {
         return CustomResponseEntity.success(userService.findMyListUser());
+    }
+
+    @GetMapping("/user/search")
+    public CustomResponseEntity<UserSearchResponse> searchUserList(@RequestParam String keyword) {
+        return CustomResponseEntity.success(userService.searchUserList(keyword));
     }
 }
