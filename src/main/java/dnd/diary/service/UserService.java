@@ -8,6 +8,7 @@ import dnd.diary.dto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.UserRepository;
+import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -41,8 +42,8 @@ public class UserService {
 
     // 회원가입
     @Transactional
-    public ResponseEntity<UserDto.RegisterDto> register(UserDto.RegisterDto request) {
-        return new ResponseEntity<>(UserDto.RegisterDto.response(
+    public UserDto.RegisterDto register(UserDto.RegisterDto request) {
+        return UserDto.RegisterDto.response(
                 userRepository.save(
                         addUserFromRequest(request)
                 ),
@@ -52,14 +53,14 @@ public class UserService {
                 getRtk(
                         request.getEmail()
                 )
-        ), HttpStatus.CREATED);
+        );
     }
 
     // 로그인
     @Transactional
-    public ResponseEntity<UserDto.LoginDto> login(UserDto.LoginDto request) {
+    public UserDto.LoginDto login(UserDto.LoginDto request) {
 
-        return new ResponseEntity<>(UserDto.LoginDto.response(
+        return UserDto.LoginDto.response(
                 getUser(
                         request.getEmail()
                 ),
@@ -69,16 +70,16 @@ public class UserService {
                 getRtk(
                         request.getEmail()
                 )
-        ), HttpStatus.OK);
+        );
     }
 
     // 내 정보 읽기
-    public ResponseEntity<UserDto.InfoDto> findMyListUser() {
-        return new ResponseEntity<>(UserDto.InfoDto.response(
+    public UserDto.InfoDto findMyListUser() {
+        return UserDto.InfoDto.response(
                 getUser(
                         SecurityContextHolder.getContext().getAuthentication().getName()
                 )
-        ), HttpStatus.OK);
+        );
     }
 
     private User getUser(String email) {
