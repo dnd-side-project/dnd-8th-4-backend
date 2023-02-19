@@ -79,13 +79,15 @@ public class GroupService {
 		if (groupStar == null) {
 			GroupStar newGroupStar = GroupStar.toEntity(group, user);
 			groupStarRepository.save(newGroupStar);
-		}
-		// 즐겨찾기 등록상태이면 -> 해제 / 등록되어 있지 않으면 -> 등록
-		if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD) {
-			groupStar.update(GroupStarStatus.DELETE);
 		} else {
-			groupStar.update(GroupStarStatus.ADD);
+			// 즐겨찾기 등록상태이면 -> 해제 / 등록되어 있지 않으면 -> 등록
+			if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD) {
+				groupStar.update(GroupStarStatus.DELETE);
+			} else {
+				groupStar.update(GroupStarStatus.ADD);
+			}
 		}
+
 		GroupStar newGroupStar = groupStarRepository.findByGroupIdAndUserId(groupId, user.getId());
 		return GroupStarResponse.builder()
 				.userId(user.getId())
