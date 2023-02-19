@@ -4,6 +4,7 @@ import dnd.diary.dto.content.CommentDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.content.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -22,5 +23,14 @@ public class CommentController {
             @Valid @RequestBody CommentDto.AddCommentDto request
     ){
         return commentService.commentAdd(userDetails,contentId,request);
+    }
+
+    @GetMapping("content/{contentId}/comment")
+    public CustomResponseEntity<CommentDto.pagePostsCommentDto> pageComment(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable(name = "contentId") Long contentId,
+            @RequestParam Integer page
+    ){
+        return commentService.commentPage(userDetails,contentId,page);
     }
 }
