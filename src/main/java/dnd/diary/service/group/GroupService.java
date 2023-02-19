@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static dnd.diary.enumeration.Result.*;
@@ -171,12 +172,15 @@ public class GroupService {
                     .groupName(group.getGroupName())
                     .groupNote(group.getGroupNote())
                     .groupCreatedAt(group.getCreatedAt())
+                    .recentUpdatedAt(group.getRecentUpdatedAt())
                     .memberCount(group.getUserJoinGroups().size())
                     .isStarGroup(isStarGroup)   // 조회 유저가 해당 그룹을 즐겨찾기 했는지 여부
                     .build();
 
 			groupInfoList.add(groupInfo);
         }
+        
+        groupInfoList.sort(Comparator.comparing(GroupListResponse.GroupInfo::getRecentUpdatedAt).reversed());
 		response.setGroupInfoList(groupInfoList);
 
         return response;

@@ -28,6 +28,8 @@ public class GroupListResponse {
 		private String groupNote;   // 그룹 소개
 		@JsonFormat(pattern = "yyyy.MM.dd", timezone = "Asia/Seoul")
 		private LocalDateTime groupCreatedAt;   // 그룹 생성일
+		@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+		private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
 		private int memberCount;   // 그룹 인원
 		private Boolean isStarGroup;   // 조회 유저가 해당 그룹을 즐겨찾기 했는지 여부
 	}
