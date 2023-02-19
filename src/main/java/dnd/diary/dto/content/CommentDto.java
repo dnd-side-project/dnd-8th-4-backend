@@ -10,8 +10,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CommentDto {
@@ -36,6 +38,48 @@ public class CommentDto {
                     .userId(comment.getUser().getId())
                     .contentId(comment.getContent().getId())
                     .stickerId(null)
+                    .build();
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class pageCommentDto {
+
+        private Long id;
+        private String commentNote;
+        private String username;
+        private LocalDateTime createdAt;
+
+        public static CommentDto.pageCommentDto response(Comment comment){
+            return pageCommentDto.builder()
+                    .id(comment.getId())
+                    .commentNote(comment.getCommentNote())
+                    .username(comment.getUser().getNickName())
+                    .createdAt(comment.getCreatedAt())
+                    .build();
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class pagePostsCommentDto {
+
+        private Long emotions;
+        private Long comments;
+        private Page<pageCommentDto> page;
+
+        public static CommentDto.pagePostsCommentDto response(Page<pageCommentDto> page, Long emotions, Long comments){
+            return pagePostsCommentDto.builder()
+                    .emotions(emotions)
+                    .comments(comments)
+                    .page(page)
                     .build();
         }
     }

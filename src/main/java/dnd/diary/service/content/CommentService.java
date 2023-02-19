@@ -12,6 +12,9 @@ import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +49,25 @@ public class CommentService {
                                         .sticker(null)
                                         .build()
                         )
+                )
+        );
+    }
+
+    public CustomResponseEntity<CommentDto.pagePostsCommentDto> commentPage(
+            UserDetails userDetails, Long contentId, Integer page
+    ) {
+        long commentCount = commentRepository.countByContentId(contentId);
+        long emotionCount = emotionRepository.countByContentId(contentId);
+        Page<Comment> comments = commentRepository.findAll(PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt"));
+        Page<CommentDto.pageCommentDto> collect;
+        collect = comments.map(
+                (Comment comment) -> CommentDto.pageCommentDto.response(
+                        comment
+                )
+        );
+        return CustomResponseEntity.success(
+                CommentDto.pagePostsCommentDto.response(
+                        collect,emotionCount,commentCount
                 )
         );
     }
