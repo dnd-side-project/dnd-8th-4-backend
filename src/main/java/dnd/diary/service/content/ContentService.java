@@ -129,12 +129,6 @@ public class ContentService {
         );
     }
 
-    private List<ContentDto.EmotionResponseDto> getEmotionResponseDtos(Long contentId) {
-        List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
-        List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
-        return emotion;
-    }
-
     public void deleteFile(String fileName) {
         amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
     }

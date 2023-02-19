@@ -43,13 +43,13 @@ public class ContentDto {
     public static class EmotionResponseDto{
         private Long id;
         private Long emotionStatus;
-        private Long contentId;
+        private String profileImage;
         private Long userId;
         public static ContentDto.EmotionResponseDto response(Emotion emotion){
             return EmotionResponseDto.builder()
                     .id(emotion.getId())
                     .emotionStatus(emotion.getEmotionStatus())
-                    .contentId(emotion.getContent().getId())
+                    .profileImage("이미지 공사중")
                     .userId(emotion.getUser().getId())
                     .build();
         }

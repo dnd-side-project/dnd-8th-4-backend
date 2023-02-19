@@ -73,12 +73,14 @@ public class CommentDto {
 
         private Long emotions;
         private Long comments;
+        private List<ContentDto.EmotionResponseDto> emotionList;
         private Page<pageCommentDto> page;
 
-        public static CommentDto.pagePostsCommentDto response(Page<pageCommentDto> page, Long emotions, Long comments){
+        public static CommentDto.pagePostsCommentDto response(Page<pageCommentDto> page, List<ContentDto.EmotionResponseDto> emotionList, Long emotions, Long comments){
             return pagePostsCommentDto.builder()
                     .emotions(emotions)
                     .comments(comments)
+                    .emotionList(emotionList)
                     .page(page)
                     .build();
         }
