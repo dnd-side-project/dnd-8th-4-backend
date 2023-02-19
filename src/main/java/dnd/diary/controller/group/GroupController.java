@@ -7,6 +7,7 @@ import dnd.diary.response.group.*;
 import dnd.diary.service.group.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,15 +20,21 @@ public class GroupController {
 	private final GroupService groupService;
 
 	 @PostMapping("/create")
-	 public CustomResponseEntity<GroupCreateResponse> createGroup(@RequestBody GroupCreateRequest request) {
+	 public CustomResponseEntity<GroupCreateResponse> createGroup(
+	 		@RequestParam("image") MultipartFile multipartFile,
+	 		@RequestBody GroupCreateRequest request
+	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
-	 	return CustomResponseEntity.success(groupService.createGroup(request));
+	 	return CustomResponseEntity.success(groupService.createGroup(multipartFile, request));
 	 }
 
 	 @PatchMapping("/update")
-	public CustomResponseEntity<GroupUpdateResponse> updateGroup(@RequestBody GroupUpdateRequest request) {
+	public CustomResponseEntity<GroupUpdateResponse> updateGroup(
+			@RequestParam("image") MultipartFile multipartFile,
+			@RequestBody GroupUpdateRequest request
+	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
-		 return CustomResponseEntity.success(groupService.updateGroup(request));
+		 return CustomResponseEntity.success(groupService.updateGroup(multipartFile, request));
 	 }
 
 	 @DeleteMapping("/delete")
