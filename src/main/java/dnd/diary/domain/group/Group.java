@@ -3,6 +3,7 @@ package dnd.diary.domain.group;
 import com.sun.istack.NotNull;
 import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.mission.Mission;
+import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.domain.content.Content;
 import lombok.AccessLevel;
@@ -32,6 +33,11 @@ public class Group extends BaseEntity {
 
     private String groupImageUrl;
 
+    // 그룹 생성자
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User groupCreateUser;
+
     // 그룹에 가입한 유저 정보
     @OneToMany(mappedBy = "group")
     private List<UserJoinGroup> userJoinGroups = new ArrayList<>();
@@ -53,14 +59,15 @@ public class Group extends BaseEntity {
     private List<Mission> missions = new ArrayList<>();
 
     @Builder
-    private Group(String groupName, String groupNote, String groupImageUrl) {
+    private Group(String groupName, String groupNote, String groupImageUrl, User groupCreateUser) {
         this.groupName = groupName;
         this.groupNote = groupNote;
         this.groupImageUrl = groupImageUrl;
+        this.groupCreateUser = groupCreateUser;
     }
 
-    public static Group toEntity(String groupName, String groupNote, String groupImageUrl) {
-        return new Group(groupName, groupNote, groupImageUrl);
+    public static Group toEntity(String groupName, String groupNote, String groupImageUrl, User groupCreateUser) {
+        return new Group(groupName, groupNote, groupImageUrl, groupCreateUser);
     }
 
     public void update(String groupName, String groupNote, String groupImageUrl) {

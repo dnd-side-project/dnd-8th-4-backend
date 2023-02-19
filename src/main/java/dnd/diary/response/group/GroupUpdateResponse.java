@@ -18,8 +18,8 @@ public class GroupUpdateResponse {
 	private String groupNote;
 	private String groupImageUrl;
 	private Long groupCreateUserId;
-	@JsonFormat(pattern = "yyyy.MM.dd")
+	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
 	private LocalDateTime groupCreatedAt;
-	@JsonFormat(pattern = "yyyy.MM.dd")
+	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
 	private LocalDateTime groupModifiedAt;
 }
