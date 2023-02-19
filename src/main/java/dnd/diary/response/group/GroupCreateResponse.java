@@ -31,6 +31,8 @@ public class GroupCreateResponse {
     @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
 
+    private boolean isGroupDelete;
+
     // 현재 그룹에 가입된 구성원 정보
     private List<GroupCreateResponse.GroupMember> groupMemberList = new ArrayList<>();
 

@@ -27,10 +27,13 @@ public class UserJoinGroup extends BaseEntity {
     @JoinColumn(name = "group_id")
     private Group group;
 
+    private boolean isDelete;   // 그룹 탈퇴 여부
+
     @Builder
     public UserJoinGroup(User user, Group group) {
         this.user = user;
         this.group = group;
+        this.isDelete = false;   // default 값 지정
 
         user.getUserJoinGroups().add(this);
     }
@@ -39,4 +42,7 @@ public class UserJoinGroup extends BaseEntity {
         return new UserJoinGroup(user, group);
     }
 
+    public void deleteUserJoinGroup() {
+        this.isDelete = true;
+    }
 }

@@ -90,6 +90,7 @@ public class GroupService {
 		}
 
 		group.update(request.getGroupName(), request.getGroupNote(), imageUrl);
+		groupRepository.save(group);
 
 		return GroupUpdateResponse.builder()
 			.groupId(group.getId())
@@ -100,16 +101,41 @@ public class GroupService {
 			.groupCreatedAt(group.getCreatedAt())
 			.groupModifiedAt(group.getModifiedAt())
 			.recentUpdatedAt(group.getRecentUpdatedAt())
+			.isGroupDelete(group.isDelete())
 			.build();
 	}
 
-	public void deleteGroup(Long groupId) {
+	public GroupUpdateResponse deleteGroup(Long groupId) {
+		User user = findUser();
 		Group group = groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
 
-		// 그룹 내 구성원들의 그룹 탈퇴 처리
+		// 방장만 삭제 가능
+		if (!group.getGroupCreateUser().getId().equals(user.getId())) {
+			throw new CustomException(FAIL_DELETE_GROUP);
+		}
 
-		// 그룹 삭제 처리 - Soft Delete 수정
-		groupRepository.delete(group);
+		// 그룹 내 구성원들의 그룹 탈퇴 처리
+		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
+		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
+			userJoinGroup.deleteUserJoinGroup();
+			userJoinGroupRepository.save(userJoinGroup);
+		}
+		// 그룹 삭제 처리
+		group.deleteGroup();
+		groupRepository.save(group);
+
+		return GroupUpdateResponse.builder()
+				.groupId(group.getId())
+				.groupName(group.getGroupName())
+				.groupNote(group.getGroupNote())
+				.groupImageUrl(group.getGroupImageUrl())
+				.groupCreateUserId(user.getId())
+				.groupCreatedAt(group.getCreatedAt())
+				.groupModifiedAt(group.getModifiedAt())
+				.recentUpdatedAt(group.getRecentUpdatedAt())
+				.isGroupDelete(group.isDelete())
+				.build();
+
 	}
 
 	public GroupStarResponse starGroup(Long groupId) {
@@ -179,7 +205,7 @@ public class GroupService {
 
 			groupInfoList.add(groupInfo);
         }
-        
+
         groupInfoList.sort(Comparator.comparing(GroupListResponse.GroupInfo::getRecentUpdatedAt).reversed());
 		response.setGroupInfoList(groupInfoList);
 

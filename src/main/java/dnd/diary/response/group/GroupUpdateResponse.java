@@ -29,4 +29,6 @@ public class GroupUpdateResponse {
     @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
 
+    private boolean isGroupDelete;
+
 }

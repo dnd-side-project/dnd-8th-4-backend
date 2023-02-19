@@ -40,6 +40,7 @@ public class Group extends BaseEntity {
     private User groupCreateUser;
 
     private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
+    private boolean isDelete;   // 그룹 삭제 여부
 
     // 그룹에 가입한 유저 정보
     @OneToMany(mappedBy = "group")
@@ -67,6 +68,7 @@ public class Group extends BaseEntity {
         this.groupNote = groupNote;
         this.groupImageUrl = groupImageUrl;
         this.groupCreateUser = groupCreateUser;
+        this.isDelete = false;
     }
 
     public static Group toEntity(String groupName, String groupNote, String groupImageUrl, User groupCreateUser) {
@@ -81,5 +83,9 @@ public class Group extends BaseEntity {
 
     public void updateRecentModifiedAt(LocalDateTime recentUpdatedAt) {
         this.recentUpdatedAt = recentUpdatedAt;
+    }
+
+    public void deleteGroup() {
+        this.isDelete = true;
     }
 }
