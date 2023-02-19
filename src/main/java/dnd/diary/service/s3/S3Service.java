@@ -32,7 +32,7 @@ public class S3Service {
 
 	private final AmazonS3 amazonS3;
 
-	public List<String> upload(List<MultipartFile> multipartFile) {
+	public List<String> uploadImageList(List<MultipartFile> multipartFile) {
 
 		List<String> fileUrlList = new ArrayList<>();
 
@@ -56,13 +56,32 @@ public class S3Service {
 		return fileUrlList;
 	}
 
-	private String createFileName(String fileName) {
+	public String createFileName(String fileName) {
 		// 랜덤으로 파일 이름 생성
 		return UUID.randomUUID().toString().concat(getFileExtension(fileName));
 	}
 
+	public String uploadImage(MultipartFile multipartFile) {
+
+		String fileName = createFileName(multipartFile.getOriginalFilename());
+		ObjectMetadata objectMetadata = new ObjectMetadata();
+		objectMetadata.setContentLength(multipartFile.getSize());
+		objectMetadata.setContentType(multipartFile.getContentType());
+
+		String fileUrl = "";
+		try (InputStream inputStream = multipartFile.getInputStream()) {
+			amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
+					.withCannedAcl(CannedAccessControlList.PublicRead));
+			fileUrl = amazonS3.getUrl(bucket, fileName).toString();
+		} catch (IOException e) {
+			throw new CustomException(FAIL_IMAGE_UPLOAD);
+		}
+
+		return fileUrl;
+	}
+
 	// 파일 확장자 전달
-	private String getFileExtension(String fileName) {
+	public String getFileExtension(String fileName) {
 		try {
 			return fileName.substring(fileName.lastIndexOf("."));
 		} catch (StringIndexOutOfBoundsException e) {

@@ -20,9 +20,15 @@ public class S3Controller {
 
 	private final S3Service s3Service;
 
+	@PostMapping("/files")
+	public CustomResponseEntity<List<String>> uploadImageList(@RequestParam("images") List<MultipartFile> multipartFile) throws Exception {
+		List<String> fileImageList = s3Service.uploadImageList(multipartFile);
+		return CustomResponseEntity.success(fileImageList);
+	}
+
 	@PostMapping("/file")
-	public CustomResponseEntity<List<String>> upload(@RequestParam("images") List<MultipartFile> multipartFile) throws Exception {
-		List<String> fileImageList = s3Service.upload(multipartFile);
+	public CustomResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile multipartFile) throws Exception {
+		String fileImageList = s3Service.uploadImage(multipartFile);
 		return CustomResponseEntity.success(fileImageList);
 	}
 

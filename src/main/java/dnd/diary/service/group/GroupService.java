@@ -1,5 +1,6 @@
 package dnd.diary.service.group;
 
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.GroupStarStatus;
@@ -15,9 +16,11 @@ import dnd.diary.repository.UserRepository;
 import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.response.group.*;
 import dnd.diary.service.UserService;
+import dnd.diary.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,10 +39,18 @@ public class GroupService {
 
 	private final UserService userService;
 	private final UserJoinGroupRepository userJoinGroupRepository;
+	private final S3Service s3Service;
 
-	public GroupCreateResponse createGroup(GroupCreateRequest request) {
+	public GroupCreateResponse createGroup(MultipartFile multipartFile, GroupCreateRequest request) {
 		User hostUser = findUser();
-		Group group = Group.toEntity(request.getGroupName(), request.getGroupNote(), request.getGroupImageUrl(), hostUser);
+
+		// 그룹 이미지 처리
+		String imageUrl = "";
+		if (multipartFile != null) {
+			imageUrl = s3Service.uploadImage(multipartFile);
+		}
+
+		Group group = Group.toEntity(request.getGroupName(), request.getGroupNote(), imageUrl, hostUser);
 		groupRepository.save(group);
 
 		// 그룹 생성자 가입 처리 추가
@@ -54,6 +65,7 @@ public class GroupService {
 				.groupCreateUserId(hostUser.getId())
 				.groupCreatedAt(group.getCreatedAt())
 				.groupModifiedAt(group.getModifiedAt())
+				.recentUpdatedAt(group.getRecentUpdatedAt())
 				.groupMemberList(List.of(
 						new GroupCreateResponse.GroupMember(hostUser.getId(), hostUser.getEmail(), hostUser.getNickName()
 							, updateHostUser.getCreatedAt()))
@@ -61,10 +73,22 @@ public class GroupService {
 				.build();
 	}
 
-	public GroupUpdateResponse updateGroup(GroupUpdateRequest request) {
+	public GroupUpdateResponse updateGroup(MultipartFile multipartFile, GroupUpdateRequest request) {
 		User user = findUser();
 		Group group = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
-		group.update(request.getGroupName(), request.getGroupNote(), request.getGroupImageUrl());
+
+		// 그룹 호스트 유저만 수정 가능
+		if (!group.getGroupCreateUser().getId().equals(user.getId())) {
+			throw new CustomException(FAIL_UPDATE_GROUP);
+		}
+
+		String imageUrl = "";
+		// 그룹 이미지 추가 - 기존에 저장된 그룹 이미지와 동일한 경우 체크 제외
+		if (multipartFile != null) {
+			imageUrl = s3Service.uploadImage(multipartFile);
+		}
+
+		group.update(request.getGroupName(), request.getGroupNote(), imageUrl);
 
 		return GroupUpdateResponse.builder()
 			.groupId(group.getId())
@@ -74,6 +98,7 @@ public class GroupService {
 			.groupCreateUserId(user.getId())
 			.groupCreatedAt(group.getCreatedAt())
 			.groupModifiedAt(group.getModifiedAt())
+			.recentUpdatedAt(group.getRecentUpdatedAt())
 			.build();
 	}
 

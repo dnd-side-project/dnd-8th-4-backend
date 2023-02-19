@@ -13,13 +13,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupUpdateResponse {
-	private Long groupId;
-	private String groupName;
-	private String groupNote;
-	private String groupImageUrl;
-	private Long groupCreateUserId;
-	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
-	private LocalDateTime groupCreatedAt;
-	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
-	private LocalDateTime groupModifiedAt;
+
+    private Long groupId;
+    private String groupName;
+    private String groupNote;
+    private String groupImageUrl;
+    private Long groupCreateUserId;
+
+    @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+    private LocalDateTime groupCreatedAt;
+
+    @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+    private LocalDateTime groupModifiedAt;
+
+    @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+    private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
+
 }
