@@ -2,8 +2,6 @@ package dnd.diary.controller;
 
 import java.util.Map;
 
-import dnd.diary.domain.content.EmotionStatus;
-import dnd.diary.enumeration.Result;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

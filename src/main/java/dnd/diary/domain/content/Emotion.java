@@ -2,15 +2,15 @@ package dnd.diary.domain.content;
 
 import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.user.User;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Builder
 public class Emotion extends BaseEntity {
 
     @Id
@@ -19,8 +19,7 @@ public class Emotion extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private EmotionStatus emotionStatus;
+    private Long emotionStatus;
 
     // 공감이 표현된 게시물
     @ManyToOne(fetch = FetchType.LAZY)
