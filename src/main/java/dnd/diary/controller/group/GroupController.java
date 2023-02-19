@@ -44,7 +44,7 @@ public class GroupController {
 
 	// 그룹 메인 - 내가 속한 그룹 목록 조회
 	@GetMapping("/list")
-	public CustomResponseEntity<List<GroupListResponse>> getGroupList() {
+	public CustomResponseEntity<GroupListResponse> getGroupList() {
 		 return CustomResponseEntity.success(groupService.getGroupList());
 	}
 
@@ -57,10 +57,8 @@ public class GroupController {
 //	}
 
 	// 그룹 메인 - 즐겨찾기 그룹 조회
-	@PostMapping("/list/star")
-	public CustomResponseEntity<List<GroupStarListResponse>> getGroupStarList(
-
-	) {
+	@GetMapping("/list/star")
+	public CustomResponseEntity<List<GroupStarListResponse>> getGroupStarList() {
 		 return CustomResponseEntity.success(groupService.getGroupStarList());
 	}
 
