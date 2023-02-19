@@ -7,9 +7,7 @@ import dnd.diary.domain.document.Document;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.comment.Comment;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -18,6 +16,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@AllArgsConstructor
+@Builder
 public class Content extends BaseEntity {
 
     @Id
