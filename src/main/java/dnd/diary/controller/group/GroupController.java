@@ -20,13 +20,13 @@ public class GroupController {
 
 	 @PostMapping("/create")
 	 public CustomResponseEntity<GroupCreateResponse> createGroup(@RequestBody GroupCreateRequest request) {
-		 groupValidator.checkGroupName(request.getGroupName());
+		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
 	 	return CustomResponseEntity.success(groupService.createGroup(request));
 	 }
 
 	 @PatchMapping("/update")
 	public CustomResponseEntity<GroupUpdateResponse> updateGroup(@RequestBody GroupUpdateRequest request) {
-		 groupValidator.checkGroupName(request.getGroupName());
+		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
 		 return CustomResponseEntity.success(groupService.updateGroup(request));
 	 }
 
