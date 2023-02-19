@@ -6,6 +6,7 @@ import dnd.diary.domain.mission.Mission;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.domain.content.Content;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -50,4 +51,21 @@ public class Group extends BaseEntity {
     // 그룹 내 등록된 미션 목록
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
     private List<Mission> missions = new ArrayList<>();
+
+    @Builder
+    private Group(String groupName, String groupNote, String groupImageUrl) {
+        this.groupName = groupName;
+        this.groupNote = groupNote;
+        this.groupImageUrl = groupImageUrl;
+    }
+
+    public static Group toEntity(String groupName, String groupNote, String groupImageUrl) {
+        return new Group(groupName, groupNote, groupImageUrl);
+    }
+
+    public void update(String groupName, String groupNote, String groupImageUrl) {
+        this.groupName = groupName;
+        this.groupNote = groupNote;
+        this.groupImageUrl = groupImageUrl;
+    }
 }

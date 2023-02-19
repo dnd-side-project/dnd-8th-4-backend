@@ -3,6 +3,7 @@ package dnd.diary.domain.group;
 import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.user.User;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,22 @@ public class GroupStar extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Enumerated(EnumType.STRING)
+    private GroupStarStatus groupStarStatus;
+
+    @Builder
+    private GroupStar(Group group, User user) {
+        this.group = group;
+        this.user = user;
+        this.groupStarStatus = GroupStarStatus.ADD;
+    }
+
+    public static GroupStar toEntity(Group group, User user) {
+        return new GroupStar(group, user);
+    }
+
+    public void update(GroupStarStatus groupStarStatus) {
+        this.groupStarStatus = groupStarStatus;
+    }
 }
