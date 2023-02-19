@@ -10,6 +10,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -20,6 +22,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "groups")
+@SQLDelete(sql = "UPDATE groups SET isDelete = true WHERE id = ?")
+@Where(clause = "isDelete = false")
 public class Group extends BaseEntity {
 
     @Id
@@ -40,7 +44,8 @@ public class Group extends BaseEntity {
     private User groupCreateUser;
 
     private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
-    private boolean isDelete;   // 그룹 삭제 여부
+
+    private boolean isDelete = Boolean.FALSE;   // 그룹 삭제 여부
 
     // 그룹에 가입한 유저 정보
     @OneToMany(mappedBy = "group")
@@ -85,7 +90,4 @@ public class Group extends BaseEntity {
         this.recentUpdatedAt = recentUpdatedAt;
     }
 
-    public void deleteGroup() {
-        this.isDelete = true;
-    }
 }

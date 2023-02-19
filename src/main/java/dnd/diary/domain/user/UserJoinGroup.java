@@ -6,12 +6,16 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@SQLDelete(sql = "UPDATE user_join_group SET isDelete = true WHERE id = ?")
+@Where(clause = "isDelete = false")
 public class UserJoinGroup extends BaseEntity {
 
     @Id
@@ -27,7 +31,7 @@ public class UserJoinGroup extends BaseEntity {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    private boolean isDelete;   // 그룹 탈퇴 여부
+    private boolean isDelete = Boolean.FALSE;   // 그룹 탈퇴 여부
 
     @Builder
     public UserJoinGroup(User user, Group group) {
@@ -42,7 +46,4 @@ public class UserJoinGroup extends BaseEntity {
         return new UserJoinGroup(user, group);
     }
 
-    public void deleteUserJoinGroup() {
-        this.isDelete = true;
-    }
 }

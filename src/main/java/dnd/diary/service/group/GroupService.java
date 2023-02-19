@@ -116,13 +116,11 @@ public class GroupService {
 
 		// 그룹 내 구성원들의 그룹 탈퇴 처리
 		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
-		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
-			userJoinGroup.deleteUserJoinGroup();
-			userJoinGroupRepository.save(userJoinGroup);
-		}
+		userJoinGroupList.forEach(
+				userJoinGroup -> userJoinGroupRepository.delete(userJoinGroup)
+		);
 		// 그룹 삭제 처리
-		group.deleteGroup();
-		groupRepository.save(group);
+		groupRepository.delete(group);
 
 		return GroupUpdateResponse.builder()
 				.groupId(group.getId())
