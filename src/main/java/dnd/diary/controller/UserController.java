@@ -1,6 +1,7 @@
 package dnd.diary.controller;
 
 import dnd.diary.dto.UserDto;
+import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,21 +19,21 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("auth")
-    public ResponseEntity<UserDto.RegisterDto> register(
-        @Valid @RequestBody final UserDto.RegisterDto request
+    public CustomResponseEntity<UserDto.RegisterDto> register(
+            @Valid @RequestBody final UserDto.RegisterDto request
     ){
-        return userService.register(request);
+        return CustomResponseEntity.success(userService.register(request));
     }
 
     @PostMapping("auth/login")
-    public ResponseEntity<UserDto.LoginDto> login(
+    public CustomResponseEntity<UserDto.LoginDto> login(
             @Valid @RequestBody final UserDto.LoginDto request
     ){
-        return userService.login(request);
+        return CustomResponseEntity.success(userService.login(request));
     }
 
     @GetMapping("auth")
-    public ResponseEntity<UserDto.InfoDto> userMyList(){
-        return userService.findMyListUser();
+    public CustomResponseEntity<UserDto.InfoDto> userMyList(){
+        return CustomResponseEntity.success(userService.findMyListUser());
     }
 }
