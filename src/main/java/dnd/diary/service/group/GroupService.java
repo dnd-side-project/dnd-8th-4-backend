@@ -99,7 +99,7 @@ public class GroupService {
 			.groupCreatedAt(group.getCreatedAt())
 			.groupModifiedAt(group.getModifiedAt())
 			.recentUpdatedAt(group.getRecentUpdatedAt())
-			.isGroupDelete(group.isDelete())
+			.isGroupDelete(group.isDeleted())
 			.build();
 	}
 
@@ -129,7 +129,7 @@ public class GroupService {
 				.groupCreatedAt(group.getCreatedAt())
 				.groupModifiedAt(group.getModifiedAt())
 				.recentUpdatedAt(group.getRecentUpdatedAt())
-				.isGroupDelete(group.isDelete())
+				.isGroupDelete(group.isDeleted())
 				.build();
 
 	}

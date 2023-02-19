@@ -22,8 +22,8 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "groups")
-@SQLDelete(sql = "UPDATE groups SET isDelete = true WHERE id = ?")
-@Where(clause = "isDelete = false")
+@SQLDelete(sql = "UPDATE groups SET deleted = true WHERE id = ?")
+@Where(clause = "deleted = false")
 public class Group extends BaseEntity {
 
     @Id
@@ -45,7 +45,7 @@ public class Group extends BaseEntity {
 
     private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
 
-    private boolean isDelete = Boolean.FALSE;   // 그룹 삭제 여부
+    private boolean deleted = Boolean.FALSE;   // 그룹 삭제 여부
 
     // 그룹에 가입한 유저 정보
     @OneToMany(mappedBy = "group")
@@ -73,7 +73,7 @@ public class Group extends BaseEntity {
         this.groupNote = groupNote;
         this.groupImageUrl = groupImageUrl;
         this.groupCreateUser = groupCreateUser;
-        this.isDelete = false;
+        this.deleted = false;
     }
 
     public static Group toEntity(String groupName, String groupNote, String groupImageUrl, User groupCreateUser) {
@@ -90,4 +90,8 @@ public class Group extends BaseEntity {
         this.recentUpdatedAt = recentUpdatedAt;
     }
 
+    @PreRemove
+    public void deleteGroup() {
+        this.deleted = false;
+    }
 }
