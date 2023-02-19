@@ -27,4 +27,10 @@ public class ContentController {
         return contentService.createContent(user,groupId,multipartFile,request);
     }
 
+    @GetMapping("content")
+    public CustomResponseEntity<ContentDto.detailDto> contentDetail(
+            @RequestParam Long contentId
+    ){
+        return contentService.detailContent(contentId);
+    }
 }

@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.ContentImage;
+import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
@@ -15,6 +16,7 @@ import dnd.diary.exception.CustomException;
 import dnd.diary.repository.UserRepository;
 import dnd.diary.repository.content.ContentImageRepository;
 import dnd.diary.repository.content.ContentRepository;
+import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +34,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +43,7 @@ public class ContentService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final ContentImageRepository contentImageRepository;
+    private final EmotionRepository emotionRepository;
     private final AmazonS3Client amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -109,8 +111,30 @@ public class ContentService {
 
 
         return CustomResponseEntity.success(
-                ContentDto.CreateDto.response(content,collect)
+                ContentDto.CreateDto.response(content, collect)
         );
+    }
+
+    public CustomResponseEntity<ContentDto.detailDto> detailContent(Long contentId) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+
+        List<ContentImage> contentImages = contentImageRepository.findByContentId(content.getId());
+        List<ContentDto.ImageResponseDto> collect = contentImages.stream().map(ContentDto.ImageResponseDto::response).toList();
+
+        return CustomResponseEntity.success(
+                ContentDto.detailDto.response(
+                        content, collect
+                )
+        );
+    }
+
+    private List<ContentDto.EmotionResponseDto> getEmotionResponseDtos(Long contentId) {
+        List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
+        List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
+        return emotion;
     }
 
     public void deleteFile(String fileName) {
