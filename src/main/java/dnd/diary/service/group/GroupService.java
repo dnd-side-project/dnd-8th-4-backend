@@ -65,6 +65,7 @@ public class GroupService {
 				.groupCreateUserId(hostUser.getId())
 				.groupCreatedAt(group.getCreatedAt())
 				.groupModifiedAt(group.getModifiedAt())
+				.recentUpdatedAt(group.getRecentUpdatedAt())
 				.groupMemberList(List.of(
 						new GroupCreateResponse.GroupMember(hostUser.getId(), hostUser.getEmail(), hostUser.getNickName()
 							, updateHostUser.getCreatedAt()))
@@ -74,8 +75,12 @@ public class GroupService {
 
 	public GroupUpdateResponse updateGroup(MultipartFile multipartFile, GroupUpdateRequest request) {
 		User user = findUser();
-
 		Group group = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
+
+		// 그룹 호스트 유저만 수정 가능
+		if (!group.getGroupCreateUser().getId().equals(user.getId())) {
+			throw new CustomException(FAIL_UPDATE_GROUP);
+		}
 
 		String imageUrl = "";
 		// 그룹 이미지 추가 - 기존에 저장된 그룹 이미지와 동일한 경우 체크 제외
@@ -93,6 +98,7 @@ public class GroupService {
 			.groupCreateUserId(user.getId())
 			.groupCreatedAt(group.getCreatedAt())
 			.groupModifiedAt(group.getModifiedAt())
+			.recentUpdatedAt(group.getRecentUpdatedAt())
 			.build();
 	}
 
