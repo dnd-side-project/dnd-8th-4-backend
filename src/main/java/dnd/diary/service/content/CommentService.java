@@ -2,8 +2,10 @@ package dnd.diary.service.content;
 
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
+import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.CommentDto;
+import dnd.diary.dto.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.UserRepository;
@@ -17,6 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +62,8 @@ public class CommentService {
     ) {
         long commentCount = commentRepository.countByContentId(contentId);
         long emotionCount = emotionRepository.countByContentId(contentId);
+        List<ContentDto.EmotionResponseDto> emotionResponseDtos = getEmotionResponseDtos(contentId);
+
         Page<Comment> comments = commentRepository.findAll(PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt"));
         Page<CommentDto.pageCommentDto> collect;
         collect = comments.map(
@@ -67,8 +73,14 @@ public class CommentService {
         );
         return CustomResponseEntity.success(
                 CommentDto.pagePostsCommentDto.response(
-                        collect,emotionCount,commentCount
+                        collect,emotionResponseDtos,emotionCount,commentCount
                 )
         );
+    }
+
+    private List<ContentDto.EmotionResponseDto> getEmotionResponseDtos(Long contentId) {
+        List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
+        List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
+        return emotion;
     }
 }
