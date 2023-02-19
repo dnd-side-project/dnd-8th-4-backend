@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dnd.diary.domain.content.EmotionStatus;
 import dnd.diary.enumeration.EnumType;
 import dnd.diary.enumeration.Result;
 import dnd.diary.response.CustomResponseEntity;
