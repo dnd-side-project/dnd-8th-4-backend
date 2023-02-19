@@ -17,7 +17,7 @@ public class GroupListResponse {
 	private Long groupId;   // 그룹 ID
 	private String groupName;   // 그룹 이름
 	private String groupNote;   // 그룹 소개
-	@JsonFormat(pattern = "yyyy.MM.dd")
+	@JsonFormat(pattern = "yyyy.MM.dd", timezone = "Asia/Seoul")
 	private LocalDateTime groupCreatedAt;   // 그룹 생성일
 	private int memberCount;   // 그룹 인원
 	private Boolean isStarGroup;   // 조회 유저가 해당 그룹을 즐겨찾기 했는지 여부

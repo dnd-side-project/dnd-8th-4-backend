@@ -12,12 +12,14 @@ import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.group.GroupStarRepository;
 import dnd.diary.repository.UserRepository;
+import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.response.group.*;
 import dnd.diary.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static dnd.diary.enumeration.Result.*;
@@ -29,23 +31,31 @@ public class GroupService {
 	private final UserRepository userRepository;
 	private final GroupRepository groupRepository;
 	private final GroupStarRepository groupStarRepository;
+
 	private final UserService userService;
+	private final UserJoinGroupRepository userJoinGroupRepository;
 
 	public GroupCreateResponse createGroup(GroupCreateRequest request) {
-		User user = findUser();
-		Group group = Group.toEntity(request.getGroupName(), request.getGroupNote(), request.getGroupImageUrl());
+		User hostUser = findUser();
+		Group group = Group.toEntity(request.getGroupName(), request.getGroupNote(), request.getGroupImageUrl(), hostUser);
 		groupRepository.save(group);
 
 		// 그룹 생성자 가입 처리 추가
+		UserJoinGroup updateHostUser = UserJoinGroup.toEntity(hostUser, group);
+		userJoinGroupRepository.save(updateHostUser);
 
 		return GroupCreateResponse.builder()
 				.groupId(group.getId())
 				.groupName(group.getGroupName())
 				.groupNote(group.getGroupNote())
 				.groupImageUrl(group.getGroupImageUrl())
-				.groupCreateUserId(user.getId())
+				.groupCreateUserId(hostUser.getId())
 				.groupCreatedAt(group.getCreatedAt())
 				.groupModifiedAt(group.getModifiedAt())
+				.groupMemberList(List.of(
+						new GroupCreateResponse.GroupMember(hostUser.getId(), hostUser.getEmail(), hostUser.getNickName()
+							, updateHostUser.getCreatedAt()))
+				)
 				.build();
 	}
 
@@ -67,6 +77,10 @@ public class GroupService {
 
 	public void deleteGroup(Long groupId) {
 		Group group = groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
+
+		// 그룹 내 구성원들의 그룹 탈퇴 처리
+
+		// 그룹 삭제 처리 - Soft Delete 수정
 		groupRepository.delete(group);
 	}
 
