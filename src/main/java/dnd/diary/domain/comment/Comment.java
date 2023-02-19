@@ -4,16 +4,16 @@ import com.sun.istack.NotNull;
 import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.content.Content;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @Entity
 public class Comment extends BaseEntity {
 
