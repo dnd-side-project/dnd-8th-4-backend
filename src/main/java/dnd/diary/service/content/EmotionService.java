@@ -11,11 +11,13 @@ import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmotionService {
     private final ContentRepository contentRepository;
     private final EmotionRepository emotionRepository;
@@ -35,16 +37,22 @@ public class EmotionService {
                         () -> new CustomException(Result.FAIL)
                 );
 
-        return CustomResponseEntity.success(
-                EmotionDto.AddEmotionDto.response(
-                emotionRepository.save(
-                        Emotion.builder()
-                                .emotionStatus(request.getEmotionStatus())
-                                .content(content)
-                                .user(user)
-                                .build()
-                )
-            )
-        );
+        Emotion existsEmotionUser = emotionRepository.findByContentIdAndUserId(contentId, user.getId());
+
+        if (existsEmotionUser == null) {
+            return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(
+                            emotionRepository.save(
+                                    Emotion.builder()
+                                            .emotionStatus(request.getEmotionStatus())
+                                            .content(content)
+                                            .user(user)
+                                            .build()
+                            )
+                    )
+            );
+        } else {
+            emotionRepository.deleteById(existsEmotionUser.getId());
+            return CustomResponseEntity.successDeleteEmotion();
+        }
     }
 }
