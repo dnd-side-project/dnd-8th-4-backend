@@ -21,8 +21,8 @@ public class GroupController {
 
 	 @PostMapping("/create")
 	 public CustomResponseEntity<GroupCreateResponse> createGroup(
-	 		@RequestParam("image") MultipartFile multipartFile,
-	 		@RequestBody GroupCreateRequest request
+	 		@RequestPart("image") MultipartFile multipartFile,
+			@RequestPart GroupCreateRequest request
 	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
 	 	return CustomResponseEntity.success(groupService.createGroup(multipartFile, request));
@@ -30,8 +30,8 @@ public class GroupController {
 
 	 @PatchMapping("/update")
 	public CustomResponseEntity<GroupUpdateResponse> updateGroup(
-			@RequestParam("image") MultipartFile multipartFile,
-			@RequestBody GroupUpdateRequest request
+			@RequestPart("image") MultipartFile multipartFile,
+			@RequestPart GroupUpdateRequest request
 	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
 		 return CustomResponseEntity.success(groupService.updateGroup(multipartFile, request));
