@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,8 @@ public class Group extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User groupCreateUser;
+
+    private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
 
     // 그룹에 가입한 유저 정보
     @OneToMany(mappedBy = "group")
@@ -74,5 +77,9 @@ public class Group extends BaseEntity {
         this.groupName = groupName;
         this.groupNote = groupNote;
         this.groupImageUrl = groupImageUrl;
+    }
+
+    public void updateRecentModifiedAt(LocalDateTime recentUpdatedAt) {
+        this.recentUpdatedAt = recentUpdatedAt;
     }
 }

@@ -28,6 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -74,6 +75,9 @@ public class ContentService {
                         .group(group)
                         .build()
         );
+
+        // 그룹의 게시물 최신 등록일 업데이트
+        group.updateRecentModifiedAt(LocalDateTime.now());
 
         // forEach 구문을 통해 multipartFile로 넘어온 파일들 하나씩 fileNameList에 추가
         multipartFile.forEach(file -> {
