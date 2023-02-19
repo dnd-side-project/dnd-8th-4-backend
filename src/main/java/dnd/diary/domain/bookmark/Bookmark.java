@@ -3,16 +3,16 @@ package dnd.diary.domain.bookmark;
 import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.User;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "bookmark")
+@Builder
 public class Bookmark extends BaseEntity {
 
     @Id
