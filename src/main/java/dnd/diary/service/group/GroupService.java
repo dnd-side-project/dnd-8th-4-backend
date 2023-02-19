@@ -16,6 +16,7 @@ import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.response.group.*;
 import dnd.diary.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import static dnd.diary.enumeration.Result.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GroupService {
 
 	private final UserRepository userRepository;
@@ -111,23 +113,63 @@ public class GroupService {
 	}
 
 	// 내가 속한 그룹 목록 조회
-	public List<GroupListResponse> getGroupList() {
-		User user = findUser();
+	public GroupListResponse getGroupList() {
+        User user = findUser();
 
-		List<UserJoinGroup> userJoinGroupList = user.getUserJoinGroups();
-		if (userJoinGroupList.size() == 0) {
-			// 가입한 그룹이 없는 경우
-			throw new CustomException(NO_USER_GROUP_LIST);
-		}
-		List<Group> groupList = new ArrayList<>();
-		userJoinGroupList.forEach(
-			userJoinGroup -> groupList.add(userJoinGroup.getGroup())
+        List<UserJoinGroup> userJoinGroupList = user.getUserJoinGroups();
+        if (userJoinGroupList.size() == 0) {
+            // 가입한 그룹이 없는 경우
+            return GroupListResponse.builder()
+                    .existGroup(false)
+                    .build();
+        }
+        // 사용자가 가입한 그룹 목록 조회
+        List<Group> groupList = new ArrayList<>();
+        userJoinGroupList.forEach(
+                userJoinGroup -> groupList.add(userJoinGroup.getGroup())
+        );
+
+        GroupListResponse response = new GroupListResponse();
+        response.setExistGroup(true);
+
+        List<GroupListResponse.GroupInfo> groupInfoList = new ArrayList<>();
+        for (Group group : groupList) {
+            boolean isStarGroup = false;
+            for (GroupStar groupStar : group.getGroupStars()) {
+                if (user.getId().equals(groupStar.getUser().getId())) {
+                    isStarGroup = true;
+                    break;
+                }
+            }
+            GroupListResponse.GroupInfo groupInfo = GroupListResponse.GroupInfo.builder()
+                    .groupId(group.getId())
+                    .groupName(group.getGroupName())
+                    .groupNote(group.getGroupNote())
+                    .groupCreatedAt(group.getCreatedAt())
+                    .memberCount(group.getUserJoinGroups().size())
+                    .isStarGroup(isStarGroup)   // 조회 유저가 해당 그룹을 즐겨찾기 했는지 여부
+                    .build();
+
+			groupInfoList.add(groupInfo);
+        }
+		response.setGroupInfoList(groupInfoList);
+
+        return response;
+    }
+
+	public List<GroupStarListResponse> getGroupStarList() {
+		User user = findUser();
+		List<GroupStar> userGroupStarList = user.getGroupStars();
+		List<GroupStarListResponse> groupListResponseList = new ArrayList<>();
+		userGroupStarList.forEach(
+				userGroupStar -> groupListResponseList.add(
+						GroupStarListResponse.builder()
+								.groupId(userGroupStar.getGroup().getId())
+								.groupName(userGroupStar.getGroup().getGroupName())
+								.build()
+				)
 		);
-		List<GroupListResponse> groupListResponseList = new ArrayList<>();
-		groupList.forEach(
-			group -> groupListResponseList.add(GroupListResponse.builder()
-				.build())
-		);
+
 		return groupListResponseList;
 	}
 
@@ -182,22 +224,6 @@ public class GroupService {
 			.build();
 	}
 	 */
-
-	public List<GroupStarListResponse> getGroupStarList() {
-		User user = findUser();
-		List<GroupStar> userGroupStarList = user.getGroupStars();
-		List<GroupStarListResponse> groupListResponseList = new ArrayList<>();
-		userGroupStarList.forEach(
-				userGroupStar -> groupListResponseList.add(
-						GroupStarListResponse.builder()
-								.groupId(userGroupStar.getGroup().getId())
-								.groupName(userGroupStar.getGroup().getGroupName())
-								.build()
-				)
-		);
-
-		return groupListResponseList;
-	}
 
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();

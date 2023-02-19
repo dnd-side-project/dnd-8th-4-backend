@@ -35,6 +35,8 @@ public class GroupStar extends BaseEntity {
         this.group = group;
         this.user = user;
         this.groupStarStatus = GroupStarStatus.ADD;
+
+        group.getGroupStars().add(this);
     }
 
     public static GroupStar toEntity(Group group, User user) {
