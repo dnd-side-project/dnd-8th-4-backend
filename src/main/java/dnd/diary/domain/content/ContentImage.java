@@ -1,15 +1,16 @@
 package dnd.diary.domain.content;
 
 import dnd.diary.domain.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@AllArgsConstructor
+@Builder
 public class ContentImage extends BaseEntity {
 
     @Id
