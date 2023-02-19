@@ -1,6 +1,5 @@
 package dnd.diary.service.group;
 
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.GroupStarStatus;
@@ -23,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static dnd.diary.enumeration.Result.*;
@@ -89,6 +88,7 @@ public class GroupService {
 		}
 
 		group.update(request.getGroupName(), request.getGroupNote(), imageUrl);
+		groupRepository.save(group);
 
 		return GroupUpdateResponse.builder()
 			.groupId(group.getId())
@@ -99,16 +99,39 @@ public class GroupService {
 			.groupCreatedAt(group.getCreatedAt())
 			.groupModifiedAt(group.getModifiedAt())
 			.recentUpdatedAt(group.getRecentUpdatedAt())
+			.isGroupDelete(group.isDeleted())
 			.build();
 	}
 
-	public void deleteGroup(Long groupId) {
+	public GroupUpdateResponse deleteGroup(Long groupId) {
+		User user = findUser();
 		Group group = groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
 
-		// 그룹 내 구성원들의 그룹 탈퇴 처리
+		// 방장만 삭제 가능
+		if (!group.getGroupCreateUser().getId().equals(user.getId())) {
+			throw new CustomException(FAIL_DELETE_GROUP);
+		}
 
-		// 그룹 삭제 처리 - Soft Delete 수정
+		// 그룹 내 구성원들의 그룹 탈퇴 처리
+		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
+		userJoinGroupList.forEach(
+				userJoinGroup -> userJoinGroupRepository.delete(userJoinGroup)
+		);
+		// 그룹 삭제 처리
 		groupRepository.delete(group);
+
+		return GroupUpdateResponse.builder()
+				.groupId(group.getId())
+				.groupName(group.getGroupName())
+				.groupNote(group.getGroupNote())
+				.groupImageUrl(group.getGroupImageUrl())
+				.groupCreateUserId(user.getId())
+				.groupCreatedAt(group.getCreatedAt())
+				.groupModifiedAt(group.getModifiedAt())
+				.recentUpdatedAt(group.getRecentUpdatedAt())
+				.isGroupDelete(group.isDeleted())
+				.build();
+
 	}
 
 	public GroupStarResponse starGroup(Long groupId) {
@@ -171,12 +194,15 @@ public class GroupService {
                     .groupName(group.getGroupName())
                     .groupNote(group.getGroupNote())
                     .groupCreatedAt(group.getCreatedAt())
+                    .recentUpdatedAt(group.getRecentUpdatedAt())
                     .memberCount(group.getUserJoinGroups().size())
                     .isStarGroup(isStarGroup)   // 조회 유저가 해당 그룹을 즐겨찾기 했는지 여부
                     .build();
 
 			groupInfoList.add(groupInfo);
         }
+
+        groupInfoList.sort(Comparator.comparing(GroupListResponse.GroupInfo::getRecentUpdatedAt).reversed());
 		response.setGroupInfoList(groupInfoList);
 
         return response;

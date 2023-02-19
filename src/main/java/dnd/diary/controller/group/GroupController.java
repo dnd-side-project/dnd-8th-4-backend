@@ -38,7 +38,7 @@ public class GroupController {
 	 }
 
 	 @DeleteMapping("/delete")
-	public CustomResponseEntity<Void> deleteGroup(@RequestBody GroupUpdateRequest request) {
+	public CustomResponseEntity<GroupUpdateResponse> deleteGroup(@RequestBody GroupUpdateRequest request) {
 		 groupService.deleteGroup(request.getGroupId());
 		 return CustomResponseEntity.success();
 	 }

@@ -9,6 +9,7 @@ import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.user.UserSearchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -116,5 +119,25 @@ public class UserService {
         );
         redisDao.setValues(email, rtk, Duration.ofDays(14));
         return rtk;
+    }
+
+    public UserSearchResponse searchUserList(String keyword) {
+
+        List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword);
+        List<UserSearchResponse.UserSearchInfo> userSearchInfoList = new ArrayList<>();
+
+        for (User user : searchByKeywordList) {
+            UserSearchResponse.UserSearchInfo userSearchInfo = UserSearchResponse.UserSearchInfo.builder()
+                    .userId(user.getId())
+                    .userEmail(user.getEmail())
+                    .userNickName(user.getNickName())
+                    .profileImageUrl(user.getProfileImageUrl())
+                    .build();
+            userSearchInfoList.add(userSearchInfo);
+        }
+
+        return UserSearchResponse.builder()
+                .userSearchInfoList(userSearchInfoList)
+                .build();
     }
 }
