@@ -132,17 +132,26 @@ public class ContentService {
                         .build()
         );
         group.updateRecentModifiedAt(LocalDateTime.now());
-        uploadFiles(multipartFile, content);
 
-        return CustomResponseEntity.success(
-                ContentDto.CreateDto.response(
-                        content,
-                        contentImageRepository.findByContentId(content.getId())
-                        .stream()
-                        .map(ContentDto.ImageResponseDto::response)
-                        .toList()
-                )
-        );
+        if (multipartFile == null){
+            return CustomResponseEntity.success(
+                    ContentDto.CreateDto.response(
+                            content,
+                            null
+                    )
+            );
+        } else{
+            uploadFiles(multipartFile, content);
+            return CustomResponseEntity.success(
+                    ContentDto.CreateDto.response(
+                            content,
+                            contentImageRepository.findByContentId(content.getId())
+                                    .stream()
+                                    .map(ContentDto.ImageResponseDto::response)
+                                    .toList()
+                    )
+            );
+        }
     }
 
     private void uploadFiles(List<MultipartFile> multipartFile, Content content) {
@@ -271,11 +280,10 @@ public class ContentService {
     }
 
     private Group getGroup(Long groupId) {
-        Group group = groupRepository.findById(groupId)
+        return groupRepository.findById(groupId)
                 .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
+                        () -> new CustomException(Result.NOT_FOUND_GROUP)
                 );
-        return group;
     }
 
     private User getUser(UserDetails userDetails) {
