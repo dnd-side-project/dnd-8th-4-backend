@@ -53,8 +53,13 @@ public class ContentService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupAllListContent(UserDetails userDetails, List<Long> groupId, Integer page) {
-        Page<Content> contents = contentRepository.findByGroupIdIn(
+    @Transactional
+    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupListContent(
+            UserDetails userDetails, Long groupId, Integer page
+    ) {
+        validateGroupListContent(groupId);
+
+        Page<Content> contents = contentRepository.findByGroupId(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
         return CustomResponseEntity.success(
@@ -62,10 +67,13 @@ public class ContentService {
         );
     }
 
-    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupListContent(
-            UserDetails userDetails, Long groupId, Integer page
+    @Transactional
+    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupAllListContent(
+            UserDetails userDetails, List<Long> groupId, Integer page
     ) {
-        Page<Content> contents = contentRepository.findByGroupId(
+        validateGroupAllListContent(groupId);
+
+        Page<Content> contents = contentRepository.findByGroupIdIn(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
         return CustomResponseEntity.success(
@@ -110,18 +118,6 @@ public class ContentService {
                     )
             );
         }
-    }
-
-    private void uploadFiles(List<MultipartFile> multipartFile, Content content) {
-        multipartFile.forEach(file -> {
-            String fileName = saveImage(file);
-            ContentImage contentImage = ContentImage.builder()
-                    .content(content)
-                    .imageName(fileName)
-                    .imageUrl(amazonS3Client.getUrl(bucket, fileName).toString())
-                    .build();
-            contentImageRepository.save(contentImage);
-        });
     }
 
     @Transactional
@@ -176,6 +172,20 @@ public class ContentService {
                 existsContentAndUser(contentId, getUser(userDetails).getId())
         );
         return CustomResponseEntity.successDeleteContent();
+    }
+
+    // method
+
+    private void uploadFiles(List<MultipartFile> multipartFile, Content content) {
+        multipartFile.forEach(file -> {
+            String fileName = saveImage(file);
+            ContentImage contentImage = ContentImage.builder()
+                    .content(content)
+                    .imageName(fileName)
+                    .imageUrl(amazonS3Client.getUrl(bucket, fileName).toString())
+                    .build();
+            contentImageRepository.save(contentImage);
+        });
     }
 
     private Content existsContentAndUser(Long contentId, Long userId) {
@@ -289,9 +299,24 @@ public class ContentService {
         }
     }
 
+    // validate
     private void validateUpdateContent(Long contentId) {
         if (!contentRepository.existsById(contentId)){
             throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
+    }
+
+    private void validateGroupAllListContent(List<Long> groupId) {
+        groupId.forEach(
+                id -> groupRepository.findById(id).orElseThrow(
+                        () -> new CustomException(Result.NOT_FOUND_GROUP)
+                )
+        );
+    }
+
+    private void validateGroupListContent(Long groupId) {
+        if (!groupRepository.existsById(groupId)){
+            throw new CustomException(Result.NOT_FOUND_GROUP);
         }
     }
 }
