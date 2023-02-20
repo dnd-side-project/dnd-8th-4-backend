@@ -292,7 +292,7 @@ public class ContentService {
     private Content getContent(Long contentId) {
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
+                        () -> new CustomException(Result.NOT_FOUND_CONTENT)
                 );
         return content;
     }
