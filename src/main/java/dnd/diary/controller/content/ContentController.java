@@ -24,8 +24,8 @@ public class ContentController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam Long groupId,
             @RequestParam Integer page
-    ){
-        return contentService.groupListContent(userDetails,groupId,page);
+    ) {
+        return contentService.groupListContent(userDetails, groupId, page);
     }
 
     // 그룹 전체 피드 리스트 조회
@@ -34,8 +34,8 @@ public class ContentController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam List<Long> groupId,
             @RequestParam Integer page
-    ){
-        return contentService.groupAllListContent(userDetails,groupId, page);
+    ) {
+        return contentService.groupAllListContent(userDetails, groupId, page);
     }
 
     // 피드 작성
@@ -45,34 +45,35 @@ public class ContentController {
             @RequestParam final Long groupId,
             @RequestPart(required = false) final List<MultipartFile> multipartFile,
             @Valid @RequestPart final ContentDto.CreateDto request
-    ){
-        return contentService.createContent(user,groupId,multipartFile,request);
+    ) {
+        return contentService.createContent(user, groupId, multipartFile, request);
     }
 
     // 피드 조회
     @GetMapping("content")
     public CustomResponseEntity<ContentDto.detailDto> contentDetail(
             @RequestParam final Long contentId
-    ){
+    ) {
         return contentService.detailContent(contentId);
     }
 
     // 피드 수정
     @PatchMapping("content")
     public CustomResponseEntity<ContentDto.UpdateDto> contentUpdate(
-        @RequestParam final Long contentId,
-        @RequestPart (required = false) final List<MultipartFile> multipartFile,
-        @Valid @RequestPart final ContentDto.UpdateDto request
-    ){
-        return contentService.updateContent(contentId,multipartFile,request);
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam final Long contentId,
+            @RequestPart(required = false) final List<MultipartFile> multipartFile,
+            @Valid @RequestPart final ContentDto.UpdateDto request
+    ) {
+        return contentService.updateContent(userDetails,contentId, multipartFile, request);
     }
 
     // 피드 삭제
     @DeleteMapping("content")
     public CustomResponseEntity<ContentDto.deleteContent> contentDelete(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam Long contentId
-    ){
-        return contentService.deleteContent(userDetails,contentId);
+            @AuthenticationPrincipal final UserDetails userDetails,
+            @RequestParam final Long contentId
+    ) {
+        return contentService.deleteContent(userDetails, contentId);
     }
 }

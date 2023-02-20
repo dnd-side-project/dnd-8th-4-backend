@@ -182,11 +182,11 @@ public class ContentService {
 
     @Transactional
     public CustomResponseEntity<ContentDto.UpdateDto> updateContent(
-            Long contentId, List<MultipartFile> multipartFile, ContentDto.UpdateDto request
+            UserDetails userDetails, Long contentId, List<MultipartFile> multipartFile, ContentDto.UpdateDto request
     ) {
         validateUpdateContent(contentId);
 
-        Content content = getContent(contentId);
+        Content content = existsContentAndUser(contentId,getUser(userDetails).getId());
         deleteContentImage(multipartFile, request, content);
         return CustomResponseEntity.success(
                 ContentDto.UpdateDto.response(
@@ -210,16 +210,21 @@ public class ContentService {
         );
     }
 
+    @Transactional
     public CustomResponseEntity<ContentDto.deleteContent> deleteContent(
             UserDetails userDetails, Long contentId
     ) {
-        User user = getUser(userDetails);
-        Content content = contentRepository.findByIdAndUserId(contentId, user.getId())
-                .orElseThrow(
-                        () -> new CustomException(Result.DELETE_CONTENT_FAIL)
-                );
-        contentRepository.delete(content);
+        contentRepository.delete(
+                existsContentAndUser(contentId, getUser(userDetails).getId())
+        );
         return CustomResponseEntity.successDeleteContent();
+    }
+
+    private Content existsContentAndUser(Long contentId, Long userId) {
+        return contentRepository.findByIdAndUserId(contentId, userId)
+                .orElseThrow(
+                        () -> new CustomException(Result.NOT_MATCHED_USER_CONTENT)
+                );
     }
 
     private String saveImage(MultipartFile file) {
