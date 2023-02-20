@@ -33,6 +33,7 @@ public class CommentService {
     private final EmotionRepository emotionRepository;
     private final CommentLikeRepository commentLikeRepository;
 
+    @Transactional
     public CustomResponseEntity<CommentDto.AddCommentDto> commentAdd(
             UserDetails userDetails, Long contentId, CommentDto.AddCommentDto request
     ) {
