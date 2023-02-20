@@ -103,7 +103,7 @@ public class GroupService {
 			.build();
 	}
 
-	public GroupUpdateResponse deleteGroup(Long groupId) {
+	public void deleteGroup(Long groupId) {
 		User user = findUser();
 		Group group = groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
 
@@ -114,23 +114,10 @@ public class GroupService {
 
 		// 그룹 내 구성원들의 그룹 탈퇴 처리
 		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
-		userJoinGroupList.forEach(
-				userJoinGroup -> userJoinGroupRepository.delete(userJoinGroup)
-		);
+		userJoinGroupRepository.deleteAll(userJoinGroupList);
+
 		// 그룹 삭제 처리
 		groupRepository.delete(group);
-
-		return GroupUpdateResponse.builder()
-				.groupId(group.getId())
-				.groupName(group.getGroupName())
-				.groupNote(group.getGroupNote())
-				.groupImageUrl(group.getGroupImageUrl())
-				.groupCreateUserId(user.getId())
-				.groupCreatedAt(group.getCreatedAt())
-				.groupModifiedAt(group.getModifiedAt())
-				.recentUpdatedAt(group.getRecentUpdatedAt())
-				.isGroupDelete(group.isDeleted())
-				.build();
 
 	}
 

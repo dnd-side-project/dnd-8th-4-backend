@@ -22,7 +22,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "groups")
-@SQLDelete(sql = "UPDATE groups SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE groups SET deleted = true WHERE group_id = ?")
 @Where(clause = "deleted = false")
 public class Group extends BaseEntity {
 

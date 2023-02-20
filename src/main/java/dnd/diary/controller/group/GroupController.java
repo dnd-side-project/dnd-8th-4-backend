@@ -21,7 +21,7 @@ public class GroupController {
 
 	 @PostMapping("/create")
 	 public CustomResponseEntity<GroupCreateResponse> createGroup(
-	 		@RequestPart("image") MultipartFile multipartFile,
+	 		@RequestPart(value = "image", required = false) MultipartFile multipartFile,
 			@RequestPart GroupCreateRequest request
 	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
@@ -30,7 +30,7 @@ public class GroupController {
 
 	 @PatchMapping("/update")
 	public CustomResponseEntity<GroupUpdateResponse> updateGroup(
-			@RequestPart("image") MultipartFile multipartFile,
+			@RequestPart(value = "image", required = false) MultipartFile multipartFile,
 			@RequestPart GroupUpdateRequest request
 	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
@@ -38,8 +38,8 @@ public class GroupController {
 	 }
 
 	 @DeleteMapping("/delete")
-	public CustomResponseEntity<GroupUpdateResponse> deleteGroup(@RequestBody GroupUpdateRequest request) {
-		 groupService.deleteGroup(request.getGroupId());
+	public CustomResponseEntity<Void> deleteGroup(@RequestParam Long groupId) {
+		 groupService.deleteGroup(groupId);
 		 return CustomResponseEntity.success();
 	 }
 
