@@ -9,6 +9,7 @@ import dnd.diary.dto.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.UserRepository;
+import dnd.diary.repository.content.CommentLikeRepository;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
@@ -29,6 +30,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ContentRepository contentRepository;
     private final EmotionRepository emotionRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
     public CustomResponseEntity<CommentDto.AddCommentDto> commentAdd(
             UserDetails userDetails, Long contentId, CommentDto.AddCommentDto request
@@ -60,17 +62,25 @@ public class CommentService {
     public CustomResponseEntity<CommentDto.pagePostsCommentDto> commentPage(
             UserDetails userDetails, Long contentId, Integer page
     ) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+
         long commentCount = commentRepository.countByContentId(contentId);
         long emotionCount = emotionRepository.countByContentId(contentId);
         List<ContentDto.EmotionResponseDto> emotionResponseDtos = getEmotionResponseDtos(contentId);
 
         Page<Comment> comments = commentRepository.findAll(PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt"));
         Page<CommentDto.pageCommentDto> collect;
+
         collect = comments.map(
                 (Comment comment) -> CommentDto.pageCommentDto.response(
-                        comment
+                        comment, commentLikeRepository.existsByCommentIdAndUserId(comment.getId(),user.getId()
+                                )
                 )
         );
+
         return CustomResponseEntity.success(
                 CommentDto.pagePostsCommentDto.response(
                         collect,emotionResponseDtos,emotionCount,commentCount
