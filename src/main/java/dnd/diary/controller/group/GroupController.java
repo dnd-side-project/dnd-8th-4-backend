@@ -1,7 +1,7 @@
 package dnd.diary.controller.group;
 
-import dnd.diary.dto.request.group.GroupCreateRequest;
-import dnd.diary.dto.request.group.GroupUpdateRequest;
+import dnd.diary.dto.group.GroupCreateRequest;
+import dnd.diary.dto.group.GroupUpdateRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.group.*;
 import dnd.diary.service.group.GroupService;
@@ -68,5 +68,11 @@ public class GroupController {
 	public CustomResponseEntity<List<GroupStarListResponse>> getGroupStarList() {
 		 return CustomResponseEntity.success(groupService.getGroupStarList());
 	}
+
+	// 그룹 초대
+//	@PostMapping("/invite")
+//	public CustomResponseEntity<GroupInviteResponse> inviteGroupMember(@RequestBody GroupInviteRequest request) {
+//	 	return CustomResponseEntity.success(groupService.inviteGroupMember(request));
+//	}
 
 }
