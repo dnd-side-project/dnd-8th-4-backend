@@ -26,7 +26,7 @@ public class CommentLikeService {
     public CustomResponseEntity<CommentLikeDto.SaveCommentLike> commentLikeSave(
             UserDetails userDetails, Long commentId
     ) {
-        validateCommnetLikeSave(commentId);
+        validateCommentLikeSave(commentId);
 
         User user = getUser(userDetails);
         CommentLike existsLike =
@@ -67,7 +67,7 @@ public class CommentLikeService {
     }
 
     // validate
-    private void validateCommnetLikeSave(Long commentId) {
+    private void validateCommentLikeSave(Long commentId) {
         if (!commentRepository.existsById(commentId)){
             throw new CustomException(Result.NOT_FOUND_COMMENT);
         }
