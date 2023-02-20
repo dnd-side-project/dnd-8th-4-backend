@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@SQLDelete(sql = "UPDATE user_join_group SET deleted = true WHERE id = ?")
+@SQLDelete(sql = "UPDATE user_join_group SET deleted = true WHERE user_join_group_id = ?")
 @Where(clause = "deleted = false")
 public class UserJoinGroup extends BaseEntity {
 
