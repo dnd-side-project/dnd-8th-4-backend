@@ -13,6 +13,7 @@ import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,26 +22,22 @@ public class CommentLikeService {
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
 
-    public CustomResponseEntity<CommentLikeDto.SaveCommentLike> commentSave(
+    @Transactional
+    public CustomResponseEntity<CommentLikeDto.SaveCommentLike> commentLikeSave(
             UserDetails userDetails, Long commentId
     ) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+        validateCommnetLikeSave(commentId);
 
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+        User user = getUser(userDetails);
+        CommentLike existsLike =
+                commentLikeRepository.findByCommentIdAndUserId(commentId, user.getId());
 
-        CommentLike existsLike = commentLikeRepository.findByCommentIdAndUserId(commentId, user.getId());
         if (existsLike == null){
             return CustomResponseEntity.success(
                     CommentLikeDto.SaveCommentLike.response(
                             commentLikeRepository.save(
                                     CommentLike.builder()
-                                            .comment(comment)
+                                            .comment(getComment(commentId))
                                             .user(user)
                                             .build()
                             )
@@ -50,6 +47,29 @@ public class CommentLikeService {
             commentLikeRepository.deleteById(existsLike.getId());
             return CustomResponseEntity.successDeleteLike();
         }
+    }
 
+    // method
+    private Comment getComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        return comment;
+    }
+
+    private User getUser(UserDetails userDetails) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        return user;
+    }
+
+    // validate
+    private void validateCommnetLikeSave(Long commentId) {
+        if (!commentRepository.existsById(commentId)){
+            throw new CustomException(Result.NOT_FOUND_COMMENT);
+        }
     }
 }

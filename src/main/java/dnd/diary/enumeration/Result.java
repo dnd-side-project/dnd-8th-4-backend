@@ -27,6 +27,7 @@ public enum Result {
 	EMOTION_DELETE_OK(0, "공감 삭제 성공"),
 	COMMENT_LIKE_DELETE_OK(0, "댓글 좋아요 삭제 성공"),
 	NOT_FOUND_CONTENT(2300, "해당 게시글은 존재하지 않습니다."),
+	NOT_FOUND_COMMENT(2300, "해당 댓글은 존재하지 않습니다."),
 	DELETE_CONTENT_FAIL(2300, "유저가 작성한 글이 아닙니다."),
 
 	// 파일 관련
