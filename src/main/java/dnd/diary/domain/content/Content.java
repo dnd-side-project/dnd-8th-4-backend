@@ -8,8 +8,12 @@ import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.comment.Comment;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +22,9 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @Builder
+@DynamicUpdate
+@Where(clause = "delete_at IS NULL")
+@SQLDelete(sql = "UPDATE content SET delete_at = CURRENT_TIMESTAMP where content_id = ?")
 public class Content extends BaseEntity {
 
     @Id
@@ -37,6 +44,9 @@ public class Content extends BaseEntity {
 
     @Column(nullable = false)
     private String contentLink;
+
+    @Column(name = "delete_at", nullable = true)
+    private LocalDateTime deleteAt;
 
     // 게시물을 작성자
     @ManyToOne(fetch = FetchType.LAZY)

@@ -165,4 +165,13 @@ public class ContentDto {
     public static class deleteImageNameDto {
         private String imageName;
     }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class deleteContent {
+        private Long contentid;
+    }
 }

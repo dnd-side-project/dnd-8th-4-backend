@@ -6,9 +6,11 @@ import lombok.Getter;
 public enum Result {
 
 	OK(0, "성공"),
+	CONTENT_DELETE_OK(0, "공감 삭제 성공"),
 	EMOTION_DELETE_OK(0, "공감 삭제 성공"),
 	COMMENT_LIKE_DELETE_OK(0, "댓글 좋아요 삭제 성공"),
 	FAIL(-1, "실패"),
+	DELETE_CONTENT_FAIL(-1, "유저가 작성한 글이 아닙니다."),
 	FAIL_IMAGE_UPLOAD(2000, "파일 업로드 실패"),
 	NOT_FOUND_USER(2100, "존재하지 않는 사용자"),
 	NOT_FOUND_GROUP(2101, "존재하지 않는 그룹"),
