@@ -2,15 +2,15 @@ package dnd.diary.domain.comment;
 
 import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.user.User;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Builder
 public class CommentLike extends BaseEntity {
 
     @Id
