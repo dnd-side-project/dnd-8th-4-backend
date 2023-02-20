@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ec2-user/app/deploy/dnd-8th-4-backend
+    destination: /home/ec2-user/app/deploy
     overwrite: yes
 
 hooks:
