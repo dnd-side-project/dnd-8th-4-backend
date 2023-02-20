@@ -59,6 +59,7 @@ public class UserService {
 
     @Transactional
     public UserDto.LoginDto login(UserDto.LoginDto request) {
+        validateLogin(request);
 
         return UserDto.LoginDto.response(
                 getUser(
@@ -148,6 +149,23 @@ public class UserService {
         }
         if (existsByNickName){
             throw new CustomException(Result.DUPLICATION_NICKNAME);
+        }
+    }
+    private void validateLogin(
+            UserDto.LoginDto request
+    ) {
+        if(!userRepository.existsByEmail(request.getEmail())){
+            throw new CustomException(Result.NOT_FOUND_USER);
+        }
+
+        if (!passwordEncoder.matches(
+                request.getPassword(),
+                userRepository.findOneWithAuthoritiesByEmail(request.getEmail())
+                        .orElseThrow(
+                                () -> new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD)
+                        ).getPassword())
+        ) {
+            throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
         }
     }
 }
