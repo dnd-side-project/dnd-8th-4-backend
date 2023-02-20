@@ -56,12 +56,12 @@ public class GroupController {
 	}
 
 	// 내가 속한 그룹 목록 내 검색
-//	@PostMapping("/search")
-//	public CustomResponseEntity<List<GroupListResponse>> searchGroupList(
-//		@RequestBody GroupSearchRequest request
-//	) {
-//		 return CustomResponseEntity.success(groupService.searchGroupList(request));
-//	}
+	@GetMapping("/search")
+	public CustomResponseEntity<GroupListResponse> searchGroupList(
+		@RequestParam String keyword
+	) {
+		 return CustomResponseEntity.success(groupService.searchGroupList(keyword));
+	}
 
 	// 그룹 메인 - 즐겨찾기 그룹 조회
 	@GetMapping("/list/star")

@@ -26,6 +26,7 @@ public class GroupListResponse {
 		private Long groupId;   // 그룹 ID
 		private String groupName;   // 그룹 이름
 		private String groupNote;   // 그룹 소개
+		private String groupImageUrl;   // 그룹 이미지
 		@JsonFormat(pattern = "yyyy.MM.dd", timezone = "Asia/Seoul")
 		private LocalDateTime groupCreatedAt;   // 그룹 생성일
 		@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
