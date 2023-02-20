@@ -23,24 +23,32 @@ public class BookmarkService {
     public CustomResponseEntity<BookmarkDto.addBookmarkDto> bookmarkAdd(
             UserDetails userDetails, Long contentId
     ) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
         return CustomResponseEntity.success(
                 BookmarkDto.addBookmarkDto.response(
                         bookmarkRepository.save(
                                 Bookmark.builder()
-                                        .content(content)
-                                        .user(user)
+                                        .content(getContent(contentId))
+                                        .user(getUser(userDetails))
                                         .build()
                         )
                 )
         );
+    }
+
+    // method
+    private Content getContent(Long contentId) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        return content;
+    }
+
+    private User getUser(UserDetails userDetails) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        return user;
     }
 }
