@@ -4,18 +4,62 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.ContentImage;
 import dnd.diary.domain.content.Emotion;
-import dnd.diary.domain.group.Group;
-import dnd.diary.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ContentDto {
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class groupListPagePostsDto {
+
+        private Long id;
+        private Long userId;
+        private Long groupId;
+        private String userName;
+        private String groupName;
+        private String content;
+        private Double latitude;
+        private Double longitude;
+        private LocalDateTime createAt;
+        private long views;
+        private String contentLink;
+        private Long comments;
+        private Long emotions;
+        private Long emotionStatus;
+        List<ContentDto.ImageResponseDto> Images;
+        List<EmotionResponseDto> emotionResponseDtos;
+
+        public static ContentDto.groupListPagePostsDto response(Content content, List<ImageResponseDto> imageResponseDtos, Long comments, Long emotions, List<EmotionResponseDto> emotionResponseDtos, Long emotionStatus) {
+            return groupListPagePostsDto.builder()
+                    .id(content.getId())
+                    .userId(content.getUser().getId())
+                    .groupId(content.getGroup().getId())
+                    .userName(content.getUser().getNickName())
+                    .groupName(content.getGroup().getGroupName())
+                    .content(content.getContent())
+                    .latitude(content.getLatitude())
+                    .longitude(content.getLongitude())
+                    .createAt(content.getCreatedAt())
+                    .views(content.getViews())
+                    .contentLink(content.getContentLink())
+                    .comments(comments)
+                    .emotions(emotions)
+                    .emotionStatus(emotionStatus)
+                    .Images(imageResponseDtos)
+                    .emotionResponseDtos(emotionResponseDtos)
+                    .build();
+        }
+    }
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -107,6 +151,7 @@ public class ContentDto {
         private Long userId;
         private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
+
 
         public static ContentDto.detailDto response(Content content, List<ContentDto.ImageResponseDto> collect) {
             return detailDto.builder()

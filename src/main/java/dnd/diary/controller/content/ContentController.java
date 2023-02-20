@@ -4,6 +4,7 @@ import dnd.diary.dto.content.ContentDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.content.ContentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContentController {
     private final ContentService contentService;
+
+    @GetMapping("content/group")
+    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupList(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam Long groupId,
+            @RequestParam Integer page
+    ){
+        return contentService.groupListContent(userDetails,groupId,page);
+    }
 
     @PostMapping("content")
     public CustomResponseEntity<ContentDto.CreateDto> contentCreate(
