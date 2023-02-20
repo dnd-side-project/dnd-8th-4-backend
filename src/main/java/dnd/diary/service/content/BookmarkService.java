@@ -13,6 +13,7 @@ import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,8 @@ public class BookmarkService {
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
     private final BookmarkRepository bookmarkRepository;
+
+    @Transactional
     public CustomResponseEntity<BookmarkDto.addBookmarkDto> bookmarkAdd(
             UserDetails userDetails, Long contentId
     ) {

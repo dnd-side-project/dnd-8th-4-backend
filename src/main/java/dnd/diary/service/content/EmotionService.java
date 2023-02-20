@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class EmotionService {
     private final EmotionRepository emotionRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public CustomResponseEntity<EmotionDto.AddEmotionDto> addEmotion(
             UserDetails userDetails, Long contentId, EmotionDto.AddEmotionDto request
     ) {
