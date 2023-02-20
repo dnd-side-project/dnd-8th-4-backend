@@ -10,6 +10,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -62,5 +63,20 @@ public class CommonRestExceptionHandler extends RuntimeException {
 				.code(-1)
 				.message(e.getParameterName() + " 값이 등록되지 않았습니다.")
 				.build();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(
+            MissingServletRequestPartException.class
+    )
+    public CustomResponseEntity<Object> handleBadRequest(
+            MissingServletRequestPartException e, HttpServletRequest request
+    ) {
+        log.error("url {}, message: {}",
+                request.getRequestURI(), e.getRequestPartName() + " 값을 요청받지 못했습니다.");
+        return CustomResponseEntity.builder()
+                .code(-1)
+                .message("{ " + e.getRequestPartName() + " }"+ " 값을 요청받지 못했습니다.")
+                .build();
     }
 }
