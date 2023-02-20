@@ -17,8 +17,8 @@ public class BookmarkController {
 
     @GetMapping("bookmark")
     public CustomResponseEntity<BookmarkDto.addBookmarkDto> addBookmark(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam Long contentId
+            @AuthenticationPrincipal final UserDetails userDetails,
+            @RequestParam final Long contentId
     ) {
         return bookmarkService.bookmarkAdd(userDetails, contentId);
     }

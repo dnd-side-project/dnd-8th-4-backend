@@ -13,6 +13,7 @@ import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,27 +21,37 @@ public class BookmarkService {
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
     private final BookmarkRepository bookmarkRepository;
+
+    @Transactional
     public CustomResponseEntity<BookmarkDto.addBookmarkDto> bookmarkAdd(
             UserDetails userDetails, Long contentId
     ) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
         return CustomResponseEntity.success(
                 BookmarkDto.addBookmarkDto.response(
                         bookmarkRepository.save(
                                 Bookmark.builder()
-                                        .content(content)
-                                        .user(user)
+                                        .content(getContent(contentId))
+                                        .user(getUser(userDetails))
                                         .build()
                         )
                 )
         );
+    }
+
+    // method
+    private Content getContent(Long contentId) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        return content;
+    }
+
+    private User getUser(UserDetails userDetails) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        return user;
     }
 }

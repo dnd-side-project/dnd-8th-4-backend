@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 public class EmotionDto {
 
     @AllArgsConstructor
@@ -18,6 +20,7 @@ public class EmotionDto {
     @Builder
     public static class AddEmotionDto{
         private Long id;
+        @NotNull(message = "공감 상태를 입력받지 못했습니다.")
         private Long emotionStatus;
         private Long contentId;
         private Long userId;

@@ -53,66 +53,32 @@ public class ContentService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupAllListContent(UserDetails userDetails, List<Long> groupId, Integer page) {
-        User user = getUser(userDetails);
-
-        Page<Content> contents = contentRepository.findByGroupIdIn(
-                groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        Page<ContentDto.groupListPagePostsDto> collect = contents.map(
-                (Content content) -> {
-                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), user.getId());
-                    Long emotionStatus;
-                    if (byContentIdAndUserId == null) {
-                        emotionStatus = -1L;
-                    } else {
-                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
-                    }
-                    return ContentDto.groupListPagePostsDto.response(
-                            content, contentImageRepository.findByContentId(
-                                    content.getId()
-                            ).stream().map(ContentDto.ImageResponseDto::response).toList(),
-                            commentRepository.countByContentId(content.getId()),
-                            emotionRepository.countByContentId(content.getId()),
-                            getEmotionResponseDtos(content.getId()),
-                            emotionStatus
-                    );
-                }
-        );
-        return CustomResponseEntity.success(collect);
-    }
-
+    @Transactional
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupListContent(
             UserDetails userDetails, Long groupId, Integer page
     ) {
-        User user = getUser(userDetails);
+        validateGroupListContent(groupId);
 
         Page<Content> contents = contentRepository.findByGroupId(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-
-        Page<ContentDto.groupListPagePostsDto> collect = contents.map(
-                (Content content) -> {
-                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), user.getId());
-                    Long emotionStatus;
-                    if (byContentIdAndUserId == null) {
-                        emotionStatus = -1L;
-                    } else {
-                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
-                    }
-                    return ContentDto.groupListPagePostsDto.response(
-                            content, contentImageRepository.findByContentId(
-                                    content.getId()
-                            ).stream().map(ContentDto.ImageResponseDto::response).toList(),
-                            commentRepository.countByContentId(content.getId()),
-                            emotionRepository.countByContentId(content.getId()),
-                            getEmotionResponseDtos(content.getId()),
-                            emotionStatus
-                    );
-                }
+        return CustomResponseEntity.success(
+                getGroupListPagePostsDtos(userDetails, contents)
         );
-        return CustomResponseEntity.success(collect);
+    }
+
+    @Transactional
+    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupAllListContent(
+            UserDetails userDetails, List<Long> groupId, Integer page
+    ) {
+        validateGroupAllListContent(groupId);
+
+        Page<Content> contents = contentRepository.findByGroupIdIn(
+                groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+        return CustomResponseEntity.success(
+                getGroupListPagePostsDtos(userDetails, contents)
+        );
     }
 
     @Transactional
@@ -154,18 +120,6 @@ public class ContentService {
         }
     }
 
-    private void uploadFiles(List<MultipartFile> multipartFile, Content content) {
-        multipartFile.forEach(file -> {
-            String fileName = saveImage(file);
-            ContentImage contentImage = ContentImage.builder()
-                    .content(content)
-                    .imageName(fileName)
-                    .imageUrl(amazonS3Client.getUrl(bucket, fileName).toString())
-                    .build();
-            contentImageRepository.save(contentImage);
-        });
-    }
-
     @Transactional
     public CustomResponseEntity<ContentDto.detailDto> detailContent(Long contentId) {
         Content content = getContent(contentId);
@@ -180,60 +134,65 @@ public class ContentService {
         );
     }
 
+    @Transactional
     public CustomResponseEntity<ContentDto.UpdateDto> updateContent(
-            Long contentId, List<MultipartFile> multipartFile, ContentDto.UpdateDto request
+            UserDetails userDetails, Long contentId, List<MultipartFile> multipartFile, ContentDto.UpdateDto request
     ) {
-        Content content = getContent(contentId);
-        if (request.getDeleteContentImageName() != null) {
-            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
-                    deleteFile(deleteImageNameDto.getImageName())
-            );
-            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
-                    contentImageRepository.delete(contentImageRepository.findByImageName(deleteImageNameDto.getImageName())
-                            .orElseThrow(
-                                    () -> new CustomException(Result.FAIL)
-                            )
-                    )
-            );
-        }
+        validateUpdateContent(contentId);
 
-        if (multipartFile != null) {
-            uploadFiles(multipartFile, content);
-        }
-
-        Content updateContent = contentRepository.save(
-                Content.builder()
-                        .id(content.getId())
-                        .content(request.getContent())
-                        .latitude(request.getLatitude())
-                        .longitude(request.getLongitude())
-                        .views(content.getViews())
-                        .contentLink(content.getContentLink())
-                        .user(content.getUser())
-                        .group(content.getGroup())
-                        .build()
-        );
-
-        List<ContentImage> contentImages = contentImageRepository.findByContentId(content.getId());
-        List<ContentDto.ImageResponseDto> collect = contentImages.stream().map(ContentDto.ImageResponseDto::response).toList();
-
+        Content content = existsContentAndUser(contentId,getUser(userDetails).getId());
+        deleteContentImage(multipartFile, request, content);
         return CustomResponseEntity.success(
                 ContentDto.UpdateDto.response(
-                        updateContent, collect
+                        contentRepository.save(
+                                Content.builder()
+                                        .id(content.getId())
+                                        .content(request.getContent())
+                                        .latitude(request.getLatitude())
+                                        .longitude(request.getLongitude())
+                                        .views(content.getViews())
+                                        .contentLink(content.getContentLink())
+                                        .user(content.getUser())
+                                        .group(content.getGroup())
+                                        .build()
+                        ),
+                        contentImageRepository.findByContentId(content.getId())
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList()
                 )
         );
     }
 
+    @Transactional
     public CustomResponseEntity<ContentDto.deleteContent> deleteContent(
             UserDetails userDetails, Long contentId
     ) {
-        User user = getUser(userDetails);
-        Content content = contentRepository.findByIdAndUserId(contentId, user.getId())
-                .orElseThrow(
-                        () -> new CustomException(Result.DELETE_CONTENT_FAIL)
-                );
-        contentRepository.delete(content);
+        contentRepository.delete(
+                existsContentAndUser(contentId, getUser(userDetails).getId())
+        );
         return CustomResponseEntity.successDeleteContent();
+    }
+
+    // method
+
+    private void uploadFiles(List<MultipartFile> multipartFile, Content content) {
+        multipartFile.forEach(file -> {
+            String fileName = saveImage(file);
+            ContentImage contentImage = ContentImage.builder()
+                    .content(content)
+                    .imageName(fileName)
+                    .imageUrl(amazonS3Client.getUrl(bucket, fileName).toString())
+                    .build();
+            contentImageRepository.save(contentImage);
+        });
+    }
+
+    private Content existsContentAndUser(Long contentId, Long userId) {
+        return contentRepository.findByIdAndUserId(contentId, userId)
+                .orElseThrow(
+                        () -> new CustomException(Result.NOT_MATCHED_USER_CONTENT)
+                );
     }
 
     private String saveImage(MultipartFile file) {
@@ -295,5 +254,69 @@ public class ContentService {
                         () -> new CustomException(Result.NOT_FOUND_CONTENT)
                 );
         return content;
+    }
+
+    private Page<ContentDto.groupListPagePostsDto> getGroupListPagePostsDtos(UserDetails userDetails, Page<Content> contents) {
+        Page<ContentDto.groupListPagePostsDto> collect = contents.map(
+                (Content content) -> {
+                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
+                    Long emotionStatus;
+                    if (byContentIdAndUserId == null) {
+                        emotionStatus = -1L;
+                    } else {
+                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
+                    }
+                    return ContentDto.groupListPagePostsDto.response(
+                            content, contentImageRepository.findByContentId(
+                                    content.getId()
+                            ).stream().map(ContentDto.ImageResponseDto::response).toList(),
+                            commentRepository.countByContentId(content.getId()),
+                            emotionRepository.countByContentId(content.getId()),
+                            getEmotionResponseDtos(content.getId()),
+                            emotionStatus
+                    );
+                }
+        );
+        return collect;
+    }
+
+    private void deleteContentImage(List<MultipartFile> multipartFile, ContentDto.UpdateDto request, Content content) {
+        if (request.getDeleteContentImageName() != null) {
+            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
+                    deleteFile(deleteImageNameDto.getImageName())
+            );
+            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
+                    contentImageRepository.delete(contentImageRepository.findByImageName(deleteImageNameDto.getImageName())
+                            .orElseThrow(
+                                    () -> new CustomException(Result.FAIL)
+                            )
+                    )
+            );
+        }
+
+        if (multipartFile != null) {
+            uploadFiles(multipartFile, content);
+        }
+    }
+
+    // validate
+    private void validateUpdateContent(Long contentId) {
+        if (!contentRepository.existsById(contentId)){
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
+    }
+
+    private void validateGroupAllListContent(List<Long> groupId) {
+        groupId.forEach(
+                id -> groupRepository.findById(id).orElseThrow(
+                        () -> new CustomException(Result.NOT_FOUND_GROUP)
+                )
+        );
+    }
+
+    private void validateGroupListContent(Long groupId) {
+        if (!groupRepository.existsById(groupId)){
+            throw new CustomException(Result.NOT_FOUND_GROUP);
+        }
     }
 }
