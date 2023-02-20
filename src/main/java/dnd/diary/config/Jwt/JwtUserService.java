@@ -2,7 +2,7 @@ package dnd.diary.config.Jwt;
 
 import dnd.diary.domain.user.User;
 import dnd.diary.exception.CustomException;
-import dnd.diary.repository.UserRepository;
+import dnd.diary.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

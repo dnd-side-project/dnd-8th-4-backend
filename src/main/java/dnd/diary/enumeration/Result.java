@@ -13,6 +13,8 @@ public enum Result {
 	DELETE_CONTENT_FAIL(-1, "유저가 작성한 글이 아닙니다."),
 	FAIL_IMAGE_UPLOAD(2000, "파일 업로드 실패"),
 	NOT_FOUND_USER(2100, "존재하지 않는 사용자"),
+	DUPLICATION_USER(2100, "이미 존재하는 사용자"),
+	DUPLICATION_NICKNAME(2100, "이미 존재하는 닉네임"),
 	NOT_FOUND_GROUP(2101, "존재하지 않는 그룹"),
 	LOW_MIN_GROUP_NAME_LENGTH(2102, "그룹 이름 최소 글자(1자) 미만"),
 	HIGH_MAX_GROUP_NAME_LENGTH(2103, "그룹 이름 최대 글자(12자) 초과"),

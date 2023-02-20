@@ -6,7 +6,7 @@ import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.EmotionDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
-import dnd.diary.repository.UserRepository;
+import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.response.CustomResponseEntity;
