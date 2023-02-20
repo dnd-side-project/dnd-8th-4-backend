@@ -180,46 +180,32 @@ public class ContentService {
         );
     }
 
+    @Transactional
     public CustomResponseEntity<ContentDto.UpdateDto> updateContent(
             Long contentId, List<MultipartFile> multipartFile, ContentDto.UpdateDto request
     ) {
+        validateUpdateContent(contentId);
+
         Content content = getContent(contentId);
-        if (request.getDeleteContentImageName() != null) {
-            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
-                    deleteFile(deleteImageNameDto.getImageName())
-            );
-            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
-                    contentImageRepository.delete(contentImageRepository.findByImageName(deleteImageNameDto.getImageName())
-                            .orElseThrow(
-                                    () -> new CustomException(Result.FAIL)
-                            )
-                    )
-            );
-        }
-
-        if (multipartFile != null) {
-            uploadFiles(multipartFile, content);
-        }
-
-        Content updateContent = contentRepository.save(
-                Content.builder()
-                        .id(content.getId())
-                        .content(request.getContent())
-                        .latitude(request.getLatitude())
-                        .longitude(request.getLongitude())
-                        .views(content.getViews())
-                        .contentLink(content.getContentLink())
-                        .user(content.getUser())
-                        .group(content.getGroup())
-                        .build()
-        );
-
-        List<ContentImage> contentImages = contentImageRepository.findByContentId(content.getId());
-        List<ContentDto.ImageResponseDto> collect = contentImages.stream().map(ContentDto.ImageResponseDto::response).toList();
-
+        deleteContentImage(multipartFile, request, content);
         return CustomResponseEntity.success(
                 ContentDto.UpdateDto.response(
-                        updateContent, collect
+                        contentRepository.save(
+                                Content.builder()
+                                        .id(content.getId())
+                                        .content(request.getContent())
+                                        .latitude(request.getLatitude())
+                                        .longitude(request.getLongitude())
+                                        .views(content.getViews())
+                                        .contentLink(content.getContentLink())
+                                        .user(content.getUser())
+                                        .group(content.getGroup())
+                                        .build()
+                        ),
+                        contentImageRepository.findByContentId(content.getId())
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList()
                 )
         );
     }
@@ -295,5 +281,30 @@ public class ContentService {
                         () -> new CustomException(Result.NOT_FOUND_CONTENT)
                 );
         return content;
+    }
+
+    private void deleteContentImage(List<MultipartFile> multipartFile, ContentDto.UpdateDto request, Content content) {
+        if (request.getDeleteContentImageName() != null) {
+            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
+                    deleteFile(deleteImageNameDto.getImageName())
+            );
+            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
+                    contentImageRepository.delete(contentImageRepository.findByImageName(deleteImageNameDto.getImageName())
+                            .orElseThrow(
+                                    () -> new CustomException(Result.FAIL)
+                            )
+                    )
+            );
+        }
+
+        if (multipartFile != null) {
+            uploadFiles(multipartFile, content);
+        }
+    }
+
+    private void validateUpdateContent(Long contentId) {
+        if (!contentRepository.existsById(contentId)){
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
     }
 }

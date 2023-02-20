@@ -60,9 +60,9 @@ public class ContentController {
     // 피드 수정
     @PatchMapping("content")
     public CustomResponseEntity<ContentDto.UpdateDto> contentUpdate(
-        @RequestParam Long contentId,
-        @RequestPart (required = false) List<MultipartFile> multipartFile,
-        @Valid @RequestPart ContentDto.UpdateDto request
+        @RequestParam final Long contentId,
+        @RequestPart (required = false) final List<MultipartFile> multipartFile,
+        @Valid @RequestPart final ContentDto.UpdateDto request
     ){
         return contentService.updateContent(contentId,multipartFile,request);
     }
