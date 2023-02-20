@@ -1,19 +1,16 @@
-package dnd.diary.service;
+package dnd.diary.service.user;
 
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
-import dnd.diary.dto.UserDto;
+import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
-import dnd.diary.repository.UserRepository;
-import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.user.UserSearchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -43,9 +40,10 @@ public class UserService {
             .authorityName("ROLE_USER")
             .build();
 
-    // 회원가입
     @Transactional
     public UserDto.RegisterDto register(UserDto.RegisterDto request) {
+        validateRegister(request);
+
         return UserDto.RegisterDto.response(
                 userRepository.save(
                         addUserFromRequest(request)
@@ -59,7 +57,6 @@ public class UserService {
         );
     }
 
-    // 로그인
     @Transactional
     public UserDto.LoginDto login(UserDto.LoginDto request) {
 
@@ -76,7 +73,7 @@ public class UserService {
         );
     }
 
-    // 내 정보 읽기
+    @Transactional
     public UserDto.InfoDto findMyListUser() {
         return UserDto.InfoDto.response(
                 getUser(
@@ -85,6 +82,7 @@ public class UserService {
         );
     }
 
+    // method
     private User getUser(String email) {
         Optional<User> oneWithAuthoritiesByEmail = userRepository.
                 findOneWithAuthoritiesByEmail(email);
@@ -139,5 +137,17 @@ public class UserService {
         return UserSearchResponse.builder()
                 .userSearchInfoList(userSearchInfoList)
                 .build();
+    }
+
+    // Validate
+    private void validateRegister(UserDto.RegisterDto request) {
+        Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
+        Boolean existsByNickName = userRepository.existsByNickName(request.getNickName());
+        if(existsByEmail){
+            throw new CustomException(Result.DUPLICATION_USER);
+        }
+        if (existsByNickName){
+            throw new CustomException(Result.DUPLICATION_NICKNAME);
+        }
     }
 }

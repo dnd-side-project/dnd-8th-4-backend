@@ -1,9 +1,9 @@
-package dnd.diary.controller;
+package dnd.diary.controller.user;
 
-import dnd.diary.dto.UserDto;
+import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.user.UserSearchResponse;
-import dnd.diary.service.UserService;
+import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

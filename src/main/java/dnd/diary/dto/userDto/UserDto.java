@@ -1,4 +1,4 @@
-package dnd.diary.dto;
+package dnd.diary.dto.userDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dnd.diary.domain.user.User;

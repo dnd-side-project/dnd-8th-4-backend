@@ -8,7 +8,7 @@ import dnd.diary.dto.content.CommentDto;
 import dnd.diary.dto.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
-import dnd.diary.repository.UserRepository;
+import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.content.CommentLikeRepository;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
