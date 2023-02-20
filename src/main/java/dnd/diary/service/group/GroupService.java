@@ -212,59 +212,7 @@ public class GroupService {
 
 		return groupListResponseList;
 	}
-
-	// 그룹에 속한 게시글 조회
-/*
-	public PageResponse<List<ContentResponse>> getGroupContentList() {
-
-		User user = findUser(1L);
-		List<UserJoinGroup> userJoinGroupList = user.getUserJoinGroups();
-		if (userJoinGroupList.size() == 0) {
-			// 가입한 그룹이 없는 경우
-			throw new CustomException(NO_USER_GROUP_LIST);
-		}
-		List<Group> groupList = new ArrayList<>();
-		userJoinGroupList.forEach(
-			userJoinGroup -> groupList.add(userJoinGroup.getGroup())
-		);
-		List<Content> contentList = new ArrayList<>();
-		groupList.forEach(
-			group -> contentList.addAll(group.getContents())
-		);
-		List<ContentResponse> contentResponseList = new ArrayList<>();
-		contentList.forEach(
-			content -> contentResponseList.add(ContentResponse.builder()
-				.build())
-		);
-		return PageResponse.<List<ContentResponse>>builder()
-			.contents(contentResponseList)
-			.build();
-	}
- */
-
-	/*
-	public PageResponse<List<GroupListResponse>> searchGroupList(GroupSearchRequest request) {
-
-		Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), Sort.Direction.DESC);
-		PageImpl<Group> groupList = groupRepository.searchGroupByKeyword(request.getKeyword(), pageable);
-		List<GroupListResponse> groupListResponseList = new ArrayList<>();
-		groupList.forEach(
-			group -> groupListResponseList.add(GroupListResponse.builder()
-					.groupId(group.getId())
-					.groupName(group.getGroupName())
-					.groupNote(group.getGroupNote())
-					.groupCreatedAt(group.getCreatedAt())
-					.memberCount(group.getUserJoinGroups().size())
-					.isStarGroup(false)
-				.build())
-		);
-
-		return PageResponse.<List<GroupListResponse>>builder()
-			.contents(groupListResponseList)
-			.build();
-	}
-	 */
-
+	
 	public GroupListResponse searchGroupList(String keyword) {
 		User user = findUser();
 		if (user.getUserJoinGroups().size() == 0) {
