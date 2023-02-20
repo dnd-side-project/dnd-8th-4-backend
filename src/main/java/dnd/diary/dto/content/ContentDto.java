@@ -66,6 +66,52 @@ public class ContentDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
+    public static class allGroupListPagePostsDto {
+
+        private Long id;
+        private Long userId;
+        private Long groupId;
+        private String userName;
+        private String groupName;
+        private String content;
+        private Double latitude;
+        private Double longitude;
+        private LocalDateTime createAt;
+        private long views;
+        private String contentLink;
+        private Long comments;
+        private Long emotions;
+        private Long emotionStatus;
+        List<ContentDto.ImageResponseDto> Images;
+        List<EmotionResponseDto> emotionResponseDtos;
+
+        public static ContentDto.allGroupListPagePostsDto response(Content content, List<ImageResponseDto> imageResponseDtos, Long comments, Long emotions, List<EmotionResponseDto> emotionResponseDtos, Long emotionStatus) {
+            return allGroupListPagePostsDto.builder()
+                    .id(content.getId())
+                    .userId(content.getUser().getId())
+                    .groupId(content.getGroup().getId())
+                    .userName(content.getUser().getNickName())
+                    .groupName(content.getGroup().getGroupName())
+                    .content(content.getContent())
+                    .latitude(content.getLatitude())
+                    .longitude(content.getLongitude())
+                    .createAt(content.getCreatedAt())
+                    .views(content.getViews())
+                    .contentLink(content.getContentLink())
+                    .comments(comments)
+                    .emotions(emotions)
+                    .emotionStatus(emotionStatus)
+                    .Images(imageResponseDtos)
+                    .emotionResponseDtos(emotionResponseDtos)
+                    .build();
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
     public static class ImageResponseDto {
         private Long id;
         private String imageName;

@@ -51,6 +51,39 @@ public class ContentService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupAllListContent(UserDetails userDetails, List<Long> groupId, Integer page) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+
+        Page<Content> contents = contentRepository.findByGroupIdIn(
+                groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<ContentDto.groupListPagePostsDto> collect = contents.map(
+                (Content content) -> {
+                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), user.getId());
+                    Long emotionStatus;
+                    if (byContentIdAndUserId == null){
+                        emotionStatus = -1L;
+                    } else {
+                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
+                    }
+                    return ContentDto.groupListPagePostsDto.response(
+                            content, contentImageRepository.findByContentId(
+                                    content.getId()
+                            ).stream().map(ContentDto.ImageResponseDto::response).toList(),
+                            commentRepository.countByContentId(content.getId()),
+                            emotionRepository.countByContentId(content.getId()),
+                            getEmotionResponseDtos(content.getId()),
+                            emotionStatus
+                    );
+                }
+        );
+        return CustomResponseEntity.success(collect);
+    }
+
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupListContent(
             UserDetails userDetails, Long groupId, Integer page
     ) {

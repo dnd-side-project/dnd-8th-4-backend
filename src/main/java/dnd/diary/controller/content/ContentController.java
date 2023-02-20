@@ -27,6 +27,15 @@ public class ContentController {
         return contentService.groupListContent(userDetails,groupId,page);
     }
 
+    @GetMapping("content/group/all")
+    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupAllList(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam List<Long> groupId,
+            @RequestParam Integer page
+    ){
+        return contentService.groupAllListContent(userDetails,groupId, page);
+    }
+
     @PostMapping("content")
     public CustomResponseEntity<ContentDto.CreateDto> contentCreate(
             @AuthenticationPrincipal UserDetails user,
