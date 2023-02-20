@@ -170,6 +170,21 @@ public class ContentService {
         );
     }
 
+    public CustomResponseEntity<ContentDto.deleteContent> deleteContent(
+            UserDetails userDetails, Long contentId
+    ) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        Content content = contentRepository.findByIdAndUserId(contentId, user.getId())
+                .orElseThrow(
+                        () -> new CustomException(Result.DELETE_CONTENT_FAIL)
+                );
+        contentRepository.delete(content);
+        return CustomResponseEntity.successDeleteContent();
+    }
+
     private String saveImage(MultipartFile file) {
         String fileName = createFileName(file.getOriginalFilename());
         ObjectMetadata objectMetadata = new ObjectMetadata();

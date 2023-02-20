@@ -42,4 +42,12 @@ public class ContentController {
     ){
         return contentService.updateContent(contentId,multipartFile,request);
     }
+
+    @DeleteMapping("content")
+    public CustomResponseEntity<ContentDto.deleteContent> contentDelete(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam Long contentId
+    ){
+        return contentService.deleteContent(userDetails,contentId);
+    }
 }
