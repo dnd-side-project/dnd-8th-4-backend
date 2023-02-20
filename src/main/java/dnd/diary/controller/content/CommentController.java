@@ -16,6 +16,7 @@ import javax.validation.Valid;
 public class CommentController {
     private final CommentService commentService;
 
+    // 피드 댓글 작성
     @PostMapping("content/{contentId}/comment")
     public CustomResponseEntity<CommentDto.AddCommentDto> addComment(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -25,11 +26,12 @@ public class CommentController {
         return commentService.commentAdd(userDetails,contentId,request);
     }
 
+    // 피드 댓글 조회
     @GetMapping("content/{contentId}/comment")
     public CustomResponseEntity<CommentDto.pagePostsCommentDto> pageComment(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable(name = "contentId") Long contentId,
-            @RequestParam Integer page
+            @AuthenticationPrincipal final UserDetails userDetails,
+            @PathVariable(name = "contentId") final Long contentId,
+            @RequestParam final Integer page
     ){
         return commentService.commentPage(userDetails,contentId,page);
     }
