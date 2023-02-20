@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,23 +33,18 @@ public class CommentService {
     private final EmotionRepository emotionRepository;
     private final CommentLikeRepository commentLikeRepository;
 
+    @Transactional
     public CustomResponseEntity<CommentDto.AddCommentDto> commentAdd(
             UserDetails userDetails, Long contentId, CommentDto.AddCommentDto request
     ) {
-        User user = getUser(userDetails);
-
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
+        validateCommentAdd(contentId);
         return CustomResponseEntity.success(
                 CommentDto.AddCommentDto.response(
                         commentRepository.save(
                                 Comment.builder()
                                         .commentNote(request.getCommentNote())
-                                        .user(user)
-                                        .content(content)
+                                        .user(getUser(userDetails))
+                                        .content(getContent(contentId))
                                         .sticker(null)
                                         .build()
                         )
@@ -56,16 +52,14 @@ public class CommentService {
         );
     }
 
+    @Transactional
     public CustomResponseEntity<CommentDto.pagePostsCommentDto> commentPage(
             UserDetails userDetails, Long contentId, Integer page
     ) {
         validateCommentPage(contentId);
-        Page<Comment> comments = commentRepository.findByContentId(
-                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
         return CustomResponseEntity.success(
                 CommentDto.pagePostsCommentDto.response(
-                        getPageCommentDtos(userDetails, comments),
+                        getPageCommentDtos(userDetails, getComments(contentId, page)),
                         getEmotionResponseDtos(contentId),
                         emotionRepository.countByContentId(contentId),
                         commentRepository.countByContentId(contentId)
@@ -74,6 +68,12 @@ public class CommentService {
     }
 
     // method
+    private Page<Comment> getComments(Long contentId, Integer page) {
+        return commentRepository.findByContentId(
+                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+    }
+
     private Page<CommentDto.pageCommentDto> getPageCommentDtos(UserDetails userDetails, Page<Comment> comments) {
         return comments.map((Comment comment) -> CommentDto.pageCommentDto.response(
                         comment, commentLikeRepository.existsByCommentIdAndUserId(
@@ -90,6 +90,13 @@ public class CommentService {
                 );
     }
 
+    private Content getContent(Long contentId) {
+        return contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.NOT_FOUND_CONTENT)
+                );
+    }
+
     private List<ContentDto.EmotionResponseDto> getEmotionResponseDtos(Long contentId) {
         List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
         List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
@@ -98,6 +105,12 @@ public class CommentService {
 
     // validate
     private void validateCommentPage(Long contentId) {
+        if (!contentRepository.existsById(contentId)){
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
+    }
+
+    private void validateCommentAdd(Long contentId) {
         if (!contentRepository.existsById(contentId)){
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }

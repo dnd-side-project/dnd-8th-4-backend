@@ -1,7 +1,6 @@
 package dnd.diary.dto.content;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.sun.istack.NotNull;
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.comment.Sticker;
 import dnd.diary.domain.content.Content;
@@ -13,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,6 +26,7 @@ public class CommentDto {
     public static class AddCommentDto {
 
         private Long id;
+        @NotNull(message = "댓글 내용이 작성되지 않았습니다.")
         private String commentNote;
         private Long userId;
         private Long contentId;
