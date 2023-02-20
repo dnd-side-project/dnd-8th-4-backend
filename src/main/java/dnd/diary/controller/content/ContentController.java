@@ -18,6 +18,7 @@ import java.util.List;
 public class ContentController {
     private final ContentService contentService;
 
+    // 그룹 피드 리스트 조회
     @GetMapping("content/group")
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupList(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -27,6 +28,7 @@ public class ContentController {
         return contentService.groupListContent(userDetails,groupId,page);
     }
 
+    // 그룹 전체 피드 리스트 조회
     @GetMapping("content/group/all")
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupAllList(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -36,23 +38,26 @@ public class ContentController {
         return contentService.groupAllListContent(userDetails,groupId, page);
     }
 
+    // 피드 작성
     @PostMapping("content")
     public CustomResponseEntity<ContentDto.CreateDto> contentCreate(
-            @AuthenticationPrincipal UserDetails user,
-            @RequestParam Long groupId,
-            @RequestPart (required = false) List<MultipartFile> multipartFile,
-            @Valid @RequestPart ContentDto.CreateDto request
+            @AuthenticationPrincipal final UserDetails user,
+            @RequestParam final Long groupId,
+            @RequestPart(required = false) final List<MultipartFile> multipartFile,
+            @Valid @RequestPart final ContentDto.CreateDto request
     ){
         return contentService.createContent(user,groupId,multipartFile,request);
     }
 
+    // 피드 조회
     @GetMapping("content")
     public CustomResponseEntity<ContentDto.detailDto> contentDetail(
-            @RequestParam Long contentId
+            @RequestParam final Long contentId
     ){
         return contentService.detailContent(contentId);
     }
 
+    // 피드 수정
     @PatchMapping("content")
     public CustomResponseEntity<ContentDto.UpdateDto> contentUpdate(
         @RequestParam Long contentId,
@@ -62,6 +67,7 @@ public class ContentController {
         return contentService.updateContent(contentId,multipartFile,request);
     }
 
+    // 피드 삭제
     @DeleteMapping("content")
     public CustomResponseEntity<ContentDto.deleteContent> contentDelete(
             @AuthenticationPrincipal UserDetails userDetails,

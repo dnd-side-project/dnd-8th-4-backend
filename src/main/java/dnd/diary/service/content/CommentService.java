@@ -8,11 +8,11 @@ import dnd.diary.dto.content.CommentDto;
 import dnd.diary.dto.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
-import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.content.CommentLikeRepository;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
+import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,10 +35,7 @@ public class CommentService {
     public CustomResponseEntity<CommentDto.AddCommentDto> commentAdd(
             UserDetails userDetails, Long contentId, CommentDto.AddCommentDto request
     ) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+        User user = getUser(userDetails);
 
         Content content = contentRepository.findById(contentId)
                 .orElseThrow(
@@ -62,35 +59,47 @@ public class CommentService {
     public CustomResponseEntity<CommentDto.pagePostsCommentDto> commentPage(
             UserDetails userDetails, Long contentId, Integer page
     ) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
-        long commentCount = commentRepository.countByContentId(contentId);
-        long emotionCount = emotionRepository.countByContentId(contentId);
-        List<ContentDto.EmotionResponseDto> emotionResponseDtos = getEmotionResponseDtos(contentId);
-
-        Page<Comment> comments = commentRepository.findAll(PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt"));
-        Page<CommentDto.pageCommentDto> collect;
-
-        collect = comments.map(
-                (Comment comment) -> CommentDto.pageCommentDto.response(
-                        comment, commentLikeRepository.existsByCommentIdAndUserId(comment.getId(),user.getId()
-                                )
-                )
+        validateCommentPage(contentId);
+        Page<Comment> comments = commentRepository.findByContentId(
+                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-
         return CustomResponseEntity.success(
                 CommentDto.pagePostsCommentDto.response(
-                        collect,emotionResponseDtos,emotionCount,commentCount
+                        getPageCommentDtos(userDetails, comments),
+                        getEmotionResponseDtos(contentId),
+                        emotionRepository.countByContentId(contentId),
+                        commentRepository.countByContentId(contentId)
                 )
         );
+    }
+
+    // method
+    private Page<CommentDto.pageCommentDto> getPageCommentDtos(UserDetails userDetails, Page<Comment> comments) {
+        return comments.map((Comment comment) -> CommentDto.pageCommentDto.response(
+                        comment, commentLikeRepository.existsByCommentIdAndUserId(
+                                comment.getId(), getUser(userDetails).getId()
+                        )
+                )
+        );
+    }
+
+    private User getUser(UserDetails userDetails) {
+        return userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.NOT_FOUND_USER)
+                );
     }
 
     private List<ContentDto.EmotionResponseDto> getEmotionResponseDtos(Long contentId) {
         List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
         List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
         return emotion;
+    }
+
+    // validate
+    private void validateCommentPage(Long contentId) {
+        if (!contentRepository.existsById(contentId)){
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
     }
 }
