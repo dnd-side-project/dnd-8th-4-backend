@@ -5,22 +5,26 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.ContentImage;
+import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
+import dnd.diary.dto.content.CommentDto;
 import dnd.diary.dto.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.UserRepository;
-import dnd.diary.repository.content.ContentImageRepository;
-import dnd.diary.repository.content.ContentRepository;
-import dnd.diary.repository.content.EmotionRepository;
+import dnd.diary.repository.content.*;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -37,6 +41,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ContentService {
+    private final CommentRepository commentRepository;
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
@@ -45,6 +50,41 @@ public class ContentService {
     private final AmazonS3Client amazonS3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupListContent(
+            UserDetails userDetails, Long groupId, Integer page
+    ) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+
+        Page<Content> contents = contentRepository.findByGroupId(
+                groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<ContentDto.groupListPagePostsDto> collect = contents.map(
+                (Content content) -> {
+                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), user.getId());
+                    Long emotionStatus;
+                    if (byContentIdAndUserId == null){
+                        emotionStatus = -1L;
+                    } else {
+                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
+                    }
+                    return ContentDto.groupListPagePostsDto.response(
+                            content, contentImageRepository.findByContentId(
+                                    content.getId()
+                            ).stream().map(ContentDto.ImageResponseDto::response).toList(),
+                            commentRepository.countByContentId(content.getId()),
+                            emotionRepository.countByContentId(content.getId()),
+                            getEmotionResponseDtos(content.getId()),
+                            emotionStatus
+                    );
+                }
+        );
+        return CustomResponseEntity.success(collect);
+    }
 
     public CustomResponseEntity<ContentDto.CreateDto> createContent(
             UserDetails userDetails,
@@ -215,5 +255,11 @@ public class ContentService {
         } catch (StringIndexOutOfBoundsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일(" + fileName + ") 입니다.");
         }
+    }
+
+    private List<ContentDto.EmotionResponseDto> getEmotionResponseDtos(Long contentId) {
+        List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
+        List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
+        return emotion;
     }
 }
