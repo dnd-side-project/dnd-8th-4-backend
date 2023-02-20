@@ -36,20 +36,14 @@ public class CommentService {
     public CustomResponseEntity<CommentDto.AddCommentDto> commentAdd(
             UserDetails userDetails, Long contentId, CommentDto.AddCommentDto request
     ) {
-        User user = getUser(userDetails);
-
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
+        validateCommentAdd(contentId);
         return CustomResponseEntity.success(
                 CommentDto.AddCommentDto.response(
                         commentRepository.save(
                                 Comment.builder()
                                         .commentNote(request.getCommentNote())
-                                        .user(user)
-                                        .content(content)
+                                        .user(getUser(userDetails))
+                                        .content(getContent(contentId))
                                         .sticker(null)
                                         .build()
                         )
@@ -95,6 +89,13 @@ public class CommentService {
                 );
     }
 
+    private Content getContent(Long contentId) {
+        return contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.NOT_FOUND_CONTENT)
+                );
+    }
+
     private List<ContentDto.EmotionResponseDto> getEmotionResponseDtos(Long contentId) {
         List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
         List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
@@ -103,6 +104,12 @@ public class CommentService {
 
     // validate
     private void validateCommentPage(Long contentId) {
+        if (!contentRepository.existsById(contentId)){
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
+    }
+
+    private void validateCommentAdd(Long contentId) {
         if (!contentRepository.existsById(contentId)){
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
