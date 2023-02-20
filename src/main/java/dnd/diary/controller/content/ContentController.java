@@ -33,4 +33,13 @@ public class ContentController {
     ){
         return contentService.detailContent(contentId);
     }
+
+    @PatchMapping("content")
+    public CustomResponseEntity<ContentDto.UpdateDto> contentUpdate(
+        @RequestParam Long contentId,
+        @RequestPart (required = false) List<MultipartFile> multipartFile,
+        @Valid @RequestPart ContentDto.UpdateDto request
+    ){
+        return contentService.updateContent(contentId,multipartFile,request);
+    }
 }

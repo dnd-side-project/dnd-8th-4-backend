@@ -21,6 +21,9 @@ public class ContentImage extends BaseEntity {
     @Column(nullable = false)
     private String imageUrl;
 
+    @Column(nullable = false)
+    private String imageName;
+
     // 해당 이미지가 포함된 게시글
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "content_id")

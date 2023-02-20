@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.ContentImage;
-import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
@@ -31,7 +30,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,8 +52,6 @@ public class ContentService {
             List<MultipartFile> multipartFile,
             ContentDto.CreateDto request
     ) {
-        List<String> fileNameList = new ArrayList<>();
-
         User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
                 .orElseThrow(
                         () -> new CustomException(Result.FAIL)
@@ -81,23 +77,11 @@ public class ContentService {
         group.updateRecentModifiedAt(LocalDateTime.now());
 
         multipartFile.forEach(file -> {
-            String fileName = createFileName(file.getOriginalFilename());
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            objectMetadata.setContentType(file.getContentType());
-
-            try (InputStream inputStream = file.getInputStream()) {
-                amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-                        .withCannedAcl(CannedAccessControlList.PublicRead));
-
-            } catch (IOException e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
-            }
-
-            fileNameList.add(fileName);
+            String fileName = saveImage(file);
 
             ContentImage contentImage = ContentImage.builder()
                     .content(content)
+                    .imageName(fileName)
                     .imageUrl(amazonS3Client.getUrl(bucket, fileName).toString())
                     .build();
 
@@ -127,6 +111,79 @@ public class ContentService {
                         content, collect
                 )
         );
+    }
+
+    public CustomResponseEntity<ContentDto.UpdateDto> updateContent(
+            Long contentId, List<MultipartFile> multipartFile, ContentDto.UpdateDto request
+    ) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        if (request.getDeleteContentImageName() != null) {
+            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
+                    deleteFile(deleteImageNameDto.getImageName())
+            );
+            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
+                    contentImageRepository.delete(contentImageRepository.findByImageName(deleteImageNameDto.getImageName())
+                            .orElseThrow(
+                                    () -> new CustomException(Result.FAIL)
+                            )
+                    )
+            );
+        }
+
+        if (multipartFile != null) {
+            multipartFile.forEach(file -> {
+                String fileName = saveImage(file);
+
+                ContentImage contentImage = ContentImage.builder()
+                        .content(content)
+                        .imageName(fileName)
+                        .imageUrl(amazonS3Client.getUrl(bucket, fileName).toString())
+                        .build();
+
+                contentImageRepository.save(contentImage);
+            });
+        }
+
+        Content updateContent = contentRepository.save(
+                Content.builder()
+                        .id(content.getId())
+                        .content(request.getContent())
+                        .latitude(request.getLatitude())
+                        .longitude(request.getLongitude())
+                        .views(content.getViews())
+                        .contentLink(content.getContentLink())
+                        .user(content.getUser())
+                        .group(content.getGroup())
+                        .build()
+        );
+
+        List<ContentImage> contentImages = contentImageRepository.findByContentId(content.getId());
+        List<ContentDto.ImageResponseDto> collect = contentImages.stream().map(ContentDto.ImageResponseDto::response).toList();
+
+        return CustomResponseEntity.success(
+                ContentDto.UpdateDto.response(
+                        updateContent, collect
+                )
+        );
+    }
+
+    private String saveImage(MultipartFile file) {
+        String fileName = createFileName(file.getOriginalFilename());
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(file.getSize());
+        objectMetadata.setContentType(file.getContentType());
+
+        try (InputStream inputStream = file.getInputStream()) {
+            amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+        }
+        return fileName;
     }
 
     public void deleteFile(String fileName) {

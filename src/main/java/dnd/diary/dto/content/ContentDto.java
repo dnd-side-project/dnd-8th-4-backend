@@ -22,14 +22,16 @@ public class ContentDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
-    public static class ImageResponseDto{
+    public static class ImageResponseDto {
         private Long id;
+        private String imageName;
         private String imageUrl;
         private Long contentId;
 
-        public static ContentDto.ImageResponseDto response(ContentImage contentImage){
+        public static ContentDto.ImageResponseDto response(ContentImage contentImage) {
             return ImageResponseDto.builder()
                     .imageUrl(contentImage.getImageUrl())
+                    .imageName(contentImage.getImageName())
                     .contentId(contentImage.getContent().getId())
                     .build();
         }
@@ -40,12 +42,13 @@ public class ContentDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
-    public static class EmotionResponseDto{
+    public static class EmotionResponseDto {
         private Long id;
         private Long emotionStatus;
         private String profileImage;
         private Long userId;
-        public static ContentDto.EmotionResponseDto response(Emotion emotion){
+
+        public static ContentDto.EmotionResponseDto response(Emotion emotion) {
             return EmotionResponseDto.builder()
                     .id(emotion.getId())
                     .emotionStatus(emotion.getEmotionStatus())
@@ -73,7 +76,7 @@ public class ContentDto {
         private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
 
-        public static ContentDto.CreateDto response(Content content,List<ContentDto.ImageResponseDto> collect){
+        public static ContentDto.CreateDto response(Content content, List<ContentDto.ImageResponseDto> collect) {
             return CreateDto.builder()
                     .id(content.getId())
                     .content(content.getContent())
@@ -105,7 +108,7 @@ public class ContentDto {
         private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
 
-        public static ContentDto.detailDto response(Content content,List<ContentDto.ImageResponseDto> collect){
+        public static ContentDto.detailDto response(Content content, List<ContentDto.ImageResponseDto> collect) {
             return detailDto.builder()
                     .id(content.getId())
                     .content(content.getContent())
@@ -118,5 +121,48 @@ public class ContentDto {
                     .collect(collect)
                     .build();
         }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class UpdateDto {
+
+        private Long id;
+        @NotNull(message = "내용을 입력하지 않았습니다.")
+        private String content;
+        private Double latitude;
+        private Double longitude;
+        private long views;
+        private String contentLink;
+        private Long userId;
+        private Long groupId;
+        private List<deleteImageNameDto> deleteContentImageName;
+        List<ContentDto.ImageResponseDto> collect;
+
+        public static ContentDto.UpdateDto response(Content content, List<ContentDto.ImageResponseDto> collect) {
+            return UpdateDto.builder()
+                    .id(content.getId())
+                    .content(content.getContent())
+                    .latitude(content.getLatitude())
+                    .longitude(content.getLongitude())
+                    .views(content.getViews())
+                    .contentLink(content.getContentLink())
+                    .userId(content.getUser().getId())
+                    .groupId(content.getGroup().getId())
+                    .collect(collect)
+                    .build();
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class deleteImageNameDto {
+        private String imageName;
     }
 }
