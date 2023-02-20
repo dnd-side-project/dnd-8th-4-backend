@@ -53,13 +53,15 @@ public class CommentDto {
         private String commentNote;
         private String username;
         private LocalDateTime createdAt;
+        private Boolean likesExists;
 
-        public static CommentDto.pageCommentDto response(Comment comment){
+        public static CommentDto.pageCommentDto response(Comment comment, Boolean likesExists){
             return pageCommentDto.builder()
                     .id(comment.getId())
                     .commentNote(comment.getCommentNote())
                     .username(comment.getUser().getNickName())
                     .createdAt(comment.getCreatedAt())
+                    .likesExists(likesExists)
                     .build();
         }
     }
