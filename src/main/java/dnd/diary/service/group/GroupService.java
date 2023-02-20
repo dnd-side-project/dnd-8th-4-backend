@@ -6,8 +6,8 @@ import dnd.diary.domain.group.GroupStarStatus;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.userDto.UserDto;
-import dnd.diary.dto.request.group.GroupCreateRequest;
-import dnd.diary.dto.request.group.GroupUpdateRequest;
+import dnd.diary.dto.group.GroupCreateRequest;
+import dnd.diary.dto.group.GroupUpdateRequest;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.group.GroupStarRepository;
@@ -201,69 +201,21 @@ public class GroupService {
 		User user = findUser();
 		List<GroupStar> userGroupStarList = user.getGroupStars();
 		List<GroupStarListResponse> groupListResponseList = new ArrayList<>();
-		userGroupStarList.forEach(
-				userGroupStar -> groupListResponseList.add(
+
+		for (GroupStar groupStar : userGroupStarList) {
+			// userGroupStar.getGroupStarStatus() == ADD 인 상태에만 추가
+			if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD) {
+				groupListResponseList.add(
 						GroupStarListResponse.builder()
-								.groupId(userGroupStar.getGroup().getId())
-								.groupName(userGroupStar.getGroup().getGroupName())
+								.groupId(groupStar.getGroup().getId())
+								.groupName(groupStar.getGroup().getGroupName())
 								.build()
-				)
-		);
+				);
+			}
+		}
 
 		return groupListResponseList;
 	}
-
-	// 그룹에 속한 게시글 조회
-/*
-	public PageResponse<List<ContentResponse>> getGroupContentList() {
-
-		User user = findUser(1L);
-		List<UserJoinGroup> userJoinGroupList = user.getUserJoinGroups();
-		if (userJoinGroupList.size() == 0) {
-			// 가입한 그룹이 없는 경우
-			throw new CustomException(NO_USER_GROUP_LIST);
-		}
-		List<Group> groupList = new ArrayList<>();
-		userJoinGroupList.forEach(
-			userJoinGroup -> groupList.add(userJoinGroup.getGroup())
-		);
-		List<Content> contentList = new ArrayList<>();
-		groupList.forEach(
-			group -> contentList.addAll(group.getContents())
-		);
-		List<ContentResponse> contentResponseList = new ArrayList<>();
-		contentList.forEach(
-			content -> contentResponseList.add(ContentResponse.builder()
-				.build())
-		);
-		return PageResponse.<List<ContentResponse>>builder()
-			.contents(contentResponseList)
-			.build();
-	}
- */
-
-	/*
-	public PageResponse<List<GroupListResponse>> searchGroupList(GroupSearchRequest request) {
-
-		Pageable pageable = PageRequest.of(request.getPage() - 1, request.getSize(), Sort.Direction.DESC);
-		PageImpl<Group> groupList = groupRepository.searchGroupByKeyword(request.getKeyword(), pageable);
-		List<GroupListResponse> groupListResponseList = new ArrayList<>();
-		groupList.forEach(
-			group -> groupListResponseList.add(GroupListResponse.builder()
-					.groupId(group.getId())
-					.groupName(group.getGroupName())
-					.groupNote(group.getGroupNote())
-					.groupCreatedAt(group.getCreatedAt())
-					.memberCount(group.getUserJoinGroups().size())
-					.isStarGroup(false)
-				.build())
-		);
-
-		return PageResponse.<List<GroupListResponse>>builder()
-			.contents(groupListResponseList)
-			.build();
-	}
-	 */
 
 	public GroupListResponse searchGroupList(String keyword) {
 		User user = findUser();
@@ -301,6 +253,11 @@ public class GroupService {
 
 		return response;
 	}
+
+	// 그룹 초대
+//	public GroupInviteResponse inviteGroupMember(GroupInviteRequest request) {
+//		return null;
+//	}
 
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();

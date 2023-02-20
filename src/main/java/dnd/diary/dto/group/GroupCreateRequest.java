@@ -1,4 +1,4 @@
-package dnd.diary.dto.request.group;
+package dnd.diary.dto.group;
 
 import lombok.Getter;
 
