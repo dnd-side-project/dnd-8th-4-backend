@@ -122,7 +122,7 @@ public class UserService {
 
     public UserSearchResponse searchUserList(String keyword) {
 
-        List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword);
+        List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCase(keyword);
         List<UserSearchResponse.UserSearchInfo> userSearchInfoList = new ArrayList<>();
 
         for (User user : searchByKeywordList) {
@@ -130,7 +130,7 @@ public class UserService {
                     .userId(user.getId())
                     .userEmail(user.getEmail())
                     .userNickName(user.getNickName())
-                    .profileImageUrl(user.getProfileImageUrl())
+                    .profileImageUrl("")   // default 이미지로 통일
                     .build();
             userSearchInfoList.add(userSearchInfo);
         }
