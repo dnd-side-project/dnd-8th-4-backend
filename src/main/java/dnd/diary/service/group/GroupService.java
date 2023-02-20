@@ -6,8 +6,8 @@ import dnd.diary.domain.group.GroupStarStatus;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.userDto.UserDto;
-import dnd.diary.dto.request.group.GroupCreateRequest;
-import dnd.diary.dto.request.group.GroupUpdateRequest;
+import dnd.diary.dto.group.GroupCreateRequest;
+import dnd.diary.dto.group.GroupUpdateRequest;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.group.GroupStarRepository;
@@ -201,18 +201,22 @@ public class GroupService {
 		User user = findUser();
 		List<GroupStar> userGroupStarList = user.getGroupStars();
 		List<GroupStarListResponse> groupListResponseList = new ArrayList<>();
-		userGroupStarList.forEach(
-				userGroupStar -> groupListResponseList.add(
+
+		for (GroupStar groupStar : userGroupStarList) {
+			// userGroupStar.getGroupStarStatus() == ADD 인 상태에만 추가
+			if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD) {
+				groupListResponseList.add(
 						GroupStarListResponse.builder()
-								.groupId(userGroupStar.getGroup().getId())
-								.groupName(userGroupStar.getGroup().getGroupName())
+								.groupId(groupStar.getGroup().getId())
+								.groupName(groupStar.getGroup().getGroupName())
 								.build()
-				)
-		);
+				);
+			}
+		}
 
 		return groupListResponseList;
 	}
-	
+
 	public GroupListResponse searchGroupList(String keyword) {
 		User user = findUser();
 		if (user.getUserJoinGroups().size() == 0) {
@@ -249,6 +253,11 @@ public class GroupService {
 
 		return response;
 	}
+
+	// 그룹 초대
+//	public GroupInviteResponse inviteGroupMember(GroupInviteRequest request) {
+//		return null;
+//	}
 
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();
