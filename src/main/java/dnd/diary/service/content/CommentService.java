@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -56,16 +57,14 @@ public class CommentService {
         );
     }
 
+    @Transactional
     public CustomResponseEntity<CommentDto.pagePostsCommentDto> commentPage(
             UserDetails userDetails, Long contentId, Integer page
     ) {
         validateCommentPage(contentId);
-        Page<Comment> comments = commentRepository.findByContentId(
-                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
         return CustomResponseEntity.success(
                 CommentDto.pagePostsCommentDto.response(
-                        getPageCommentDtos(userDetails, comments),
+                        getPageCommentDtos(userDetails, getComments(contentId, page)),
                         getEmotionResponseDtos(contentId),
                         emotionRepository.countByContentId(contentId),
                         commentRepository.countByContentId(contentId)
@@ -74,6 +73,12 @@ public class CommentService {
     }
 
     // method
+    private Page<Comment> getComments(Long contentId, Integer page) {
+        return commentRepository.findByContentId(
+                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+    }
+
     private Page<CommentDto.pageCommentDto> getPageCommentDtos(UserDetails userDetails, Page<Comment> comments) {
         return comments.map((Comment comment) -> CommentDto.pageCommentDto.response(
                         comment, commentLikeRepository.existsByCommentIdAndUserId(
