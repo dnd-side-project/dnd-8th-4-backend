@@ -54,65 +54,23 @@ public class ContentService {
     private String bucket;
 
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupAllListContent(UserDetails userDetails, List<Long> groupId, Integer page) {
-        User user = getUser(userDetails);
-
         Page<Content> contents = contentRepository.findByGroupIdIn(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-
-        Page<ContentDto.groupListPagePostsDto> collect = contents.map(
-                (Content content) -> {
-                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), user.getId());
-                    Long emotionStatus;
-                    if (byContentIdAndUserId == null) {
-                        emotionStatus = -1L;
-                    } else {
-                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
-                    }
-                    return ContentDto.groupListPagePostsDto.response(
-                            content, contentImageRepository.findByContentId(
-                                    content.getId()
-                            ).stream().map(ContentDto.ImageResponseDto::response).toList(),
-                            commentRepository.countByContentId(content.getId()),
-                            emotionRepository.countByContentId(content.getId()),
-                            getEmotionResponseDtos(content.getId()),
-                            emotionStatus
-                    );
-                }
+        return CustomResponseEntity.success(
+                getGroupListPagePostsDtos(userDetails, contents)
         );
-        return CustomResponseEntity.success(collect);
     }
 
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupListContent(
             UserDetails userDetails, Long groupId, Integer page
     ) {
-        User user = getUser(userDetails);
-
         Page<Content> contents = contentRepository.findByGroupId(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-
-        Page<ContentDto.groupListPagePostsDto> collect = contents.map(
-                (Content content) -> {
-                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), user.getId());
-                    Long emotionStatus;
-                    if (byContentIdAndUserId == null) {
-                        emotionStatus = -1L;
-                    } else {
-                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
-                    }
-                    return ContentDto.groupListPagePostsDto.response(
-                            content, contentImageRepository.findByContentId(
-                                    content.getId()
-                            ).stream().map(ContentDto.ImageResponseDto::response).toList(),
-                            commentRepository.countByContentId(content.getId()),
-                            emotionRepository.countByContentId(content.getId()),
-                            getEmotionResponseDtos(content.getId()),
-                            emotionStatus
-                    );
-                }
+        return CustomResponseEntity.success(
+                getGroupListPagePostsDtos(userDetails, contents)
         );
-        return CustomResponseEntity.success(collect);
     }
 
     @Transactional
@@ -286,6 +244,30 @@ public class ContentService {
                         () -> new CustomException(Result.NOT_FOUND_CONTENT)
                 );
         return content;
+    }
+
+    private Page<ContentDto.groupListPagePostsDto> getGroupListPagePostsDtos(UserDetails userDetails, Page<Content> contents) {
+        Page<ContentDto.groupListPagePostsDto> collect = contents.map(
+                (Content content) -> {
+                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
+                    Long emotionStatus;
+                    if (byContentIdAndUserId == null) {
+                        emotionStatus = -1L;
+                    } else {
+                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
+                    }
+                    return ContentDto.groupListPagePostsDto.response(
+                            content, contentImageRepository.findByContentId(
+                                    content.getId()
+                            ).stream().map(ContentDto.ImageResponseDto::response).toList(),
+                            commentRepository.countByContentId(content.getId()),
+                            emotionRepository.countByContentId(content.getId()),
+                            getEmotionResponseDtos(content.getId()),
+                            emotionStatus
+                    );
+                }
+        );
+        return collect;
     }
 
     private void deleteContentImage(List<MultipartFile> multipartFile, ContentDto.UpdateDto request, Content content) {

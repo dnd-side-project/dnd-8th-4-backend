@@ -21,9 +21,9 @@ public class ContentController {
     // 그룹 피드 리스트 조회
     @GetMapping("content/group")
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupList(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam Long groupId,
-            @RequestParam Integer page
+            @AuthenticationPrincipal final UserDetails userDetails,
+            @RequestParam final Long groupId,
+            @RequestParam final Integer page
     ) {
         return contentService.groupListContent(userDetails, groupId, page);
     }
@@ -31,9 +31,9 @@ public class ContentController {
     // 그룹 전체 피드 리스트 조회
     @GetMapping("content/group/all")
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupAllList(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam List<Long> groupId,
-            @RequestParam Integer page
+            @AuthenticationPrincipal final UserDetails userDetails,
+            @RequestParam final List<Long> groupId,
+            @RequestParam final Integer page
     ) {
         return contentService.groupAllListContent(userDetails, groupId, page);
     }
