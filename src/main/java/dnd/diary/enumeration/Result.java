@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum Result {
 
 	OK(0, "성공"),
-	CONTENT_DELETE_OK(0, "공감 삭제 성공"),
+	CONTENT_DELETE_OK(0, "게시글 삭제 성공"),
 	EMOTION_DELETE_OK(0, "공감 삭제 성공"),
 	COMMENT_LIKE_DELETE_OK(0, "댓글 좋아요 삭제 성공"),
 	FAIL(-1, "실패"),
