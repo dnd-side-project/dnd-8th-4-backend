@@ -13,9 +13,12 @@ import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
-import dnd.diary.repository.user.UserRepository;
-import dnd.diary.repository.content.*;
+import dnd.diary.repository.content.CommentRepository;
+import dnd.diary.repository.content.ContentImageRepository;
+import dnd.diary.repository.content.ContentRepository;
+import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.group.GroupRepository;
+import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -50,10 +54,7 @@ public class ContentService {
     private String bucket;
 
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupAllListContent(UserDetails userDetails, List<Long> groupId, Integer page) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+        User user = getUser(userDetails);
 
         Page<Content> contents = contentRepository.findByGroupIdIn(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
@@ -63,7 +64,7 @@ public class ContentService {
                 (Content content) -> {
                     Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), user.getId());
                     Long emotionStatus;
-                    if (byContentIdAndUserId == null){
+                    if (byContentIdAndUserId == null) {
                         emotionStatus = -1L;
                     } else {
                         emotionStatus = byContentIdAndUserId.getEmotionStatus();
@@ -85,10 +86,7 @@ public class ContentService {
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupListContent(
             UserDetails userDetails, Long groupId, Integer page
     ) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+        User user = getUser(userDetails);
 
         Page<Content> contents = contentRepository.findByGroupId(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
@@ -98,7 +96,7 @@ public class ContentService {
                 (Content content) -> {
                     Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), user.getId());
                     Long emotionStatus;
-                    if (byContentIdAndUserId == null){
+                    if (byContentIdAndUserId == null) {
                         emotionStatus = -1L;
                     } else {
                         emotionStatus = byContentIdAndUserId.getEmotionStatus();
@@ -117,22 +115,11 @@ public class ContentService {
         return CustomResponseEntity.success(collect);
     }
 
+    @Transactional
     public CustomResponseEntity<ContentDto.CreateDto> createContent(
-            UserDetails userDetails,
-            Long groupId,
-            List<MultipartFile> multipartFile,
-            ContentDto.CreateDto request
+            UserDetails userDetails, Long groupId, List<MultipartFile> multipartFile, ContentDto.CreateDto request
     ) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
+        Group group = getGroup(groupId);
         Content content = contentRepository.save(
                 Content.builder()
                         .content(request.getContent())
@@ -140,46 +127,55 @@ public class ContentService {
                         .longitude(request.getLongitude())
                         .views(0L)
                         .contentLink("test")
-                        .user(user)
+                        .user(getUser(userDetails))
                         .group(group)
                         .build()
         );
-
         group.updateRecentModifiedAt(LocalDateTime.now());
 
+        if (multipartFile == null) {
+            return CustomResponseEntity.success(
+                    ContentDto.CreateDto.response(
+                            content,
+                            null
+                    )
+            );
+        } else {
+            uploadFiles(multipartFile, content);
+            return CustomResponseEntity.success(
+                    ContentDto.CreateDto.response(
+                            content,
+                            contentImageRepository.findByContentId(content.getId())
+                                    .stream()
+                                    .map(ContentDto.ImageResponseDto::response)
+                                    .toList()
+                    )
+            );
+        }
+    }
+
+    private void uploadFiles(List<MultipartFile> multipartFile, Content content) {
         multipartFile.forEach(file -> {
             String fileName = saveImage(file);
-
             ContentImage contentImage = ContentImage.builder()
                     .content(content)
                     .imageName(fileName)
                     .imageUrl(amazonS3Client.getUrl(bucket, fileName).toString())
                     .build();
-
             contentImageRepository.save(contentImage);
         });
-
-        List<ContentImage> contentImages = contentImageRepository.findByContentId(content.getId());
-        List<ContentDto.ImageResponseDto> collect = contentImages.stream().map(ContentDto.ImageResponseDto::response).toList();
-
-
-        return CustomResponseEntity.success(
-                ContentDto.CreateDto.response(content, collect)
-        );
     }
 
+    @Transactional
     public CustomResponseEntity<ContentDto.detailDto> detailContent(Long contentId) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
-        List<ContentImage> contentImages = contentImageRepository.findByContentId(content.getId());
-        List<ContentDto.ImageResponseDto> collect = contentImages.stream().map(ContentDto.ImageResponseDto::response).toList();
-
+        Content content = getContent(contentId);
         return CustomResponseEntity.success(
                 ContentDto.detailDto.response(
-                        content, collect
+                        content,
+                        contentImageRepository.findByContentId(content.getId())
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList()
                 )
         );
     }
@@ -187,10 +183,7 @@ public class ContentService {
     public CustomResponseEntity<ContentDto.UpdateDto> updateContent(
             Long contentId, List<MultipartFile> multipartFile, ContentDto.UpdateDto request
     ) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+        Content content = getContent(contentId);
         if (request.getDeleteContentImageName() != null) {
             request.getDeleteContentImageName().forEach(deleteImageNameDto ->
                     deleteFile(deleteImageNameDto.getImageName())
@@ -205,17 +198,7 @@ public class ContentService {
         }
 
         if (multipartFile != null) {
-            multipartFile.forEach(file -> {
-                String fileName = saveImage(file);
-
-                ContentImage contentImage = ContentImage.builder()
-                        .content(content)
-                        .imageName(fileName)
-                        .imageUrl(amazonS3Client.getUrl(bucket, fileName).toString())
-                        .build();
-
-                contentImageRepository.save(contentImage);
-            });
+            uploadFiles(multipartFile, content);
         }
 
         Content updateContent = contentRepository.save(
@@ -244,10 +227,7 @@ public class ContentService {
     public CustomResponseEntity<ContentDto.deleteContent> deleteContent(
             UserDetails userDetails, Long contentId
     ) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+        User user = getUser(userDetails);
         Content content = contentRepository.findByIdAndUserId(contentId, user.getId())
                 .orElseThrow(
                         () -> new CustomException(Result.DELETE_CONTENT_FAIL)
@@ -292,5 +272,28 @@ public class ContentService {
         List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
         List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
         return emotion;
+    }
+
+    private Group getGroup(Long groupId) {
+        return groupRepository.findById(groupId)
+                .orElseThrow(
+                        () -> new CustomException(Result.NOT_FOUND_GROUP)
+                );
+    }
+
+    private User getUser(UserDetails userDetails) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        return user;
+    }
+
+    private Content getContent(Long contentId) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.NOT_FOUND_CONTENT)
+                );
+        return content;
     }
 }
