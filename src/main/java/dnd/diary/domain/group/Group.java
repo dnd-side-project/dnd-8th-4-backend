@@ -73,6 +73,7 @@ public class Group extends BaseEntity {
         this.groupNote = groupNote;
         this.groupImageUrl = groupImageUrl;
         this.groupCreateUser = groupCreateUser;
+        this.recentUpdatedAt = LocalDateTime.now();   // 그룹 생성일을 초기값으로
         this.deleted = false;
     }
 

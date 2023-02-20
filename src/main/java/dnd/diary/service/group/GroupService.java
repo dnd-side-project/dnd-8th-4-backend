@@ -137,6 +137,7 @@ public class GroupService {
 			} else {
 				groupStar.update(GroupStarStatus.ADD);
 			}
+			groupStarRepository.save(groupStar);
 		}
 
 		GroupStar newGroupStar = groupStarRepository.findByGroupIdAndUserId(groupId, user.getId());
@@ -180,6 +181,7 @@ public class GroupService {
                     .groupId(group.getId())
                     .groupName(group.getGroupName())
                     .groupNote(group.getGroupNote())
+					.groupImageUrl(group.getGroupImageUrl())
                     .groupCreatedAt(group.getCreatedAt())
                     .recentUpdatedAt(group.getRecentUpdatedAt())
                     .memberCount(group.getUserJoinGroups().size())
@@ -262,6 +264,43 @@ public class GroupService {
 			.build();
 	}
 	 */
+
+	public GroupListResponse searchGroupList(String keyword) {
+		User user = findUser();
+		if (user.getUserJoinGroups().size() == 0) {
+			return GroupListResponse.builder().existGroup(false).build();
+		}
+		GroupListResponse response = new GroupListResponse();
+		response.setExistGroup(true);
+		List<GroupListResponse.GroupInfo> groupInfoList = new ArrayList<>();
+		List<Group> searchGroupList = groupRepository.findByGroupNameContainingIgnoreCaseOrGroupNoteContainingIgnoreCase(keyword, keyword);
+
+		for (Group group : searchGroupList) {
+			boolean isStarGroup = false;
+			for (GroupStar groupStar : group.getGroupStars()) {
+				if (user.getId().equals(groupStar.getUser().getId())) {
+					isStarGroup = true;
+					break;
+				}
+			}
+			GroupListResponse.GroupInfo groupInfo = GroupListResponse.GroupInfo.builder()
+				.groupId(group.getId())
+				.groupName(group.getGroupName())
+				.groupNote(group.getGroupNote())
+				.groupImageUrl(group.getGroupImageUrl())
+				.groupCreatedAt(group.getCreatedAt())
+				.recentUpdatedAt(group.getRecentUpdatedAt())
+				.memberCount(group.getUserJoinGroups().size())
+				.isStarGroup(isStarGroup)
+				.build();
+
+			groupInfoList.add(groupInfo);
+		}
+		groupInfoList.sort(Comparator.comparing(GroupListResponse.GroupInfo::getRecentUpdatedAt).reversed());
+		response.setGroupInfoList(groupInfoList);
+
+		return response;
+	}
 
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();
