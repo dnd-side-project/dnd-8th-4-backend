@@ -26,17 +26,9 @@ public class EmotionService {
     public CustomResponseEntity<EmotionDto.AddEmotionDto> addEmotion(
             UserDetails userDetails, Long contentId, EmotionDto.AddEmotionDto request
     ) {
+        validateAddEmotion(request,contentId);
 
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
+        User user = getUser(userDetails);
         Emotion existsEmotionUser = emotionRepository.findByContentIdAndUserId(contentId, user.getId());
 
         if (existsEmotionUser == null) {
@@ -44,7 +36,7 @@ public class EmotionService {
                             emotionRepository.save(
                                     Emotion.builder()
                                             .emotionStatus(request.getEmotionStatus())
-                                            .content(content)
+                                            .content(getContent(contentId))
                                             .user(user)
                                             .build()
                             )
@@ -53,6 +45,32 @@ public class EmotionService {
         } else {
             emotionRepository.deleteById(existsEmotionUser.getId());
             return CustomResponseEntity.successDeleteEmotion();
+        }
+    }
+
+    // method
+    private User getUser(UserDetails userDetails) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        return user;
+    }
+
+    private Content getContent(Long contentId) {
+        return contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+    }
+
+    // validate
+    private void validateAddEmotion(EmotionDto.AddEmotionDto request, Long contentId) {
+        if (!contentRepository.existsById(contentId)){
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
+        if(request.getEmotionStatus()>=6){
+            throw new CustomException(Result.NOT_SUPPORTED_EMOTION_STATUS);
         }
     }
 }

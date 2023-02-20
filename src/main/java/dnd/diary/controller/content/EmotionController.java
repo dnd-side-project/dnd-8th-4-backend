@@ -20,9 +20,9 @@ public class EmotionController {
 
     @PostMapping("/content/{contentId}/emotion")
     public CustomResponseEntity<EmotionDto.AddEmotionDto> emotionAdd(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable(name = "contentId") Long contentId,
-            @Valid @RequestBody EmotionDto.AddEmotionDto request
+            @AuthenticationPrincipal final UserDetails userDetails,
+            @PathVariable(name = "contentId") final Long contentId,
+            @Valid @RequestBody final EmotionDto.AddEmotionDto request
     ) {
         return emotionService.addEmotion(userDetails, contentId, request);
     }
