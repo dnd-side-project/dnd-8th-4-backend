@@ -133,14 +133,14 @@ public class ContentService {
         );
         group.updateRecentModifiedAt(LocalDateTime.now());
 
-        if (multipartFile == null){
+        if (multipartFile == null) {
             return CustomResponseEntity.success(
                     ContentDto.CreateDto.response(
                             content,
                             null
                     )
             );
-        } else{
+        } else {
             uploadFiles(multipartFile, content);
             return CustomResponseEntity.success(
                     ContentDto.CreateDto.response(
@@ -166,18 +166,16 @@ public class ContentService {
         });
     }
 
+    @Transactional
     public CustomResponseEntity<ContentDto.detailDto> detailContent(Long contentId) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-
-        List<ContentImage> contentImages = contentImageRepository.findByContentId(content.getId());
-        List<ContentDto.ImageResponseDto> collect = contentImages.stream().map(ContentDto.ImageResponseDto::response).toList();
-
+        Content content = getContent(contentId);
         return CustomResponseEntity.success(
                 ContentDto.detailDto.response(
-                        content, collect
+                        content,
+                        contentImageRepository.findByContentId(content.getId())
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList()
                 )
         );
     }
@@ -185,10 +183,7 @@ public class ContentService {
     public CustomResponseEntity<ContentDto.UpdateDto> updateContent(
             Long contentId, List<MultipartFile> multipartFile, ContentDto.UpdateDto request
     ) {
-        Content content = contentRepository.findById(contentId)
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+        Content content = getContent(contentId);
         if (request.getDeleteContentImageName() != null) {
             request.getDeleteContentImageName().forEach(deleteImageNameDto ->
                     deleteFile(deleteImageNameDto.getImageName())
@@ -292,5 +287,13 @@ public class ContentService {
                         () -> new CustomException(Result.FAIL)
                 );
         return user;
+    }
+
+    private Content getContent(Long contentId) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+        return content;
     }
 }
