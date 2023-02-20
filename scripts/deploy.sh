@@ -1,10 +1,12 @@
 #!/bin/bash
 
-REPOSITORY=/home/ec2-user/app/deploy/dnd-8th-4-backend
+REPOSITORY=/home/ec2-user/app/deploy
 
 echo">check running pid"
 
-CURRENT_PID=$(pgrep -f $REPOSITORY)
+
+CURRENT_PID=$(pgrep -f diary)
+
 
 echo "> CURRENT_PID"
 
@@ -22,9 +24,9 @@ echo "> deploy new application"
 
 echo "> copy build file"
 
-cp $REPOSITORY/build/libs/*.jar /home/ec2-user/app/deploy/jar/
+cp $REPOSITORY/build/libs/*.jar $REPOSITORY/jar/
 
-JAR_NAME=$(ls -tr /home/ec2-user/app/deploy/jar/*.jar | tail -n 1)
+JAR_NAME=$(ls -tr $REPOSITORY/jar/*.jar | tail -n 1)
 
 echo "> JAR Name: $JAR_NAME"
 
