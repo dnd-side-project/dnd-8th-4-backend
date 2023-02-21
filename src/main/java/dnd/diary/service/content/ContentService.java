@@ -126,7 +126,7 @@ public class ContentService {
         return CustomResponseEntity.success(
                 ContentDto.detailDto.response(
                         content,
-                        contentImageRepository.findByContentId(content.getId())
+                        content.getContentImages()
                                 .stream()
                                 .map(ContentDto.ImageResponseDto::response)
                                 .toList()
