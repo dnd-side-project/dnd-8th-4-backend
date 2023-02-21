@@ -224,4 +224,29 @@ public class ContentDto {
     public static class deleteContent {
         private Long contentid;
     }
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class mapListContent {
+        private Long id;
+        private Double latitude;
+        private Double longitude;
+        private Long userId;
+        private Long groupId;
+        List<ContentDto.ImageResponseDto> collect;
+        public static ContentDto.mapListContent response(
+                Content content,List<ContentDto.ImageResponseDto> collect
+        ) {
+          return mapListContent.builder()
+                  .id(content.getId())
+                  .latitude(content.getLatitude())
+                  .longitude(content.getLongitude())
+                  .userId(content.getUser().getId())
+                  .groupId(content.getGroup().getId())
+                  .collect(collect)
+                  .build();
+        }
+    }
 }
