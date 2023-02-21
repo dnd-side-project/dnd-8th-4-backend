@@ -128,10 +128,15 @@ public class ContentService {
     public CustomResponseEntity<ContentDto.detailDto> detailContent(UserDetails userDetails, Long contentId) {
         Content content = getContent(contentId);
         String redisKey = contentId.toString();
+        String redisUserKey = getUser(userDetails).getNickName();
         String values = redisDao.getValues(redisKey);
+        int views = Integer.parseInt(values);
 
-        int views = Integer.parseInt(values) + 1;
-        redisDao.setValues(redisKey,String.valueOf(views));
+        if(!redisDao.getValuesList(redisUserKey).contains(redisKey)){
+            redisDao.setValuesList(redisUserKey,redisKey);
+            views = Integer.parseInt(values) + 1;
+            redisDao.setValues(redisKey,String.valueOf(views));
+        }
 
         return CustomResponseEntity.success(
                 ContentDto.detailDto.response(
