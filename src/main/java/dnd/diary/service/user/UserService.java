@@ -2,20 +2,29 @@ package dnd.diary.service.user;
 
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
+import dnd.diary.domain.bookmark.Bookmark;
+import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
+import dnd.diary.dto.content.ContentDto;
 import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
+import dnd.diary.repository.content.BookmarkRepository;
+import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.user.UserSearchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +41,8 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final EmotionRepository emotionRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -86,7 +97,7 @@ public class UserService {
 
     @Transactional
     public CustomResponseEntity<Result> emailCheckMatch(String email) {
-        if(!userRepository.existsByEmail(email)){
+        if (!userRepository.existsByEmail(email)) {
             return CustomResponseEntity.successEmailCheck();
         } else {
             throw new CustomException(Result.DUPLICATION_USER);
@@ -149,14 +160,15 @@ public class UserService {
                 .userSearchInfoList(userSearchInfoList)
                 .build();
     }
+
     // Validate
     private void validateRegister(UserDto.RegisterDto request) {
         Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
         Boolean existsByNickName = userRepository.existsByNickName(request.getNickName());
-        if(existsByEmail){
+        if (existsByEmail) {
             throw new CustomException(Result.DUPLICATION_USER);
         }
-        if (existsByNickName){
+        if (existsByNickName) {
             throw new CustomException(Result.DUPLICATION_NICKNAME);
         }
     }
@@ -164,7 +176,7 @@ public class UserService {
     private void validateLogin(
             UserDto.LoginDto request
     ) {
-        if(!userRepository.existsByEmail(request.getEmail())){
+        if (!userRepository.existsByEmail(request.getEmail())) {
             throw new CustomException(Result.NOT_FOUND_USER);
         }
 
@@ -177,5 +189,43 @@ public class UserService {
         ) {
             throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
         }
+    }
+
+    public CustomResponseEntity<Page<UserDto.BookmarkDto>> listMyBookmark(UserDetails userDetails, Integer page) {
+
+        Page<Bookmark> bookmarkPage = bookmarkRepository.findByUserId(
+                getUser(userDetails.getUsername()).getId(),
+                PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<UserDto.BookmarkDto> bookmarkDtoPage = bookmarkPage.map((Bookmark bookmark) -> {
+                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(
+                            bookmark.getContent().getId(), getUser(userDetails.getUsername()).getId()
+                    );
+
+                    Long emotionStatus;
+                    if (byContentIdAndUserId == null) {
+                        emotionStatus = -1L;
+                    } else {
+                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
+                    }
+
+                    String values = redisDao.getValues(bookmark.getContent().getId().toString());
+                    return UserDto.BookmarkDto.response(
+                            bookmark,
+                            Integer.parseInt(values),
+                            emotionStatus,
+                            bookmark.getContent().getContentImages()
+                                    .stream()
+                                    .map(ContentDto.ImageResponseDto::response)
+                                    .toList(),
+                            bookmark.getContent().getEmotions()
+                                    .stream()
+                                    .map(ContentDto.EmotionResponseDto::response)
+                                    .toList()
+                    );
+                }
+        );
+        return CustomResponseEntity.success(bookmarkDtoPage);
     }
 }
