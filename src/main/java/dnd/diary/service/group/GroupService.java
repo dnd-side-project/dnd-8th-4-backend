@@ -3,14 +3,19 @@ package dnd.diary.service.group;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.GroupStarStatus;
+import dnd.diary.domain.group.Invite;
+import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserJoinGroup;
+import dnd.diary.dto.group.GroupInviteRequest;
 import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.dto.group.GroupCreateRequest;
 import dnd.diary.dto.group.GroupUpdateRequest;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.group.GroupStarRepository;
+import dnd.diary.repository.group.InviteRepository;
+import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.response.group.*;
@@ -35,10 +40,12 @@ public class GroupService {
 
 	private final UserRepository userRepository;
 	private final GroupRepository groupRepository;
+	private final UserJoinGroupRepository userJoinGroupRepository;
 	private final GroupStarRepository groupStarRepository;
+	private final InviteRepository inviteRepository;
+	private final NotificationRepository notificationRepository;
 
 	private final UserService userService;
-	private final UserJoinGroupRepository userJoinGroupRepository;
 	private final S3Service s3Service;
 
 	@Transactional
@@ -257,9 +264,54 @@ public class GroupService {
 	}
 
 	// 그룹 초대
-//	public GroupInviteResponse inviteGroupMember(GroupInviteRequest request) {
-//		return null;
-//	}
+	public GroupInviteResponse inviteGroupMember(GroupInviteRequest request) {
+
+		// 이미 그룹의 최대 인원이 포함된 경우 초대 불가 -> 예외 처리 추후
+		Group inviteGroup = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
+		//        if (group.getUserJoinGroups().size() >= MAX_GROUP_MEMBER_COUNT) {
+		//            throw new CustomException(HIGH_MAX_GROUP_MEMBER_COUNT);
+		//        }
+
+		List<UserJoinGroup> userJoinGroupList = inviteGroup.getUserJoinGroups();
+		// 이미 해당 그룹에 포함된 유저 ID 목록
+		List<Long> groupUserIdList = new ArrayList<>();
+		userJoinGroupList.forEach(
+			userJoinGroup -> groupUserIdList.add(userJoinGroup.getUser().getId())
+		);
+
+		// List<User> enableInviteUserList = new ArrayList<>();   // 초대 가능한 사용자 리스트
+		List<GroupInviteResponse.InvitedUserInfo> invitedUserInfoList = new ArrayList<>();
+
+		List<Invite> inviteList = new ArrayList<>();
+		// request 에 포함된 유저 ID 가 이미 그 그룹에 있는 경우 예외 처리
+		for (Long userId : request.getInvitedUserIdList()) {
+			User invitedUser = userRepository.findById(userId).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+			if (groupUserIdList.contains(invitedUser.getId())) {
+				throw new CustomException(ALREADY_EXIST_IN_GROUP);
+			}
+			// enableInviteUserList.add(invitedUser);
+			invitedUserInfoList.add(new GroupInviteResponse.InvitedUserInfo(invitedUser));
+
+			Invite invite = Invite.toEntity(inviteGroup, invitedUser);
+			Notification notification = Notification.toEntity(invite);
+
+			inviteRepository.save(invite);
+			notificationRepository.save(notification);
+
+			inviteList.add(invite);
+		}
+
+		// enableInviteUserList 에 속한 사용자들에게 초대 처리 후 -> inviteList 알림 전송
+
+		// 그룹 초대에 성공한 유저들에 대한 정보 리턴
+		return GroupInviteResponse.builder()
+			.groupId(inviteGroup.getId())
+			.groupName(inviteGroup.getGroupName())
+			.hostUser(new GroupInviteResponse.HostUser(inviteGroup.getGroupCreateUser()))
+			.invitedUserInfoList(invitedUserInfoList)
+			.successInvitedUserCount(invitedUserInfoList.size())
+			.build();
+	}
 
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();
