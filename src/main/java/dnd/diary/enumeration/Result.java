@@ -9,6 +9,7 @@ public enum Result {
 	FAIL(-1, "실패"),
 	// 유저 관련
 	NOT_FOUND_USER(2200, "존재하지 않는 사용자"),
+	POSSIBLE_USE_EMAIL(0, "사용 가능한 이메일"),
 	DUPLICATION_USER(2201, "이미 존재하는 사용자"),
 	DUPLICATION_NICKNAME(2202, "이미 존재하는 닉네임"),
 	NOT_MATCHED_ID_OR_PASSWORD(2203,"아이디 또는 비밀번호를 잘못 입력하였습니다."),

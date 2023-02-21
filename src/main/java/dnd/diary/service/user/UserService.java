@@ -8,6 +8,7 @@ import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.user.UserRepository;
+import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.user.UserSearchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +84,16 @@ public class UserService {
         );
     }
 
+    @Transactional
+    public CustomResponseEntity<Result> emailCheckMatch(String email) {
+        if(!userRepository.existsByEmail(email)){
+            return CustomResponseEntity.successEmailCheck();
+        } else {
+            throw new CustomException(Result.DUPLICATION_USER);
+        }
+    }
     // method
+
     private User getUser(String email) {
         Optional<User> oneWithAuthoritiesByEmail = userRepository.
                 findOneWithAuthoritiesByEmail(email);
@@ -139,7 +149,6 @@ public class UserService {
                 .userSearchInfoList(userSearchInfoList)
                 .build();
     }
-
     // Validate
     private void validateRegister(UserDto.RegisterDto request) {
         Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
@@ -151,6 +160,7 @@ public class UserService {
             throw new CustomException(Result.DUPLICATION_NICKNAME);
         }
     }
+
     private void validateLogin(
             UserDto.LoginDto request
     ) {
