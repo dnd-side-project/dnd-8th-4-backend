@@ -227,12 +227,6 @@ public class ContentService {
         }
     }
 
-    private List<ContentDto.EmotionResponseDto> getEmotionResponseDtos(Long contentId) {
-        List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
-        List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
-        return emotion;
-    }
-
     private Group getGroup(Long groupId) {
         return groupRepository.findById(groupId)
                 .orElseThrow(
@@ -257,7 +251,7 @@ public class ContentService {
     }
 
     private Page<ContentDto.groupListPagePostsDto> getGroupListPagePostsDtos(UserDetails userDetails, Page<Content> contents) {
-        Page<ContentDto.groupListPagePostsDto> collect = contents.map(
+        return contents.map(
                 (Content content) -> {
                     Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
                     Long emotionStatus;
@@ -267,17 +261,21 @@ public class ContentService {
                         emotionStatus = byContentIdAndUserId.getEmotionStatus();
                     }
                     return ContentDto.groupListPagePostsDto.response(
-                            content, contentImageRepository.findByContentId(
-                                    content.getId()
-                            ).stream().map(ContentDto.ImageResponseDto::response).toList(),
-                            commentRepository.countByContentId(content.getId()),
-                            emotionRepository.countByContentId(content.getId()),
-                            getEmotionResponseDtos(content.getId()),
+                            content,
+                            content.getContentImages()
+                                    .stream()
+                                    .map(ContentDto.ImageResponseDto::response)
+                                    .toList(),
+                            (long) content.getComments().size(),
+                            (long) content.getEmotions().size(),
+                            content.getEmotions()
+                                    .stream()
+                                    .map(ContentDto.EmotionResponseDto::response)
+                                    .toList(),
                             emotionStatus
                     );
                 }
         );
-        return collect;
     }
 
     private void deleteContentImage(List<MultipartFile> multipartFile, ContentDto.UpdateDto request, Content content) {
