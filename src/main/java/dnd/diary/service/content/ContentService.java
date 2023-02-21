@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import dnd.diary.config.RedisDao;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.ContentImage;
 import dnd.diary.domain.content.Emotion;
@@ -43,7 +44,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ContentService {
-    private final CommentRepository commentRepository;
+    private final RedisDao redisDao;
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
@@ -97,7 +98,10 @@ public class ContentService {
                         .group(group)
                         .build()
         );
+        String redisKey = content.getId().toString();
+
         group.updateRecentModifiedAt(LocalDateTime.now());
+        redisDao.setValues(redisKey,"0");
 
         if (multipartFile == null) {
             return CustomResponseEntity.success(
@@ -121,11 +125,18 @@ public class ContentService {
     }
 
     @Transactional
-    public CustomResponseEntity<ContentDto.detailDto> detailContent(Long contentId) {
+    public CustomResponseEntity<ContentDto.detailDto> detailContent(UserDetails userDetails, Long contentId) {
         Content content = getContent(contentId);
+        String redisKey = contentId.toString();
+        String values = redisDao.getValues(redisKey);
+
+        int views = Integer.parseInt(values) + 1;
+        redisDao.setValues(redisKey,String.valueOf(views));
+
         return CustomResponseEntity.success(
                 ContentDto.detailDto.response(
                         content,
+                        views,
                         content.getContentImages()
                                 .stream()
                                 .map(ContentDto.ImageResponseDto::response)

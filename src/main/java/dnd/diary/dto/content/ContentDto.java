@@ -200,13 +200,13 @@ public class ContentDto {
         List<ContentDto.ImageResponseDto> collect;
 
 
-        public static ContentDto.detailDto response(Content content, List<ContentDto.ImageResponseDto> collect) {
+        public static ContentDto.detailDto response(Content content, Integer views, List<ContentDto.ImageResponseDto> collect) {
             return detailDto.builder()
                     .id(content.getId())
                     .content(content.getContent())
                     .latitude(content.getLatitude())
                     .longitude(content.getLongitude())
-                    .views(content.getViews())
+                    .views(views)
                     .contentLink(content.getContentLink())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
