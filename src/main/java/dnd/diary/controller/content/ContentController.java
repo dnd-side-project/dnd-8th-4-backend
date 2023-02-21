@@ -1,9 +1,11 @@
 package dnd.diary.controller.content;
 
+import dnd.diary.domain.content.Content;
 import dnd.diary.dto.content.ContentDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.content.ContentService;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.io.ParseException;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +48,7 @@ public class ContentController {
             @RequestParam final Long groupId,
             @RequestPart(required = false) final List<MultipartFile> multipartFile,
             @Valid @RequestPart final ContentDto.CreateDto request
-    ) {
+    ) throws ParseException {
         return contentService.createContent(user, groupId, multipartFile, request);
     }
 
@@ -76,5 +79,15 @@ public class ContentController {
             @RequestParam final Long contentId
     ) {
         return contentService.deleteContent(userDetails, contentId);
+    }
+
+    // 지도 포함 검색
+    @GetMapping("content/map")
+    public CustomResponseEntity<List<ContentDto.mapListContent>> myMapList(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam final Double x,
+            @RequestParam final Double y
+    ){
+        return contentService.listMyMap(userDetails,x,y);
     }
 }
