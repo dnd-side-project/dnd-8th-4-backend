@@ -30,6 +30,13 @@ public class CustomResponseEntity<T> {
 			.build();
 	}
 
+	public static <T> CustomResponseEntity<T> successEmailCheck() {
+		return CustomResponseEntity.<T>builder()
+				.code(Result.POSSIBLE_USE_EMAIL.getCode())
+				.message(Result.POSSIBLE_USE_EMAIL.getMessage())
+				.build();
+	}
+
 	public static <T> CustomResponseEntity<T> successDeleteContent() {
 		return CustomResponseEntity.<T>builder()
 				.code(Result.CONTENT_DELETE_OK.getCode())
