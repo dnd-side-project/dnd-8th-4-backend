@@ -48,6 +48,8 @@ public class GroupService {
 	private final UserService userService;
 	private final S3Service s3Service;
 
+	private final int MAX_GROUP_MEMBER_COUNT = 50;
+
 	@Transactional
 	public GroupCreateResponse createGroup(MultipartFile multipartFile, GroupCreateRequest request) {
 		User hostUser = findUser();
@@ -266,30 +268,36 @@ public class GroupService {
 	// 그룹 초대
 	public GroupInviteResponse inviteGroupMember(GroupInviteRequest request) {
 
-		// 이미 그룹의 최대 인원이 포함된 경우 초대 불가 -> 예외 처리 추후
+		User hostUser = findUser();
 		Group inviteGroup = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
-		//        if (group.getUserJoinGroups().size() >= MAX_GROUP_MEMBER_COUNT) {
-		//            throw new CustomException(HIGH_MAX_GROUP_MEMBER_COUNT);
-		//        }
+
+		// 초대는 방장만 가능
+		if (!hostUser.getId().equals(inviteGroup.getGroupCreateUser().getId())) {
+			throw new CustomException(NO_AUTHORITY_INVITE);
+		}
+		// 초대 시도하는 사용자 수가 50명 이상인 경우(방장 제외)
+		if (request.getInvitedUserIdList().size() >= MAX_GROUP_MEMBER_COUNT) {
+			throw new CustomException(HIGH_MAX_INVITE_MEMBER_COUNT);
+		}
+		// 초대하려는 인원 + 기존 그룹 인원 > 50명
+		if (request.getInvitedUserIdList().size() + inviteGroup.getUserJoinGroups().size() >= MAX_GROUP_MEMBER_COUNT) {
+			throw new CustomException(HIGH_MAX_GROUP_MEMBER_COUNT);
+		}
 
 		List<UserJoinGroup> userJoinGroupList = inviteGroup.getUserJoinGroups();
-		// 이미 해당 그룹에 포함된 유저 ID 목록
 		List<Long> groupUserIdList = new ArrayList<>();
 		userJoinGroupList.forEach(
 			userJoinGroup -> groupUserIdList.add(userJoinGroup.getUser().getId())
 		);
 
-		// List<User> enableInviteUserList = new ArrayList<>();   // 초대 가능한 사용자 리스트
 		List<GroupInviteResponse.InvitedUserInfo> invitedUserInfoList = new ArrayList<>();
 
 		List<Invite> inviteList = new ArrayList<>();
-		// request 에 포함된 유저 ID 가 이미 그 그룹에 있는 경우 예외 처리
 		for (Long userId : request.getInvitedUserIdList()) {
 			User invitedUser = userRepository.findById(userId).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 			if (groupUserIdList.contains(invitedUser.getId())) {
 				throw new CustomException(ALREADY_EXIST_IN_GROUP);
 			}
-			// enableInviteUserList.add(invitedUser);
 			invitedUserInfoList.add(new GroupInviteResponse.InvitedUserInfo(invitedUser));
 
 			Invite invite = Invite.toEntity(inviteGroup, invitedUser);
@@ -301,9 +309,6 @@ public class GroupService {
 			inviteList.add(invite);
 		}
 
-		// enableInviteUserList 에 속한 사용자들에게 초대 처리 후 -> inviteList 알림 전송
-
-		// 그룹 초대에 성공한 유저들에 대한 정보 리턴
 		return GroupInviteResponse.builder()
 			.groupId(inviteGroup.getId())
 			.groupName(inviteGroup.getGroupName())
