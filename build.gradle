@@ -26,6 +26,7 @@ dependencies {
 	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	implementation group: 'org.hibernate', name: 'hibernate-spatial', version: '5.6.9.Final'
 
 	compileOnly 'org.projectlombok:lombok'
 
@@ -41,6 +42,7 @@ dependencies {
 
 	testCompileOnly 'org.projectlombok:lombok' // 테스트 의존성 추가
 	testAnnotationProcessor 'org.projectlombok:lombok' // 테스트 의존성 추가
+
 
 
 }

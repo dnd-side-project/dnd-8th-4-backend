@@ -6,6 +6,9 @@ import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -41,7 +44,7 @@ public class UserController {
     }
 
     // 정보 조회
-    @GetMapping("auth")
+    @GetMapping("auth/my/info")
     public CustomResponseEntity<UserDto.InfoDto> userMyList(
     ) {
         return CustomResponseEntity.success(userService.findMyListUser());
@@ -52,4 +55,14 @@ public class UserController {
     public CustomResponseEntity<UserSearchResponse> searchUserList(@RequestParam String keyword) {
         return CustomResponseEntity.success(userService.searchUserList(keyword));
     }
+
+    // 북마크 글 조회
+    @GetMapping("auth/my/bookmark")
+    public CustomResponseEntity<Page<UserDto.BookmarkDto>> myBookmarkList(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam final Integer page
+    ){
+        return userService.listMyBookmark(userDetails,page);
+    }
+
 }

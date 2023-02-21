@@ -5,6 +5,8 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import dnd.diary.config.GeometryUtil;
+import dnd.diary.config.Location;
 import dnd.diary.config.RedisDao;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.ContentImage;
@@ -12,9 +14,9 @@ import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
+import dnd.diary.enumeration.Direction;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
-import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentImageRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
@@ -23,6 +25,9 @@ import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -51,6 +58,7 @@ public class ContentService {
     private final ContentImageRepository contentImageRepository;
     private final EmotionRepository emotionRepository;
     private final AmazonS3Client amazonS3Client;
+    private final EntityManager em;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
@@ -85,13 +93,21 @@ public class ContentService {
     @Transactional
     public CustomResponseEntity<ContentDto.CreateDto> createContent(
             UserDetails userDetails, Long groupId, List<MultipartFile> multipartFile, ContentDto.CreateDto request
-    ) {
+    ) throws ParseException {
         Group group = getGroup(groupId);
+        Point point = null;
+
+        if (request.getLatitude() != null && request.getLongitude() != null){
+            String pointWKT = String.format("POINT(%s %s)", request.getLatitude(), request.getLongitude());
+            point = (Point) new WKTReader().read(pointWKT);
+        }
+
         Content content = contentRepository.save(
                 Content.builder()
                         .content(request.getContent())
                         .latitude(request.getLatitude())
                         .longitude(request.getLongitude())
+                        .point(point)
                         .views(0L)
                         .contentLink("test")
                         .user(getUser(userDetails))
@@ -101,7 +117,7 @@ public class ContentService {
         String redisKey = content.getId().toString();
 
         group.updateRecentModifiedAt(LocalDateTime.now());
-        redisDao.setValues(redisKey,"0");
+        redisDao.setValues(redisKey, "0");
 
         if (multipartFile == null) {
             return CustomResponseEntity.success(
@@ -132,10 +148,10 @@ public class ContentService {
         String values = redisDao.getValues(redisKey);
         int views = Integer.parseInt(values);
 
-        if(!redisDao.getValuesList(redisUserKey).contains(redisKey)){
-            redisDao.setValuesList(redisUserKey,redisKey);
+        if (!redisDao.getValuesList(redisUserKey).contains(redisKey)) {
+            redisDao.setValuesList(redisUserKey, redisKey);
             views = Integer.parseInt(values) + 1;
-            redisDao.setValues(redisKey,String.valueOf(views));
+            redisDao.setValues(redisKey, String.valueOf(views));
         }
 
         return CustomResponseEntity.success(
@@ -156,7 +172,7 @@ public class ContentService {
     ) {
         validateUpdateContent(contentId);
 
-        Content content = existsContentAndUser(contentId,getUser(userDetails).getId());
+        Content content = existsContentAndUser(contentId, getUser(userDetails).getId());
         deleteContentImage(multipartFile, request, content);
         String redisKey = content.getId().toString();
 
@@ -191,6 +207,53 @@ public class ContentService {
                 existsContentAndUser(contentId, getUser(userDetails).getId())
         );
         return CustomResponseEntity.successDeleteContent();
+    }
+
+    @Transactional
+    public CustomResponseEntity<List<ContentDto.mapListContent>> listMyMap(UserDetails userDetails, Double x, Double y) {
+        Location northEast = GeometryUtil.calculate(x, y, 2.0, Direction.NORTHEAST.getBearing());
+        Location southWest = GeometryUtil.calculate(x, y, 2.0, Direction.SOUTHWEST.getBearing());
+
+        String pointFormat = String.format(
+                "'LINESTRING(%f %f, %f %f)')",
+                northEast.getLatitude(), northEast.getLongitude(),
+                southWest.getLatitude(), southWest.getLongitude()
+        );
+        List<?> list = em.createNativeQuery(
+                        "" +
+                                "SELECT c.group_id \n" +
+                                "FROM user_join_group AS c \n" +
+                                "WHERE user_id = ?"
+                )
+                .setParameter(1, getUser(userDetails).getId())
+                .getResultList();
+
+        String join = String.join(
+                ",", list.stream().map(Object::toString).toList()
+        );
+
+        Query query = em.createNativeQuery(
+                "" +
+                        "SELECT * \n" +
+                        "FROM content AS c \n" +
+                        "WHERE c.group_id IN (" +
+                        join +
+                        ") AND " +
+                        "MBRContains(ST_LINESTRINGFROMTEXT(" + pointFormat + ", c.point)"
+                , Content.class
+        ).setMaxResults(10);
+
+        List<Content> contents = query.getResultList();
+
+        return CustomResponseEntity.success(contents.stream().map((Content content) ->
+                        ContentDto.mapListContent.response(content,
+                                content.getContentImages()
+                                        .stream()
+                                        .map(ContentDto.ImageResponseDto::response)
+                                        .toList()
+                        )
+                ).toList()
+        );
     }
 
     // method
@@ -317,10 +380,10 @@ public class ContentService {
             uploadFiles(multipartFile, content);
         }
     }
-
     // validate
+
     private void validateUpdateContent(Long contentId) {
-        if (!contentRepository.existsById(contentId)){
+        if (!contentRepository.existsById(contentId)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
     }
@@ -334,7 +397,7 @@ public class ContentService {
     }
 
     private void validateGroupListContent(Long groupId) {
-        if (!groupRepository.existsById(groupId)){
+        if (!groupRepository.existsById(groupId)) {
             throw new CustomException(Result.NOT_FOUND_GROUP);
         }
     }

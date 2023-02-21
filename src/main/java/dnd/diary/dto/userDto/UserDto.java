@@ -1,13 +1,17 @@
 package dnd.diary.dto.userDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.user.User;
+import dnd.diary.dto.content.ContentDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class UserDto {
 
@@ -104,5 +108,54 @@ public class UserDto {
                     .profileImageUrl(user.getProfileImageUrl())
                     .build();
         }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class BookmarkDto {
+        private Long id;
+        private Long userId;
+        private Long groupId;
+        private String userName;
+        private String groupName;
+        private String content;
+        private Double latitude;
+        private Double longitude;
+        private LocalDateTime createAt;
+        private long views;
+        private String contentLink;
+        private Long comments;
+        private Long emotions;
+        private Long emotionStatus;
+        List<ContentDto.ImageResponseDto> Images;
+        List<ContentDto.EmotionResponseDto> emotionResponseDtos;
+
+     public static UserDto.BookmarkDto response(
+             Bookmark bookmark, Integer views, Long emotionStatus,
+             List<ContentDto.ImageResponseDto> images,
+             List<ContentDto.EmotionResponseDto> emotionResponseDtos
+     ){
+         return BookmarkDto.builder()
+                 .id(bookmark.getContent().getId())
+                 .userId(bookmark.getContent().getUser().getId())
+                 .groupId(bookmark.getContent().getGroup().getId())
+                 .userName(bookmark.getContent().getUser().getNickName())
+                 .groupName(bookmark.getContent().getGroup().getGroupName())
+                 .content(bookmark.getContent().getContent())
+                 .latitude(bookmark.getContent().getLatitude())
+                 .longitude(bookmark.getContent().getLongitude())
+                 .createAt(bookmark.getContent().getCreatedAt())
+                 .views(views)
+                 .contentLink(bookmark.getContent().getContentLink())
+                 .comments((long) bookmark.getContent().getComments().size())
+                 .emotions((long) bookmark.getContent().getEmotions().size())
+                 .emotionStatus(emotionStatus)
+                 .Images(images)
+                 .emotionResponseDtos(emotionResponseDtos)
+                 .build();
+     }
     }
 }

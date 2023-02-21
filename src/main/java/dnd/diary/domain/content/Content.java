@@ -11,6 +11,7 @@ import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.locationtech.jts.geom.Point;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -38,6 +39,8 @@ public class Content extends BaseEntity {
     private Double latitude;
 
     private Double longitude;
+
+    private Point point;
 
     @Column(nullable = false)
     private long views;
