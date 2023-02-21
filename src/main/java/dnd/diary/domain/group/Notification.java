@@ -18,8 +18,8 @@ public class Notification extends BaseEntity {
     @Column(name = "notification_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "invite_id")
+    // 일대일 양방향
+    @OneToOne(mappedBy = "notification")
     private Invite invite;
 
     // 알림을 읽었는지 여부
@@ -29,8 +29,6 @@ public class Notification extends BaseEntity {
     private Notification(Invite invite) {
         this.invite = invite;
         this.readYn = false;
-
-        invite.getNotifications().add(this);
     }
 
     public static Notification toEntity(Invite invite) {

@@ -34,9 +34,11 @@ public class Invite extends BaseEntity {
     // 초대에 대한 행동(수락/거절)을 했는지 여부 - 수락/거절 api 호출 후 true 로
     private boolean processYn;
 
-    // 초대에 대한 알림 목록
-    @OneToMany(mappedBy = "invite")
-    private List<Notification> notifications = new ArrayList<>();
+    // 초대에 대한 알림 - 초대 하나에 대해 알림은 하나
+    // 일대일 양방향 - 외래키가 주 테이블(초대)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "notification_id")
+    private Notification notification;
 
     @Builder
     private Invite(Group group, User user) {
