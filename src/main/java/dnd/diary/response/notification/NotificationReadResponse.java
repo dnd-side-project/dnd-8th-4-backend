@@ -28,4 +28,3 @@ public class NotificationReadResponse {
 
     private boolean readYn;   // 알림 읽음 여부
 }
-ㅡ

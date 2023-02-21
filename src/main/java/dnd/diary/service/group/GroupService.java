@@ -301,7 +301,7 @@ public class GroupService {
 			invitedUserInfoList.add(new GroupInviteResponse.InvitedUserInfo(invitedUser));
 
 			Invite invite = Invite.toEntity(inviteGroup, invitedUser);
-			Notification notification = Notification.toEntity(invite);
+			Notification notification = Notification.toEntity(invite, invitedUser);
 
 			inviteRepository.save(invite);
 			notificationRepository.save(notification);

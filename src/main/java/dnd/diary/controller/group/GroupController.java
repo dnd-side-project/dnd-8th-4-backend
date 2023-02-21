@@ -1,9 +1,11 @@
 package dnd.diary.controller.group;
 
 import dnd.diary.dto.group.GroupCreateRequest;
+import dnd.diary.dto.group.GroupInviteRequest;
 import dnd.diary.dto.group.GroupUpdateRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.group.*;
+import dnd.diary.response.group.GroupInviteResponse;
 import dnd.diary.service.group.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -70,9 +72,9 @@ public class GroupController {
 	}
 
 	// 그룹 초대
-//	@PostMapping("/invite")
-//	public CustomResponseEntity<GroupInviteResponse> inviteGroupMember(@RequestBody GroupInviteRequest request) {
-//	 	return CustomResponseEntity.success(groupService.inviteGroupMember(request));
-//	}
+	@PostMapping("/invite")
+	public CustomResponseEntity<GroupInviteResponse> inviteGroupMember(@RequestBody GroupInviteRequest request) {
+	 	return CustomResponseEntity.success(groupService.inviteGroupMember(request));
+	}
 
 }
