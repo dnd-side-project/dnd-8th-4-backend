@@ -153,6 +153,8 @@ public class ContentService {
 
         Content content = existsContentAndUser(contentId,getUser(userDetails).getId());
         deleteContentImage(multipartFile, request, content);
+        String redisKey = content.getId().toString();
+
         return CustomResponseEntity.success(
                 ContentDto.UpdateDto.response(
                         contentRepository.save(
@@ -170,7 +172,8 @@ public class ContentService {
                         contentImageRepository.findByContentId(content.getId())
                                 .stream()
                                 .map(ContentDto.ImageResponseDto::response)
-                                .toList()
+                                .toList(),
+                        Integer.parseInt(redisDao.getValues(redisKey))
                 )
         );
     }
@@ -271,6 +274,7 @@ public class ContentService {
                     } else {
                         emotionStatus = byContentIdAndUserId.getEmotionStatus();
                     }
+                    String redisKey = content.getId().toString();
                     return ContentDto.groupListPagePostsDto.response(
                             content,
                             content.getContentImages()
@@ -283,7 +287,8 @@ public class ContentService {
                                     .stream()
                                     .map(ContentDto.EmotionResponseDto::response)
                                     .toList(),
-                            emotionStatus
+                            emotionStatus,
+                            Integer.parseInt(redisDao.getValues(redisKey))
                     );
                 }
         );

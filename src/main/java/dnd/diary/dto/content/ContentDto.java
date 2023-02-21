@@ -39,7 +39,11 @@ public class ContentDto {
         List<ContentDto.ImageResponseDto> Images;
         List<EmotionResponseDto> emotionResponseDtos;
 
-        public static ContentDto.groupListPagePostsDto response(Content content, List<ImageResponseDto> imageResponseDtos, Long comments, Long emotions, List<EmotionResponseDto> emotionResponseDtos, Long emotionStatus) {
+        public static ContentDto.groupListPagePostsDto response(
+                Content content, List<ImageResponseDto> imageResponseDtos,
+                Long comments, Long emotions, List<EmotionResponseDto> emotionResponseDtos,
+                Long emotionStatus, Integer views
+        ) {
             return groupListPagePostsDto.builder()
                     .id(content.getId())
                     .userId(content.getUser().getId())
@@ -50,7 +54,7 @@ public class ContentDto {
                     .latitude(content.getLatitude())
                     .longitude(content.getLongitude())
                     .createAt(content.getCreatedAt())
-                    .views(content.getViews())
+                    .views(views)
                     .contentLink(content.getContentLink())
                     .comments(comments)
                     .emotions(emotions)
@@ -234,13 +238,13 @@ public class ContentDto {
         private List<deleteImageNameDto> deleteContentImageName;
         List<ContentDto.ImageResponseDto> collect;
 
-        public static ContentDto.UpdateDto response(Content content, List<ContentDto.ImageResponseDto> collect) {
+        public static ContentDto.UpdateDto response(Content content, List<ContentDto.ImageResponseDto> collect, Integer views) {
             return UpdateDto.builder()
                     .id(content.getId())
                     .content(content.getContent())
                     .latitude(content.getLatitude())
                     .longitude(content.getLongitude())
-                    .views(content.getViews())
+                    .views(views)
                     .contentLink(content.getContentLink())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
