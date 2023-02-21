@@ -19,6 +19,7 @@ import dnd.diary.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class GroupService {
 	private final UserJoinGroupRepository userJoinGroupRepository;
 	private final S3Service s3Service;
 
+	@Transactional
 	public GroupCreateResponse createGroup(MultipartFile multipartFile, GroupCreateRequest request) {
 		User hostUser = findUser();
 
@@ -72,6 +74,7 @@ public class GroupService {
 				.build();
 	}
 
+	@Transactional
 	public GroupUpdateResponse updateGroup(MultipartFile multipartFile, GroupUpdateRequest request) {
 		User user = findUser();
 		Group group = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
@@ -88,7 +91,6 @@ public class GroupService {
 		}
 
 		group.update(request.getGroupName(), request.getGroupNote(), imageUrl);
-		groupRepository.save(group);
 
 		return GroupUpdateResponse.builder()
 			.groupId(group.getId())
@@ -103,6 +105,7 @@ public class GroupService {
 			.build();
 	}
 
+	@Transactional
 	public void deleteGroup(Long groupId) {
 		User user = findUser();
 		Group group = groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
@@ -121,6 +124,7 @@ public class GroupService {
 
 	}
 
+	@Transactional
 	public GroupStarResponse starGroup(Long groupId) {
 		User user = findUser();
 
@@ -131,21 +135,20 @@ public class GroupService {
 			GroupStar newGroupStar = GroupStar.toEntity(group, user);
 			groupStarRepository.save(newGroupStar);
 		} else {
-			// 즐겨찾기 등록상태이면 -> 해제 / 등록되어 있지 않으면 -> 등록
 			if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD) {
 				groupStar.update(GroupStarStatus.DELETE);
 			} else {
 				groupStar.update(GroupStarStatus.ADD);
 			}
-			groupStarRepository.save(groupStar);
+			// groupStarRepository.save(groupStar);
 		}
 
 		GroupStar newGroupStar = groupStarRepository.findByGroupIdAndUserId(groupId, user.getId());
 		return GroupStarResponse.builder()
-				.userId(user.getId())
-				.groupId(group.getId())
-				.groupStarYn(newGroupStar.getGroupStarStatus())
-				.build();
+			.userId(user.getId())
+			.groupId(group.getId())
+			.groupStarYn(newGroupStar.getGroupStarStatus())
+			.build();
 	}
 
 	// 내가 속한 그룹 목록 조회
@@ -172,7 +175,7 @@ public class GroupService {
         for (Group group : groupList) {
             boolean isStarGroup = false;
             for (GroupStar groupStar : group.getGroupStars()) {
-                if (user.getId().equals(groupStar.getUser().getId())) {
+                if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD && user.getId().equals(groupStar.getUser().getId())) {
                     isStarGroup = true;
                     break;
                 }
@@ -185,7 +188,7 @@ public class GroupService {
                     .groupCreatedAt(group.getCreatedAt())
                     .recentUpdatedAt(group.getRecentUpdatedAt())
                     .memberCount(group.getUserJoinGroups().size())
-                    .isStarGroup(isStarGroup)   // 조회 유저가 해당 그룹을 즐겨찾기 했는지 여부
+                    .isStarGroup(isStarGroup)
                     .build();
 
 			groupInfoList.add(groupInfo);
@@ -203,7 +206,6 @@ public class GroupService {
 		List<GroupStarListResponse> groupListResponseList = new ArrayList<>();
 
 		for (GroupStar groupStar : userGroupStarList) {
-			// userGroupStar.getGroupStarStatus() == ADD 인 상태에만 추가
 			if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD) {
 				groupListResponseList.add(
 						GroupStarListResponse.builder()
