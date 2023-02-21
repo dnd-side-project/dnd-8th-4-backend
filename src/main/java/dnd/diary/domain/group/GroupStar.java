@@ -36,6 +36,7 @@ public class GroupStar extends BaseEntity {
         this.user = user;
         this.groupStarStatus = GroupStarStatus.ADD;
 
+        user.getGroupStars().add(this);
         group.getGroupStars().add(this);
     }
 
