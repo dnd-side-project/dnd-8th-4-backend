@@ -120,6 +120,7 @@ public class ContentDto {
 
         public static ContentDto.ImageResponseDto response(ContentImage contentImage) {
             return ImageResponseDto.builder()
+                    .id(contentImage.getId())
                     .imageUrl(contentImage.getImageUrl())
                     .imageName(contentImage.getImageName())
                     .contentId(contentImage.getContent().getId())
