@@ -60,26 +60,32 @@ public class Content extends BaseEntity {
 
     // 게시물에 포함된 이미지 목록
     @OneToMany(mappedBy = "content")
+    @Builder.Default
     private List<ContentImage> contentImages = new ArrayList<>();
 
     // 게시물에 달린 댓글 목록
     @OneToMany(mappedBy = "content")
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
     // 게시물에 달린 공감 목록
     @OneToMany(mappedBy = "content")
+    @Builder.Default
     private List<Emotion> emotions = new ArrayList<>();
 
     // 게시물이 북마크된 정보
     @OneToMany(mappedBy = "content")
+    @Builder.Default
     private List<Bookmark> bookmarks = new ArrayList<>();
 
     // 게시물이 포함된 모아보기 목록
     @OneToMany(mappedBy = "content")
+    @Builder.Default
     private List<Document> documents = new ArrayList<>();
 
     // 게시물이 속한 모아보기 폴더 목록
     @OneToMany(mappedBy = "content")
+    @Builder.Default
     private List<ContentJoinDocumentFolder> contentJoinDocumentFolders = new ArrayList<>();
 
 }

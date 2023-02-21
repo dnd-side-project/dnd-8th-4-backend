@@ -15,6 +15,7 @@ import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,6 +27,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CommentService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
@@ -57,18 +59,22 @@ public class CommentService {
             UserDetails userDetails, Long contentId, Integer page
     ) {
         validateCommentPage(contentId);
+        Content content = getContent(contentId);
         return CustomResponseEntity.success(
                 CommentDto.pagePostsCommentDto.response(
-                        getPageCommentDtos(userDetails, getComments(contentId, page)),
-                        getEmotionResponseDtos(contentId),
-                        emotionRepository.countByContentId(contentId),
-                        commentRepository.countByContentId(contentId)
+                        getPageCommentDtos(userDetails, getPageComments(contentId, page)),
+                        content.getEmotions()
+                                .stream()
+                                .map(ContentDto.EmotionResponseDto::response)
+                                .toList(),
+                        (long) content.getEmotions().size(),
+                        (long) content.getComments().size()
                 )
         );
     }
 
     // method
-    private Page<Comment> getComments(Long contentId, Integer page) {
+    private Page<Comment> getPageComments(Long contentId, Integer page) {
         return commentRepository.findByContentId(
                 contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );

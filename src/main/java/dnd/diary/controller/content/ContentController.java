@@ -52,9 +52,10 @@ public class ContentController {
     // 피드 조회
     @GetMapping("content")
     public CustomResponseEntity<ContentDto.detailDto> contentDetail(
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Long contentId
     ) {
-        return contentService.detailContent(contentId);
+        return contentService.detailContent(userDetails,contentId);
     }
 
     // 피드 수정
