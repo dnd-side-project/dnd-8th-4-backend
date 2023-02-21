@@ -3,7 +3,7 @@ package dnd.diary.enumeration;
 import lombok.Getter;
 
 @Getter
-public enum NotificationCategory implements EnumType {
+public enum NotificationType implements EnumType {
 
     INVITE(0, "초대 알림"),
     CONTENT(1, "그룹 새 게시물 알림"),
@@ -14,7 +14,7 @@ public enum NotificationCategory implements EnumType {
     private final int code;
     private final String desc;
 
-    NotificationCategory(final int code, final String desc) {
+    NotificationType(final int code, final String desc) {
         this.code = code;
         this.desc = desc;
     }
