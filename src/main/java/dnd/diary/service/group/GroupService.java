@@ -1,5 +1,6 @@
 package dnd.diary.service.group;
 
+import static dnd.diary.domain.mission.DateUtil.convertLocalDateTimeZone;
 import static dnd.diary.enumeration.Result.*;
 
 import dnd.diary.domain.group.Group;
@@ -29,6 +30,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -73,9 +76,9 @@ public class GroupService {
 			.groupNote(group.getGroupNote())
 			.groupImageUrl(group.getGroupImageUrl())
 			.groupCreateUserId(hostUser.getId())
-			.groupCreatedAt(group.getCreatedAt())
-			.groupModifiedAt(group.getModifiedAt())
-			.recentUpdatedAt(group.getRecentUpdatedAt())
+			.groupCreatedAt(convertLocalDateTimeZone(group.getCreatedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+			.groupModifiedAt(convertLocalDateTimeZone(group.getModifiedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+			.recentUpdatedAt(convertLocalDateTimeZone(group.getRecentUpdatedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
 			.groupMemberList(List.of(
 				new GroupCreateResponse.GroupMember(hostUser.getId(), hostUser.getEmail(), hostUser.getNickName()
 					, updateHostUser.getCreatedAt()))
@@ -107,9 +110,9 @@ public class GroupService {
 			.groupNote(group.getGroupNote())
 			.groupImageUrl(group.getGroupImageUrl())
 			.groupCreateUserId(user.getId())
-			.groupCreatedAt(group.getCreatedAt())
-			.groupModifiedAt(group.getModifiedAt())
-			.recentUpdatedAt(group.getRecentUpdatedAt())
+			.groupCreatedAt(convertLocalDateTimeZone(group.getCreatedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+			.groupModifiedAt(convertLocalDateTimeZone(group.getModifiedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+			.recentUpdatedAt(convertLocalDateTimeZone(group.getRecentUpdatedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
 			.isGroupDelete(group.isDeleted())
 			.build();
 	}

@@ -1,12 +1,9 @@
 package dnd.diary.dto.group;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import dnd.diary.domain.mission.MissionStatus;
 import lombok.Getter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 public class MissionCreateRequest {

@@ -2,11 +2,7 @@ package dnd.diary.response.mission;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.sun.istack.NotNull;
 
 import dnd.diary.domain.mission.MissionStatus;
 import lombok.AllArgsConstructor;
@@ -28,9 +24,9 @@ public class MissionResponse {
 	private Long groupId;   // 미션이 생성된 ID
 
 	private Boolean existPeriod;
-	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
 	private LocalDateTime missionStartDate;   // 미션 시작일
-	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
 	private LocalDateTime missionEndDate;   // 미션 종료일
 	private MissionStatus missionStatus;   // 미션 기간에 따른 상태
 

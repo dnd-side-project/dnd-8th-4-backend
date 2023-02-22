@@ -20,13 +20,13 @@ public class GroupUpdateResponse {
     private String groupImageUrl;
     private Long groupCreateUserId;
 
-    @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     private LocalDateTime groupCreatedAt;
 
-    @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     private LocalDateTime groupModifiedAt;
 
-    @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
 
     private boolean isGroupDelete;
