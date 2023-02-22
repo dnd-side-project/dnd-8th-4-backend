@@ -15,6 +15,7 @@ import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,8 +88,8 @@ public class Group extends BaseEntity {
         this.groupImageUrl = groupImageUrl;
     }
 
-    public void updateRecentModifiedAt(LocalDateTime recentUpdatedAt) {
-        this.recentUpdatedAt = recentUpdatedAt;
+    public void updateRecentModifiedAt() {
+        this.recentUpdatedAt = LocalDateTime.now(ZoneId.of("UTC"));
     }
 
     @PreRemove
