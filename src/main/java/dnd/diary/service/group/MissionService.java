@@ -70,6 +70,7 @@ public class MissionService {
 			.groupId(group.getId())
 			.missionStartDate(mission.getMissionStartDate())
 			.missionEndDate(mission.getMissionEndDate())
+			.missionStatus(missionStatus)
 			.missionLocationName(mission.getMissionLocationName())
 			.latitude(mission.getLatitude())
 			.longitude(mission.getLongitude())
