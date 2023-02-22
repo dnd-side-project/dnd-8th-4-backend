@@ -20,12 +20,14 @@ public class Notification extends BaseEntity {
     private Long id;
 
     // 일대일 양방향
-    @OneToOne(mappedBy = "notification")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "invite_id")
     private Invite invite;
 
+    // 어떤 사용자의 알림인지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;   // 어떤 사용자의 알림인지
+    private User user;
 
     // 알림을 읽었는지 여부
     private boolean readYn;
