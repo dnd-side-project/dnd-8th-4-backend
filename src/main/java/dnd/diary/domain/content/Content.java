@@ -42,6 +42,8 @@ public class Content extends BaseEntity {
 
     private Point point;
 
+    private String location;
+
     @Column(nullable = false)
     private long views;
 

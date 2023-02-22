@@ -108,6 +108,7 @@ public class ContentService {
                         .latitude(request.getLatitude())
                         .longitude(request.getLongitude())
                         .point(point)
+                        .location(request.getLocation())
                         .views(0L)
                         .contentLink("test")
                         .user(getUser(userDetails))
