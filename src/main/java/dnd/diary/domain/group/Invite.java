@@ -8,8 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,6 +38,9 @@ public class Invite extends BaseEntity {
     // 초대에 대한 행동(수락/거절)을 했는지 여부 - 수락/거절 api 호출 후 true 로
     private boolean processYn;
 
+    // 초대에 대한 행동(수락/거절) 시간
+    private LocalDateTime processDatedAt;
+
     @Builder
     private Invite(Group group, User user) {
         this.group = group;
@@ -48,5 +55,6 @@ public class Invite extends BaseEntity {
     // 초대에 대한 수락/거절 처리 상태 변경
     public void updateProcessUYn() {
         this.processYn = true;
+        this.processDatedAt = LocalDateTime.now(ZoneId.of("UTC"));
     }
 }

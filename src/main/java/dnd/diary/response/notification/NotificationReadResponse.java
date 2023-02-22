@@ -22,9 +22,7 @@ public class NotificationReadResponse {
     @AllArgsConstructor
     public static class NotificationInfo {
         private Long groupId;   // 초대된 그룹 ID
-        private Long groupName;   // 초대된 그룹 이름
+        private String groupName;   // 초대된 그룹 이름
         private boolean readYn;   // 알림 읽음 여부
     }
-
-    private boolean readYn;   // 알림 읽음 여부
 }

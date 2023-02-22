@@ -44,6 +44,7 @@ import javax.persistence.Query;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -117,7 +118,7 @@ public class ContentService {
         );
         String redisKey = content.getId().toString();
 
-        group.updateRecentModifiedAt(LocalDateTime.now());
+        group.updateRecentModifiedAt();
         redisDao.setValues(redisKey, "0");
 
         if (multipartFile == null) {
