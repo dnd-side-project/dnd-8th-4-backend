@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     Page<Bookmark> findByUserId(Long userId, Pageable pageable);
+    boolean existsByUserIdAndContentId(Long userId, Long contentId);
 }
