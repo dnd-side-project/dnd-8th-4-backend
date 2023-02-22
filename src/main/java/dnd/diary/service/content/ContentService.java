@@ -355,8 +355,8 @@ public class ContentService {
                             (long) content.getComments().size(),
                             (long) content.getEmotions().size(),
                             content.getEmotions()
-                                    .stream()
-                                    .map(ContentDto.EmotionResponseDto::response)
+                                    .stream().limit(2)
+                                    .map(ContentDto.EmotionResponseGroupListDto::response)
                                     .toList(),
                             emotionStatus,
                             Integer.parseInt(redisDao.getValues(redisKey))

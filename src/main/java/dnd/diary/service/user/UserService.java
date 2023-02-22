@@ -103,6 +103,46 @@ public class UserService {
             throw new CustomException(Result.DUPLICATION_USER);
         }
     }
+
+    @Transactional
+    public CustomResponseEntity<Page<UserDto.BookmarkDto>> listMyBookmark(UserDetails userDetails, Integer page) {
+
+        Page<Bookmark> bookmarkPage = bookmarkRepository.findByUserId(
+                getUser(userDetails.getUsername()).getId(),
+                PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        Page<UserDto.BookmarkDto> bookmarkDtoPage = bookmarkPage.map((Bookmark bookmark) -> {
+                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(
+                            bookmark.getContent().getId(), getUser(userDetails.getUsername()).getId()
+                    );
+
+                    Long emotionStatus;
+                    if (byContentIdAndUserId == null) {
+                        emotionStatus = -1L;
+                    } else {
+                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
+                    }
+
+                    String values = redisDao.getValues(bookmark.getContent().getId().toString());
+                    return UserDto.BookmarkDto.response(
+                            bookmark,
+                            Integer.parseInt(values),
+                            emotionStatus,
+                            bookmark.getContent().getContentImages()
+                                    .stream()
+                                    .map(ContentDto.ImageResponseDto::response)
+                                    .toList(),
+                            bookmark.getContent().getEmotions()
+                                    .stream()
+                                    .map(ContentDto.EmotionResponseDto::response)
+                                    .toList()
+                    );
+                }
+        );
+        return CustomResponseEntity.success(bookmarkDtoPage);
+    }
+
     // method
 
     private User getUser(String email) {
@@ -160,8 +200,8 @@ public class UserService {
                 .userSearchInfoList(userSearchInfoList)
                 .build();
     }
-
     // Validate
+
     private void validateRegister(UserDto.RegisterDto request) {
         Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
         Boolean existsByNickName = userRepository.existsByNickName(request.getNickName());
@@ -189,43 +229,5 @@ public class UserService {
         ) {
             throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
         }
-    }
-
-    public CustomResponseEntity<Page<UserDto.BookmarkDto>> listMyBookmark(UserDetails userDetails, Integer page) {
-
-        Page<Bookmark> bookmarkPage = bookmarkRepository.findByUserId(
-                getUser(userDetails.getUsername()).getId(),
-                PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        Page<UserDto.BookmarkDto> bookmarkDtoPage = bookmarkPage.map((Bookmark bookmark) -> {
-                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(
-                            bookmark.getContent().getId(), getUser(userDetails.getUsername()).getId()
-                    );
-
-                    Long emotionStatus;
-                    if (byContentIdAndUserId == null) {
-                        emotionStatus = -1L;
-                    } else {
-                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
-                    }
-
-                    String values = redisDao.getValues(bookmark.getContent().getId().toString());
-                    return UserDto.BookmarkDto.response(
-                            bookmark,
-                            Integer.parseInt(values),
-                            emotionStatus,
-                            bookmark.getContent().getContentImages()
-                                    .stream()
-                                    .map(ContentDto.ImageResponseDto::response)
-                                    .toList(),
-                            bookmark.getContent().getEmotions()
-                                    .stream()
-                                    .map(ContentDto.EmotionResponseDto::response)
-                                    .toList()
-                    );
-                }
-        );
-        return CustomResponseEntity.success(bookmarkDtoPage);
     }
 }

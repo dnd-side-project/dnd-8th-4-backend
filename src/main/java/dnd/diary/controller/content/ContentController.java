@@ -1,6 +1,5 @@
 package dnd.diary.controller.content;
 
-import dnd.diary.domain.content.Content;
 import dnd.diary.dto.content.ContentDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.content.ContentService;
@@ -14,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,7 +56,7 @@ public class ContentController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Long contentId
     ) {
-        return contentService.detailContent(userDetails,contentId);
+        return contentService.detailContent(userDetails, contentId);
     }
 
     // 피드 수정
@@ -69,7 +67,7 @@ public class ContentController {
             @RequestPart(required = false) final List<MultipartFile> multipartFile,
             @Valid @RequestPart final ContentDto.UpdateDto request
     ) {
-        return contentService.updateContent(userDetails,contentId, multipartFile, request);
+        return contentService.updateContent(userDetails, contentId, multipartFile, request);
     }
 
     // 피드 삭제
@@ -87,7 +85,7 @@ public class ContentController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Double x,
             @RequestParam final Double y
-    ){
-        return contentService.listMyMap(userDetails,x,y);
+    ) {
+        return contentService.listMyMap(userDetails, x, y);
     }
 }

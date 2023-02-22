@@ -26,6 +26,7 @@ public class ContentDto {
         private Long userId;
         private Long groupId;
         private String userName;
+        private String profileImageUrl;
         private String groupName;
         private String content;
         private Double latitude;
@@ -38,11 +39,11 @@ public class ContentDto {
         private Long emotions;
         private Long emotionStatus;
         List<ContentDto.ImageResponseDto> Images;
-        List<EmotionResponseDto> emotionResponseDtos;
+        List<EmotionResponseGroupListDto> emotionResponseDtos;
 
         public static ContentDto.groupListPagePostsDto response(
                 Content content, List<ImageResponseDto> imageResponseDtos,
-                Long comments, Long emotions, List<EmotionResponseDto> emotionResponseDtos,
+                Long comments, Long emotions, List<EmotionResponseGroupListDto> emotionResponseGroupListDto,
                 Long emotionStatus, Integer views
         ) {
             return groupListPagePostsDto.builder()
@@ -50,6 +51,7 @@ public class ContentDto {
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
                     .userName(content.getUser().getNickName())
+                    .profileImageUrl(content.getUser().getProfileImageUrl())
                     .groupName(content.getGroup().getGroupName())
                     .content(content.getContent())
                     .latitude(content.getLatitude())
@@ -62,7 +64,7 @@ public class ContentDto {
                     .emotions(emotions)
                     .emotionStatus(emotionStatus)
                     .Images(imageResponseDtos)
-                    .emotionResponseDtos(emotionResponseDtos)
+                    .emotionResponseDtos(emotionResponseGroupListDto)
                     .build();
         }
     }
@@ -103,8 +105,25 @@ public class ContentDto {
             return EmotionResponseDto.builder()
                     .id(emotion.getId())
                     .emotionStatus(emotion.getEmotionStatus())
-                    .profileImage("이미지 공사중")
+                    .profileImage(emotion.getUser().getProfileImageUrl())
                     .userId(emotion.getUser().getId())
+                    .build();
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class EmotionResponseGroupListDto {
+        private Long id;
+        private Long emotionStatus;
+
+        public static ContentDto.EmotionResponseGroupListDto response(Emotion emotion) {
+            return EmotionResponseGroupListDto.builder()
+                    .id(emotion.getId())
+                    .emotionStatus(emotion.getEmotionStatus())
                     .build();
         }
     }
@@ -117,6 +136,8 @@ public class ContentDto {
     public static class CreateDto {
 
         private Long id;
+        private String userName;
+        private String profileImageUrl;
         @NotNull(message = "내용을 입력하지 않았습니다.")
         private String content;
         private Double latitude;
@@ -131,6 +152,8 @@ public class ContentDto {
         public static ContentDto.CreateDto response(Content content, List<ContentDto.ImageResponseDto> collect) {
             return CreateDto.builder()
                     .id(content.getId())
+                    .userName(content.getUser().getNickName())
+                    .profileImageUrl(content.getUser().getProfileImageUrl())
                     .content(content.getContent())
                     .latitude(content.getLatitude())
                     .longitude(content.getLongitude())
@@ -152,6 +175,8 @@ public class ContentDto {
     public static class detailDto {
 
         private Long id;
+        private String userName;
+        private String profileImageUrl;
         private String content;
         private Double latitude;
         private Double longitude;
@@ -166,6 +191,8 @@ public class ContentDto {
         public static ContentDto.detailDto response(Content content, Integer views, List<ContentDto.ImageResponseDto> collect) {
             return detailDto.builder()
                     .id(content.getId())
+                    .userName(content.getUser().getNickName())
+                    .profileImageUrl(content.getUser().getProfileImageUrl())
                     .content(content.getContent())
                     .latitude(content.getLatitude())
                     .longitude(content.getLongitude())
@@ -187,6 +214,8 @@ public class ContentDto {
     public static class UpdateDto {
 
         private Long id;
+        private String userName;
+        private String profileImageUrl;
         @NotNull(message = "내용을 입력하지 않았습니다.")
         private String content;
         private Double latitude;
@@ -202,6 +231,8 @@ public class ContentDto {
         public static ContentDto.UpdateDto response(Content content, List<ContentDto.ImageResponseDto> collect, Integer views) {
             return UpdateDto.builder()
                     .id(content.getId())
+                    .userName(content.getUser().getNickName())
+                    .profileImageUrl(content.getUser().getProfileImageUrl())
                     .content(content.getContent())
                     .latitude(content.getLatitude())
                     .longitude(content.getLongitude())
