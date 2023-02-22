@@ -58,8 +58,8 @@ public class MissionService {
 		
 		Mission mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
 			, request.getExistPeriod()
-			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
-			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
+			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC)
+			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC)
 			, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
 			, request.getMissionColor(), missionStatus);
 		

@@ -12,12 +12,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+
+import static dnd.diary.domain.mission.DateUtil.convertLocalDateTimeZone;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -44,6 +48,7 @@ public class Group extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User groupCreateUser;
 
+    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     private LocalDateTime recentUpdatedAt;   // 게시물 최신 등록일
 
     private boolean deleted = Boolean.FALSE;   // 그룹 삭제 여부
@@ -74,7 +79,7 @@ public class Group extends BaseEntity {
         this.groupNote = groupNote;
         this.groupImageUrl = groupImageUrl;
         this.groupCreateUser = groupCreateUser;
-        this.recentUpdatedAt = LocalDateTime.now();   // 그룹 생성일을 초기값으로
+        this.recentUpdatedAt = convertLocalDateTimeZone(LocalDateTime.now(), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC);   // 그룹 생성일을 초기값으로
         this.deleted = false;
     }
 
