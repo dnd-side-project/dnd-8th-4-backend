@@ -12,6 +12,7 @@ import dnd.diary.domain.document.Document;
 import dnd.diary.domain.document.DocumentFolder;
 import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.Invite;
+import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.mission.Mission;
 import lombok.*;
 
@@ -106,4 +107,7 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private final List<Mission> missions = new ArrayList<>();
 
+    // 사용자 알림 목록 - 그룹 초대 + a
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private final List<Notification> notifications = new ArrayList<>();
 }

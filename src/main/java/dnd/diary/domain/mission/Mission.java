@@ -35,6 +35,9 @@ public class Mission extends BaseEntity {
     private MissionStatus missionStatus;
 
     @NotNull
+    private String missionLocationName;
+
+    @NotNull
     private Double latitude;
 
     @NotNull
@@ -46,7 +49,7 @@ public class Mission extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private User user;    // createUser
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")

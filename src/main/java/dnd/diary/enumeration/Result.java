@@ -22,6 +22,10 @@ public enum Result {
 	NO_USER_GROUP_LIST(2105, "가입한 그룹이 없는 경우"),
 	FAIL_UPDATE_GROUP(2106, "방장만 그룹 수정 가능"),
 	FAIL_DELETE_GROUP(2107, "방장만 그룹 삭제 가능"),
+	NO_AUTHORITY_INVITE(2108, "방장만 그룹 초대 가능"),
+	HIGH_MAX_INVITE_MEMBER_COUNT(2109, "최대 초대 인원 초과"),
+	HIGH_MAX_GROUP_MEMBER_COUNT(2110, "그룹 최대 인원 초과"),
+	ALREADY_EXIST_IN_GROUP(2111, "이미 그룹에 가입된 사용자"),
 
 	// 피드 관련
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),

@@ -1,16 +1,23 @@
 package dnd.diary.service.group;
 
+import static dnd.diary.enumeration.Result.*;
+
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.GroupStarStatus;
+import dnd.diary.domain.group.Invite;
+import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserJoinGroup;
+import dnd.diary.dto.group.GroupInviteRequest;
 import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.dto.group.GroupCreateRequest;
 import dnd.diary.dto.group.GroupUpdateRequest;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.group.GroupStarRepository;
+import dnd.diary.repository.group.InviteRepository;
+import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.response.group.*;
@@ -26,8 +33,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static dnd.diary.enumeration.Result.*;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,11 +40,15 @@ public class GroupService {
 
 	private final UserRepository userRepository;
 	private final GroupRepository groupRepository;
+	private final UserJoinGroupRepository userJoinGroupRepository;
 	private final GroupStarRepository groupStarRepository;
+	private final InviteRepository inviteRepository;
+	private final NotificationRepository notificationRepository;
 
 	private final UserService userService;
-	private final UserJoinGroupRepository userJoinGroupRepository;
 	private final S3Service s3Service;
+
+	private final int MAX_GROUP_MEMBER_COUNT = 50;
 
 	@Transactional
 	public GroupCreateResponse createGroup(MultipartFile multipartFile, GroupCreateRequest request) {
@@ -59,19 +68,19 @@ public class GroupService {
 		userJoinGroupRepository.save(updateHostUser);
 
 		return GroupCreateResponse.builder()
-				.groupId(group.getId())
-				.groupName(group.getGroupName())
-				.groupNote(group.getGroupNote())
-				.groupImageUrl(group.getGroupImageUrl())
-				.groupCreateUserId(hostUser.getId())
-				.groupCreatedAt(group.getCreatedAt())
-				.groupModifiedAt(group.getModifiedAt())
-				.recentUpdatedAt(group.getRecentUpdatedAt())
-				.groupMemberList(List.of(
-						new GroupCreateResponse.GroupMember(hostUser.getId(), hostUser.getEmail(), hostUser.getNickName()
-							, updateHostUser.getCreatedAt()))
-				)
-				.build();
+			.groupId(group.getId())
+			.groupName(group.getGroupName())
+			.groupNote(group.getGroupNote())
+			.groupImageUrl(group.getGroupImageUrl())
+			.groupCreateUserId(hostUser.getId())
+			.groupCreatedAt(group.getCreatedAt())
+			.groupModifiedAt(group.getModifiedAt())
+			.recentUpdatedAt(group.getRecentUpdatedAt())
+			.groupMemberList(List.of(
+				new GroupCreateResponse.GroupMember(hostUser.getId(), hostUser.getEmail(), hostUser.getNickName()
+					, updateHostUser.getCreatedAt()))
+			)
+			.build();
 	}
 
 	@Transactional
@@ -153,52 +162,52 @@ public class GroupService {
 
 	// 내가 속한 그룹 목록 조회
 	public GroupListResponse getGroupList() {
-        User user = findUser();
+		User user = findUser();
 
-        List<UserJoinGroup> userJoinGroupList = user.getUserJoinGroups();
-        if (userJoinGroupList.size() == 0) {
-            // 가입한 그룹이 없는 경우
-            return GroupListResponse.builder()
-                    .existGroup(false)
-                    .build();
-        }
-        // 사용자가 가입한 그룹 목록 조회
-        List<Group> groupList = new ArrayList<>();
-        userJoinGroupList.forEach(
-                userJoinGroup -> groupList.add(userJoinGroup.getGroup())
-        );
+		List<UserJoinGroup> userJoinGroupList = user.getUserJoinGroups();
+		if (userJoinGroupList.size() == 0) {
+			// 가입한 그룹이 없는 경우
+			return GroupListResponse.builder()
+				.existGroup(false)
+				.build();
+		}
+		// 사용자가 가입한 그룹 목록 조회
+		List<Group> groupList = new ArrayList<>();
+		userJoinGroupList.forEach(
+			userJoinGroup -> groupList.add(userJoinGroup.getGroup())
+		);
 
-        GroupListResponse response = new GroupListResponse();
-        response.setExistGroup(true);
+		GroupListResponse response = new GroupListResponse();
+		response.setExistGroup(true);
 
-        List<GroupListResponse.GroupInfo> groupInfoList = new ArrayList<>();
-        for (Group group : groupList) {
-            boolean isStarGroup = false;
-            for (GroupStar groupStar : group.getGroupStars()) {
-                if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD && user.getId().equals(groupStar.getUser().getId())) {
-                    isStarGroup = true;
-                    break;
-                }
-            }
-            GroupListResponse.GroupInfo groupInfo = GroupListResponse.GroupInfo.builder()
-                    .groupId(group.getId())
-                    .groupName(group.getGroupName())
-                    .groupNote(group.getGroupNote())
-					.groupImageUrl(group.getGroupImageUrl())
-                    .groupCreatedAt(group.getCreatedAt())
-                    .recentUpdatedAt(group.getRecentUpdatedAt())
-                    .memberCount(group.getUserJoinGroups().size())
-                    .isStarGroup(isStarGroup)
-                    .build();
+		List<GroupListResponse.GroupInfo> groupInfoList = new ArrayList<>();
+		for (Group group : groupList) {
+			boolean isStarGroup = false;
+			for (GroupStar groupStar : group.getGroupStars()) {
+				if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD && user.getId().equals(groupStar.getUser().getId())) {
+					isStarGroup = true;
+					break;
+				}
+			}
+			GroupListResponse.GroupInfo groupInfo = GroupListResponse.GroupInfo.builder()
+				.groupId(group.getId())
+				.groupName(group.getGroupName())
+				.groupNote(group.getGroupNote())
+				.groupImageUrl(group.getGroupImageUrl())
+				.groupCreatedAt(group.getCreatedAt())
+				.recentUpdatedAt(group.getRecentUpdatedAt())
+				.memberCount(group.getUserJoinGroups().size())
+				.isStarGroup(isStarGroup)
+				.build();
 
 			groupInfoList.add(groupInfo);
-        }
+		}
 
-        groupInfoList.sort(Comparator.comparing(GroupListResponse.GroupInfo::getRecentUpdatedAt).reversed());
+		groupInfoList.sort(Comparator.comparing(GroupListResponse.GroupInfo::getRecentUpdatedAt).reversed());
 		response.setGroupInfoList(groupInfoList);
 
-        return response;
-    }
+		return response;
+	}
 
 	public List<GroupStarListResponse> getGroupStarList() {
 		User user = findUser();
@@ -208,10 +217,10 @@ public class GroupService {
 		for (GroupStar groupStar : userGroupStarList) {
 			if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD) {
 				groupListResponseList.add(
-						GroupStarListResponse.builder()
-								.groupId(groupStar.getGroup().getId())
-								.groupName(groupStar.getGroup().getGroupName())
-								.build()
+					GroupStarListResponse.builder()
+						.groupId(groupStar.getGroup().getId())
+						.groupName(groupStar.getGroup().getGroupName())
+						.build()
 				);
 			}
 		}
@@ -257,9 +266,60 @@ public class GroupService {
 	}
 
 	// 그룹 초대
-//	public GroupInviteResponse inviteGroupMember(GroupInviteRequest request) {
-//		return null;
-//	}
+	@Transactional
+	public GroupInviteResponse inviteGroupMember(GroupInviteRequest request) {
+
+		User hostUser = findUser();
+		Group inviteGroup = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
+
+		// 초대는 방장만 가능
+		if (!hostUser.getId().equals(inviteGroup.getGroupCreateUser().getId())) {
+			throw new CustomException(NO_AUTHORITY_INVITE);
+		}
+		// 초대 시도하는 사용자 수가 50명 이상인 경우(방장 제외)
+		if (request.getInvitedUserIdList().size() >= MAX_GROUP_MEMBER_COUNT) {
+			throw new CustomException(HIGH_MAX_INVITE_MEMBER_COUNT);
+		}
+		// 초대하려는 인원 + 기존 그룹 인원 > 50명
+		if (request.getInvitedUserIdList().size() + inviteGroup.getUserJoinGroups().size() >= MAX_GROUP_MEMBER_COUNT) {
+			throw new CustomException(HIGH_MAX_GROUP_MEMBER_COUNT);
+		}
+
+		List<UserJoinGroup> userJoinGroupList = inviteGroup.getUserJoinGroups();
+		List<Long> groupUserIdList = new ArrayList<>();
+		userJoinGroupList.forEach(
+			userJoinGroup -> groupUserIdList.add(userJoinGroup.getUser().getId())
+		);
+
+		List<GroupInviteResponse.InvitedUserInfo> invitedUserInfoList = new ArrayList<>();
+
+		List<Invite> inviteList = new ArrayList<>();
+		for (Long userId : request.getInvitedUserIdList()) {
+			User invitedUser = userRepository.findById(userId).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+			if (groupUserIdList.contains(invitedUser.getId())) {
+				throw new CustomException(ALREADY_EXIST_IN_GROUP);
+			}
+			invitedUserInfoList.add(new GroupInviteResponse.InvitedUserInfo(invitedUser));
+
+			Invite invite = Invite.toEntity(inviteGroup, invitedUser);
+			Notification notification = Notification.toEntity(invite, invitedUser);
+
+			inviteRepository.save(invite);
+			log.info("초대 ID : {}", invite.getId());
+			notificationRepository.save(notification);
+			log.info("생성된 알림 ID : {} , 알림을 보낸 그룹 ID : {}", notification.getId(), notification.getInvite().getGroup().getId());
+
+			inviteList.add(invite);
+		}
+
+		return GroupInviteResponse.builder()
+			.groupId(inviteGroup.getId())
+			.groupName(inviteGroup.getGroupName())
+			.hostUser(new GroupInviteResponse.HostUser(inviteGroup.getGroupCreateUser()))
+			.invitedUserInfoList(invitedUserInfoList)
+			.successInvitedUserCount(invitedUserInfoList.size())
+			.build();
+	}
 
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();
