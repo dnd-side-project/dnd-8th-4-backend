@@ -263,6 +263,7 @@ public class ContentDto {
     public static class deleteContent {
         private Long contentid;
     }
+
     @AllArgsConstructor
     @NoArgsConstructor
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -286,6 +287,39 @@ public class ContentDto {
                   .groupId(content.getGroup().getId())
                   .collect(collect)
                   .build();
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class mapListContentDetail {
+        private Long contentId;
+        private Long groupId;
+        private String location;
+        private String content;
+        private String groupImage;
+        private String groupName;
+        private LocalDateTime createAt;
+        private Integer contentImageListSize;
+        List<ContentDto.ImageResponseDto> contentImageList;
+
+        public static ContentDto.mapListContentDetail response(
+                Content content,List<ContentDto.ImageResponseDto> collect
+        ) {
+            return mapListContentDetail.builder()
+                    .contentId(content.getId())
+                    .groupId(content.getId())
+                    .location(content.getLocation())
+                    .content(content.getContent())
+                    .groupImage(content.getGroup().getGroupImageUrl())
+                    .groupName(content.getGroup().getGroupName())
+                    .createAt(content.getCreatedAt())
+                    .contentImageListSize(collect.size())
+                    .contentImageList(collect)
+                    .build();
         }
     }
 }
