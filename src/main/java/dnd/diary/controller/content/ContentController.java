@@ -39,6 +39,16 @@ public class ContentController {
         return contentService.groupAllListContent(userDetails, groupId, page);
     }
 
+    // 피드 검색 조회
+    @GetMapping("content/group/search")
+    public CustomResponseEntity<Page<ContentDto.ContentSearchDto>> searchContent(
+            @RequestParam final List<Long> groupId,
+            @RequestParam final String word,
+            @RequestParam final Integer page
+    ){
+        return contentService.contentSearch(groupId,word,page);
+    }
+
     // 피드 작성
     @PostMapping("content")
     public CustomResponseEntity<ContentDto.CreateDto> contentCreate(
