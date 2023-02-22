@@ -4,6 +4,7 @@ import static dnd.diary.enumeration.Result.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Period;
 
 import org.springframework.stereotype.Service;
@@ -44,21 +45,21 @@ public class MissionService {
 		MissionStatus missionStatus = MissionStatus.READY;
 		LocalDateTime today = LocalDateTime.now();
 		// 미션 시작일 > 오늘 -> 미션 진행중 상태
-		if (today.isBefore(request.getMissionStartDate())) {
+		if (today.isBefore(request.getMissionStartDate().atStartOfDay())) {
 			missionStatus = MissionStatus.ACTIVE;
 		}
 		// 미션 종료일 < 오늘 -> 미션 종료 상태
-		if (today.isAfter(request.getMissionEndDate())) {
+		if (today.isAfter(request.getMissionEndDate().atStartOfDay().plusDays(1))) {
 			missionStatus = MissionStatus.FINISH;
 		}
 		
 		Mission mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
-			, request.getMissionStartDate(), request.getMissionEndDate(), request.getMissionLocationName()
+			, request.getMissionStartDate().atStartOfDay(), request.getMissionEndDate().atTime(LocalTime.MAX), request.getMissionLocationName()
 			, request.getLatitude(), request.getLongitude(), missionStatus);
 		
 		missionRepository.save(mission);
 		
-		Period diff = Period.between(LocalDate.now(), request.getMissionEndDate().toLocalDate());
+		Period diff = Period.between(LocalDate.now(), request.getMissionEndDate());
 		long missionDday = diff.getDays();
 
 		return MissionResponse.builder()
