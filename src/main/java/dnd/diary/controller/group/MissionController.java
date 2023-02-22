@@ -1,9 +1,6 @@
 package dnd.diary.controller.group;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import dnd.diary.dto.group.MissionCreateRequest;
 import dnd.diary.response.CustomResponseEntity;
@@ -21,5 +18,11 @@ public class MissionController {
 	@PostMapping
 	public CustomResponseEntity<MissionResponse> createMission(@RequestBody MissionCreateRequest request) {
 		return CustomResponseEntity.success(missionService.createMission(request));
+	}
+
+	@DeleteMapping
+	public CustomResponseEntity<Void> deleteMission(@RequestParam Long missionId) {
+		missionService.deleteMission(missionId);
+		return CustomResponseEntity.success();
 	}
 }
