@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
@@ -20,10 +21,12 @@ import java.time.format.DateTimeFormatter;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
+    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     @Column(updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
 
+    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 

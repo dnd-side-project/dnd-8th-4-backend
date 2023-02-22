@@ -1,11 +1,9 @@
 package dnd.diary.service.group;
 
+import static dnd.diary.domain.mission.DateUtil.convertLocalDateTimeZone;
 import static dnd.diary.enumeration.Result.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Period;
+import java.time.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,19 +41,27 @@ public class MissionService {
 		Group group = findGroup(request.getGroupId());
 
 		MissionStatus missionStatus = MissionStatus.READY;
-		LocalDateTime today = LocalDateTime.now();
-		// 미션 시작일 > 오늘 -> 미션 진행중 상태
-		if (today.isBefore(request.getMissionStartDate().atStartOfDay())) {
+		// 미션 기간을 설정하지 않은 경우 - 항상 ACTIVE
+		if (!request.getExistPeriod()) {
 			missionStatus = MissionStatus.ACTIVE;
-		}
-		// 미션 종료일 < 오늘 -> 미션 종료 상태
-		if (today.isAfter(request.getMissionEndDate().atStartOfDay().plusDays(1))) {
-			missionStatus = MissionStatus.FINISH;
+		} else {
+			LocalDateTime today = LocalDateTime.now();
+			// 미션 시작일 > 오늘 -> 미션 진행중 상태
+			if (today.isBefore(request.getMissionStartDate().atStartOfDay())) {
+				missionStatus = MissionStatus.ACTIVE;
+			}
+			// 미션 종료일 < 오늘 -> 미션 종료 상태
+			if (today.isAfter(request.getMissionEndDate().atStartOfDay().plusDays(1))) {
+				missionStatus = MissionStatus.FINISH;
+			}
 		}
 		
 		Mission mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
-			, request.getMissionStartDate().atStartOfDay(), request.getMissionEndDate().atTime(LocalTime.MAX), request.getMissionLocationName()
-			, request.getLatitude(), request.getLongitude(), missionStatus);
+			, request.getExistPeriod()
+			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
+			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
+			, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
+			, request.getMissionColor(), missionStatus);
 		
 		missionRepository.save(mission);
 		
@@ -68,19 +74,36 @@ public class MissionService {
 			.missionNote(mission.getMissionNote())
 			.createUserId(user.getId())
 			.groupId(group.getId())
-			.missionStartDate(mission.getMissionStartDate())
-			.missionEndDate(mission.getMissionEndDate())
+
+			.existPeriod(request.getExistPeriod())
+			.missionStartDate(convertLocalDateTimeZone(mission.getMissionStartDate(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+			.missionEndDate(convertLocalDateTimeZone(mission.getMissionEndDate(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+			.missionStatus(missionStatus)
+
 			.missionLocationName(mission.getMissionLocationName())
 			.latitude(mission.getLatitude())
 			.longitude(mission.getLongitude())
+
 			.locationCheck(mission.getLocationCheck())
 			.contentCheck(mission.getContentCheck())
+			.isComplete(mission.getIsComplete())
+
 			.missionDday(missionDday)
+			.missionColor(mission.getMissionColor())
 			.build();
 	}
 	
 	// 미션 삭제
-	
+	@Transactional
+	public void deleteMission(Long missionId) {
+		User user = findUser();
+		Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
+
+		if (!user.getId().equals(mission.getUser().getId())) {
+			throw new CustomException(FAIL_DELETE_MISSION);
+		}
+		missionRepository.delete(mission);
+	}
 	
 	// 미션 위치 인증
 	

@@ -30,6 +30,10 @@ public enum Result {
 	// 알림 관련
 	NOT_FOUND_NOTIFICATION(2400, "존재하지 않는 알림"),
 
+	// 미션 관련
+	NOT_FOUND_MISSION(2500, "존재하지 않는 미션"),
+	FAIL_DELETE_MISSION(2501, "미션 생성자만 삭제 가능"),
+
 	// 피드 관련
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),
 	EMOTION_DELETE_OK(0, "공감 삭제 성공"),
