@@ -185,6 +185,8 @@ public class ContentService {
                                         .content(request.getContent())
                                         .latitude(request.getLatitude())
                                         .longitude(request.getLongitude())
+                                        .point(content.getPoint())
+                                        .location(request.getLocation())
                                         .views(content.getViews())
                                         .contentLink(content.getContentLink())
                                         .user(content.getUser())

@@ -30,6 +30,7 @@ public class ContentDto {
         private String content;
         private Double latitude;
         private Double longitude;
+        private String location;
         private LocalDateTime createAt;
         private long views;
         private String contentLink;
@@ -53,6 +54,7 @@ public class ContentDto {
                     .content(content.getContent())
                     .latitude(content.getLatitude())
                     .longitude(content.getLongitude())
+                    .location(content.getLocation())
                     .createAt(content.getCreatedAt())
                     .views(views)
                     .contentLink(content.getContentLink())
@@ -153,6 +155,7 @@ public class ContentDto {
         private String content;
         private Double latitude;
         private Double longitude;
+        private String location;
         private long views;
         private String contentLink;
         private Long userId;
@@ -166,6 +169,7 @@ public class ContentDto {
                     .content(content.getContent())
                     .latitude(content.getLatitude())
                     .longitude(content.getLongitude())
+                    .location(content.getLocation())
                     .views(views)
                     .contentLink(content.getContentLink())
                     .userId(content.getUser().getId())
@@ -187,6 +191,7 @@ public class ContentDto {
         private String content;
         private Double latitude;
         private Double longitude;
+        private String location;
         private long views;
         private String contentLink;
         private Long userId;
@@ -200,6 +205,7 @@ public class ContentDto {
                     .content(content.getContent())
                     .latitude(content.getLatitude())
                     .longitude(content.getLongitude())
+                    .location(content.getLocation())
                     .views(views)
                     .contentLink(content.getContentLink())
                     .userId(content.getUser().getId())
