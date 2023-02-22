@@ -291,8 +291,7 @@ public class ContentService {
                                 content.getContentImages()
                                         .stream()
                                         .map(ContentDto.ImageResponseDto::response)
-                                        .toList(),
-                                3
+                                        .toList()
                         )
                 )
         );
