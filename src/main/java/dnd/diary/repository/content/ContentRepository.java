@@ -14,4 +14,5 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
     Optional<Content> findByIdAndUserId(Long contentId, Long userId);
     Page<Content> findByGroupId(Long groupId, Pageable pageable);
     Page<Content> findByGroupIdIn(List<Long> groupId, Pageable pageable);
+    List<Content> findByIdIn(List<Long> contentId);
 }
