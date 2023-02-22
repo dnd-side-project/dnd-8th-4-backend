@@ -37,6 +37,6 @@ public abstract class BaseEntity {
 
     @PreUpdate
     public void onPreUpdate(){
-        this.modifiedAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.modifiedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 }
