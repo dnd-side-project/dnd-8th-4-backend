@@ -79,7 +79,7 @@ public class Group extends BaseEntity {
         this.groupNote = groupNote;
         this.groupImageUrl = groupImageUrl;
         this.groupCreateUser = groupCreateUser;
-        this.recentUpdatedAt = convertLocalDateTimeZone(LocalDateTime.now(), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC);   // 그룹 생성일을 초기값으로
+        this.recentUpdatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));   // 그룹 생성일을 초기값으로
         this.deleted = false;
     }
 
@@ -94,7 +94,7 @@ public class Group extends BaseEntity {
     }
 
     public void updateRecentModifiedAt() {
-        this.recentUpdatedAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.recentUpdatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
     }
 
     @PreRemove

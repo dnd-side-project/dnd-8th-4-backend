@@ -55,11 +55,14 @@ public class MissionService {
 				missionStatus = MissionStatus.FINISH;
 			}
 		}
-		
+
+		// 서버 기준 시간 + 9 -> 00:00 / 23:59 로
 		Mission mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
 			, request.getExistPeriod()
-			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC)
-			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC)
+			, request.getMissionStartDate().atStartOfDay()
+			, request.getMissionEndDate().atTime(LocalTime.MAX)
+//			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC)
+//			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC)
 			, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
 			, request.getMissionColor(), missionStatus);
 		
@@ -76,8 +79,10 @@ public class MissionService {
 			.groupId(group.getId())
 
 			.existPeriod(request.getExistPeriod())
-			.missionStartDate(convertLocalDateTimeZone(mission.getMissionStartDate(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
-			.missionEndDate(convertLocalDateTimeZone(mission.getMissionEndDate(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+			.missionStartDate(mission.getMissionStartDate())
+			.missionEndDate(mission.getMissionEndDate())
+//			.missionStartDate(convertLocalDateTimeZone(mission.getMissionStartDate(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+//			.missionEndDate(convertLocalDateTimeZone(mission.getMissionEndDate(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
 			.missionStatus(missionStatus)
 
 			.missionLocationName(mission.getMissionLocationName())
