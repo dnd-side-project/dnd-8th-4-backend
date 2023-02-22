@@ -26,6 +26,9 @@ public class BookmarkService {
     public CustomResponseEntity<BookmarkDto.addBookmarkDto> bookmarkAdd(
             UserDetails userDetails, Long contentId
     ) {
+        if (bookmarkRepository.existsByUserIdAndContentId(getUser(userDetails).getId(), contentId)){
+            throw new CustomException(Result.ALREADY_ADD_BOOKMARK);
+        }
         return CustomResponseEntity.success(
                 BookmarkDto.addBookmarkDto.response(
                         bookmarkRepository.save(

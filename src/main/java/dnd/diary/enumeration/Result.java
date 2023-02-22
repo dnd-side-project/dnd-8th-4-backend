@@ -34,7 +34,8 @@ public enum Result {
 	NOT_FOUND_CONTENT(2300, "해당 게시글은 존재하지 않습니다."),
 	NOT_FOUND_COMMENT(2301, "해당 댓글은 존재하지 않습니다."),
 	NOT_MATCHED_USER_CONTENT(2302, "유저가 작성한 글이 아닙니다."),
-	NOT_SUPPORTED_EMOTION_STATUS(2302, "지원하지 않는 감정 상태입니다."),
+	NOT_SUPPORTED_EMOTION_STATUS(2303, "지원하지 않는 감정 상태입니다."),
+	ALREADY_ADD_BOOKMARK(2304, "이미 북마크한 게시물 입니다."),
 
 	// 파일 관련
 	FAIL_IMAGE_UPLOAD(2000, "파일 업로드 실패");
