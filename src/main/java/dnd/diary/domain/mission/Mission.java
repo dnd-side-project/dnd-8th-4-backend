@@ -37,10 +37,12 @@ public class Mission extends BaseEntity {
 
     private String missionNote;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Boolean existPeriod;
+
+    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     private LocalDateTime missionStartDate;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy.MM.dd HH:mm:ss")
     private LocalDateTime missionEndDate;
 
     @Enumerated(EnumType.STRING)
@@ -55,10 +57,14 @@ public class Mission extends BaseEntity {
     @NotNull
     private Double longitude;
 
+    private Integer missionColor;
+
     private Boolean locationCheck;
 
     private Boolean contentCheck;
+
     private Boolean isComplete;   // 미션 전체 완료 여부
+
     private boolean deleted = Boolean.FALSE;   // 미션 삭제 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -70,33 +76,37 @@ public class Mission extends BaseEntity {
     private Group group;
 
     @Builder
-    private Mission(User user, Group group, String missionName, String missionNote
+    private Mission(User user, Group group, String missionName, String missionNote, Boolean existPeriod
         , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, Double latitude, Double longitude
-        , MissionStatus missionStatus) {
+        , Integer missionColor, MissionStatus missionStatus) {
 
         this.user = user;
         this.group = group;
         this.missionName = missionName;
         this.missionNote = missionNote;
         // UTC 로 변환 후 저장
+        this.existPeriod = existPeriod;
         this.missionStartDate = convertLocalDateTimeZone(missionStartDate, ZoneId.of("Asia/Seoul"), ZoneOffset.UTC);
         this.missionEndDate = convertLocalDateTimeZone(missionEndDate, ZoneId.of("Asia/Seoul"), ZoneOffset.UTC);
         this.missionLocationName = missionLocationName;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.missionColor = missionColor;
         this.missionStatus = missionStatus;
         this.locationCheck = false;
         this.contentCheck = false;
         this.isComplete = false;
 
         user.getMissions().add(this);
+        group.getMissions().add(this);
     }
 
-    public static Mission toEntity(User user, Group group, String missionName, String missionNote
+    public static Mission toEntity(User user, Group group, String missionName, String missionNote, Boolean existPeriod
         , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, Double latitude, Double longitude
-        , MissionStatus missionStatus) {
-        return new Mission(user, group, missionName, missionNote, missionStartDate, missionEndDate
-            , missionLocationName, latitude, longitude, missionStatus);
+        , Integer missionColor, MissionStatus missionStatus) {
+        return new Mission(user, group, missionName, missionNote
+            ,existPeriod, missionStartDate, missionEndDate
+            , missionLocationName, latitude, longitude, missionColor, missionStatus);
     }
 
     @PreRemove

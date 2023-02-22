@@ -27,6 +27,7 @@ public class MissionResponse {
 	private Long createUserId;   // 미션 생성자 ID
 	private Long groupId;   // 미션이 생성된 ID
 
+	private Boolean existPeriod;
 	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
 	private LocalDateTime missionStartDate;   // 미션 시작일
 	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
@@ -39,6 +40,8 @@ public class MissionResponse {
 
 	private Boolean locationCheck;   // 미션에 대한 위치 인증 여부
 	private Boolean contentCheck;   // 미션에 대한 글쓰기 완료 여부
+	private Boolean isComplete;
 
 	private long missionDday;   // 미션 종료까지 남은 일수
+	private Integer missionColor;
 }
