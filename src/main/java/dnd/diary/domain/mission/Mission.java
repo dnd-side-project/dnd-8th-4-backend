@@ -11,6 +11,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -20,6 +23,8 @@ import java.time.ZoneOffset;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@SQLDelete(sql = "UPDATE mission SET deleted = true WHERE mission_id = ?")
+@Where(clause = "deleted = false")
 public class Mission extends BaseEntity {
 
     @Id
@@ -32,8 +37,10 @@ public class Mission extends BaseEntity {
 
     private String missionNote;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime missionStartDate;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime missionEndDate;
 
     @Enumerated(EnumType.STRING)
@@ -52,6 +59,7 @@ public class Mission extends BaseEntity {
 
     private Boolean contentCheck;
     private Boolean isComplete;   // 미션 전체 완료 여부
+    private boolean deleted = Boolean.FALSE;   // 미션 삭제 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -89,5 +97,10 @@ public class Mission extends BaseEntity {
         , MissionStatus missionStatus) {
         return new Mission(user, group, missionName, missionNote, missionStartDate, missionEndDate
             , missionLocationName, latitude, longitude, missionStatus);
+    }
+
+    @PreRemove
+    public void deleteMission() {
+        this.deleted = false;
     }
 }

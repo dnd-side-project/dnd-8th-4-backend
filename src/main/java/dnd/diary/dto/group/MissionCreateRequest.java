@@ -1,9 +1,11 @@
 package dnd.diary.dto.group;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import dnd.diary.domain.mission.MissionStatus;
 import lombok.Getter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 public class MissionCreateRequest {
@@ -11,12 +13,12 @@ public class MissionCreateRequest {
 	private String missionName;   // 미션 이름
 	private String missionNote;   // 미션 내용
 
-	private Long createUserId;   // 미션 생성자 ID
 	private Long groupId;   // 미션이 생성된 ID
 
-	private LocalDateTime missionStartDate;   // 미션 시작일
-	private LocalDateTime missionEndDate;   // 미션 종료일
-	private MissionStatus missionStatus;   // 미션 기간에 따른 상태
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDate missionStartDate;   // 미션 시작일
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDate missionEndDate;   // 미션 종료일
 
 	private String missionLocationName;   // 미션 위치 이름
 	private Double latitude;   // 미션 위치 위도
