@@ -276,7 +276,30 @@ public class ContentService {
         );
     }
 
+    @Transactional
+    public CustomResponseEntity<Page<ContentDto.ContentSearchDto>> contentSearch(
+            List<Long> groupId, String word, Integer page
+    ) {
+        Page<Content> contentPage = contentRepository
+                .findByContentContainingAndGroupIdIn(
+                        word, groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+                );
+
+        return CustomResponseEntity.success(
+                contentPage.map((Content content) -> ContentDto.ContentSearchDto.response(
+                                content,
+                                content.getContentImages()
+                                        .stream()
+                                        .map(ContentDto.ImageResponseDto::response)
+                                        .toList(),
+                                3
+                        )
+                )
+        );
+    }
+
     // method
+
     private void uploadFiles(List<MultipartFile> multipartFile, Content content) {
         multipartFile.forEach(file -> {
             String fileName = saveImage(file);

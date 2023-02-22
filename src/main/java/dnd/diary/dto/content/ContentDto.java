@@ -312,4 +312,38 @@ public class ContentDto {
                     .build();
         }
     }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Builder
+    public static class ContentSearchDto {
+        private Long contentId;
+        private Long groupId;
+        private String content;
+        private String groupImage;
+        private String groupName;
+        private LocalDateTime createAt;
+        private Integer contentImageListSize;
+        List<ContentDto.ImageResponseDto> contentImageList;
+        private Integer contentListSize;
+
+        public static ContentDto.ContentSearchDto response(
+                Content content,
+                List<ContentDto.ImageResponseDto> collect,
+                Integer contentListSize
+        ) {
+            return ContentSearchDto.builder()
+                    .contentId(content.getId())
+                    .groupId(content.getId())
+                    .content(content.getContent())
+                    .groupImage(content.getGroup().getGroupImageUrl())
+                    .groupName(content.getGroup().getGroupName())
+                    .createAt(content.getCreatedAt())
+                    .contentImageListSize(collect.size())
+                    .contentImageList(collect)
+                    .contentListSize(contentListSize)
+                    .build();
+        }
+    }
 }
