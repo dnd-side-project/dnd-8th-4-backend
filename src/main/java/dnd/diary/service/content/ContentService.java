@@ -108,6 +108,7 @@ public class ContentService {
                         .latitude(request.getLatitude())
                         .longitude(request.getLongitude())
                         .point(point)
+                        .location(request.getLocation())
                         .views(0L)
                         .contentLink("test")
                         .user(getUser(userDetails))
@@ -184,6 +185,8 @@ public class ContentService {
                                         .content(request.getContent())
                                         .latitude(request.getLatitude())
                                         .longitude(request.getLongitude())
+                                        .point(content.getPoint())
+                                        .location(request.getLocation())
                                         .views(content.getViews())
                                         .contentLink(content.getContentLink())
                                         .user(content.getUser())
@@ -352,8 +355,8 @@ public class ContentService {
                             (long) content.getComments().size(),
                             (long) content.getEmotions().size(),
                             content.getEmotions()
-                                    .stream()
-                                    .map(ContentDto.EmotionResponseDto::response)
+                                    .stream().limit(2)
+                                    .map(ContentDto.EmotionResponseGroupListDto::response)
                                     .toList(),
                             emotionStatus,
                             Integer.parseInt(redisDao.getValues(redisKey))
