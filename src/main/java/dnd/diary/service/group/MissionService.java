@@ -5,6 +5,7 @@ import static dnd.diary.enumeration.Result.*;
 
 import java.time.*;
 
+import dnd.diary.dto.mission.MissionCheckLocationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,13 +46,13 @@ public class MissionService {
 		if (!request.getExistPeriod()) {
 			missionStatus = MissionStatus.ACTIVE;
 		} else {
-			LocalDateTime today = LocalDateTime.now();
+			LocalDateTime today = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 			// 미션 시작일 > 오늘 -> 미션 진행중 상태
-			if (today.isBefore(request.getMissionStartDate().atStartOfDay())) {
+			if (today.isBefore(convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
 				missionStatus = MissionStatus.ACTIVE;
 			}
 			// 미션 종료일 < 오늘 -> 미션 종료 상태
-			if (today.isAfter(request.getMissionEndDate().atStartOfDay().plusDays(1))) {
+			if (today.isAfter(convertLocalDateTimeZone(request.getMissionEndDate().atStartOfDay().plusDays(1), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
 				missionStatus = MissionStatus.FINISH;
 			}
 		}
@@ -59,10 +60,8 @@ public class MissionService {
 		// 서버 기준 시간 + 9 -> 00:00 / 23:59 로
 		Mission mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
 			, request.getExistPeriod()
-			, request.getMissionStartDate().atStartOfDay()
-			, request.getMissionEndDate().atTime(LocalTime.MAX)
-//			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC)
-//			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneId.of("Asia/Seoul"), ZoneOffset.UTC)
+			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
+			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
 			, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
 			, request.getMissionColor(), missionStatus);
 		
@@ -81,8 +80,6 @@ public class MissionService {
 			.existPeriod(request.getExistPeriod())
 			.missionStartDate(mission.getMissionStartDate())
 			.missionEndDate(mission.getMissionEndDate())
-//			.missionStartDate(convertLocalDateTimeZone(mission.getMissionStartDate(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
-//			.missionEndDate(convertLocalDateTimeZone(mission.getMissionEndDate(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
 			.missionStatus(missionStatus)
 
 			.missionLocationName(mission.getMissionLocationName())
@@ -111,12 +108,15 @@ public class MissionService {
 	}
 	
 	// 미션 위치 인증
+	public MissionResponse checkLocation(MissionCheckLocationRequest request) {
+		return MissionResponse.builder().build();
+	}
 	
-	
-	// 미션 글쓰기 인증
+	// 미션 글쓰기 인증 -> Content 생성 시 체크
 	
 	
 	// 미션 완료 체크
+
 
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();

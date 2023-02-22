@@ -47,6 +47,7 @@ public class NotificationService {
 				.notificationId(notification.getId())
 				.groupId(invitedGroup.getId())
 				.groupName(invitedGroup.getGroupName())
+				.groupNote(invitedGroup.getGroupNote())
 				.groupInvitedAt(invitedGroup.getCreatedAt())
 				.readYn(notification.isReadYn())
 				.build();
