@@ -181,7 +181,6 @@ public class ContentDto {
         private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
 
-
         public static ContentDto.detailDto response(Content content, Integer views, List<ContentDto.ImageResponseDto> collect) {
             return detailDto.builder()
                     .id(content.getId())
@@ -219,8 +218,8 @@ public class ContentDto {
         private String contentLink;
         private Long userId;
         private Long groupId;
-        private List<deleteImageNameDto> deleteContentImageName;
         List<ContentDto.ImageResponseDto> collect;
+        private List<deleteImageNameDto> deleteContentImageName;
 
         public static ContentDto.UpdateDto response(Content content, List<ContentDto.ImageResponseDto> collect, Integer views) {
             return UpdateDto.builder()
@@ -267,17 +266,18 @@ public class ContentDto {
         private Long userId;
         private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
+
         public static ContentDto.mapListContent response(
-                Content content,List<ContentDto.ImageResponseDto> collect
+                Content content, List<ContentDto.ImageResponseDto> collect
         ) {
-          return mapListContent.builder()
-                  .id(content.getId())
-                  .latitude(content.getLatitude())
-                  .longitude(content.getLongitude())
-                  .userId(content.getUser().getId())
-                  .groupId(content.getGroup().getId())
-                  .collect(collect)
-                  .build();
+            return mapListContent.builder()
+                    .id(content.getId())
+                    .latitude(content.getLatitude())
+                    .longitude(content.getLongitude())
+                    .userId(content.getUser().getId())
+                    .groupId(content.getGroup().getId())
+                    .collect(collect)
+                    .build();
         }
     }
 
@@ -297,7 +297,7 @@ public class ContentDto {
         List<ContentDto.ImageResponseDto> contentImageList;
 
         public static ContentDto.mapListContentDetail response(
-                Content content,List<ContentDto.ImageResponseDto> collect
+                Content content, List<ContentDto.ImageResponseDto> collect
         ) {
             return mapListContentDetail.builder()
                     .contentId(content.getId())
@@ -326,12 +326,10 @@ public class ContentDto {
         private LocalDateTime createAt;
         private Integer contentImageListSize;
         List<ContentDto.ImageResponseDto> contentImageList;
-        private Integer contentListSize;
 
         public static ContentDto.ContentSearchDto response(
                 Content content,
-                List<ContentDto.ImageResponseDto> collect,
-                Integer contentListSize
+                List<ContentDto.ImageResponseDto> collect
         ) {
             return ContentSearchDto.builder()
                     .contentId(content.getId())
@@ -342,7 +340,6 @@ public class ContentDto {
                     .createAt(content.getCreatedAt())
                     .contentImageListSize(collect.size())
                     .contentImageList(collect)
-                    .contentListSize(contentListSize)
                     .build();
         }
     }
