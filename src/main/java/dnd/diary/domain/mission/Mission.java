@@ -51,7 +51,7 @@ public class Mission extends BaseEntity {
     private Boolean locationCheck;
 
     private Boolean contentCheck;
-    private Boolean isComplete;
+    private Boolean isComplete;   // 미션 전체 완료 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

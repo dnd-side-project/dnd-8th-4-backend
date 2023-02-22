@@ -43,6 +43,8 @@ public class NotificationService {
 			Group invitedGroup = notification.getInvite().getGroup();
 			NotificationResponse.NotificationInfo notificationInfo = NotificationResponse.NotificationInfo
 				.builder()
+				.notificationType(NotificationType.INVITE)
+				.notificationId(notification.getId())
 				.groupId(invitedGroup.getId())
 				.groupName(invitedGroup.getGroupName())
 				.groupInvitedAt(invitedGroup.getCreatedAt())
@@ -53,7 +55,6 @@ public class NotificationService {
 		}
 
 		return NotificationResponse.builder()
-			.notificationType(NotificationType.INVITE)
 			.notificationInfoList(notificationInfoList)
 			.totalCount(notificationCount)
 			.build();

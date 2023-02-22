@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @AllArgsConstructor
 public class NotificationResponse {
 
-    private NotificationType notificationType = NotificationType.INVITE;
     private List<NotificationInfo> notificationInfoList;
 
     @Getter
@@ -25,6 +24,8 @@ public class NotificationResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class NotificationInfo {
+        private NotificationType notificationType = NotificationType.INVITE;
+        private Long notificationId;
         private Long groupId;   // 초대된 그룹 ID
         private String groupName;   // 초대된 그룹 이름
         @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
