@@ -17,7 +17,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class groupListPagePostsDto {
@@ -71,7 +70,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class ImageResponseDto {
@@ -92,7 +90,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class EmotionResponseDto {
@@ -113,7 +110,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class EmotionResponseGroupListDto {
@@ -130,7 +126,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class CreateDto {
@@ -169,7 +164,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class detailDto {
@@ -248,7 +242,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class deleteImageNameDto {
@@ -257,7 +250,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class deleteContent {
@@ -266,7 +258,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class mapListContent {
@@ -292,7 +283,6 @@ public class ContentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class mapListContentDetail {
