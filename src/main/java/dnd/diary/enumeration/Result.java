@@ -27,6 +27,9 @@ public enum Result {
 	HIGH_MAX_GROUP_MEMBER_COUNT(2110, "그룹 최대 인원 초과"),
 	ALREADY_EXIST_IN_GROUP(2111, "이미 그룹에 가입된 사용자"),
 
+	// 알림 관련
+	NOT_FOUND_NOTIFICATION(2400, "존재하지 않는 알림"),
+
 	// 피드 관련
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),
 	EMOTION_DELETE_OK(0, "공감 삭제 성공"),

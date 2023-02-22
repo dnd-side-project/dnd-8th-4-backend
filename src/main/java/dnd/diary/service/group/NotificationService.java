@@ -1,5 +1,7 @@
 package dnd.diary.service.group;
 
+import static dnd.diary.enumeration.Result.*;
+
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.user.User;
@@ -17,8 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static dnd.diary.enumeration.Result.NOT_FOUND_USER;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +45,7 @@ public class NotificationService {
 				.builder()
 				.groupId(invitedGroup.getId())
 				.groupName(invitedGroup.getGroupName())
+				.groupInvitedAt(invitedGroup.getCreatedAt())
 				.readYn(notification.isReadYn())
 				.build();
 			notificationInfoList.add(notificationInfo);
@@ -60,8 +61,21 @@ public class NotificationService {
 
 	public NotificationReadResponse readNotification(Long notificationId) {
 		User user = findUser();
-
-		return null;
+		Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new CustomException(NOT_FOUND_NOTIFICATION));
+		if (!notification.isReadYn()) {
+			notification.readNotification();
+		}
+		return NotificationReadResponse.builder()
+			.notificationId(notification.getId())
+			.notificationType(NotificationType.INVITE)
+			.notificationInfo(
+				NotificationReadResponse.NotificationInfo.builder()
+					.groupId(notification.getInvite().getGroup().getId())
+					.groupName(notification.getInvite().getGroup().getGroupName())
+					.readYn(notification.isReadYn())
+					.build()
+			)
+			.build();
 	}
 
 	private User findUser() {
