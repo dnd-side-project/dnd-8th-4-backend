@@ -14,7 +14,6 @@ import javax.persistence.PreUpdate;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
 @Getter
 @MappedSuperclass
@@ -32,7 +31,7 @@ public abstract class BaseEntity {
 
     @PrePersist
     public void onPrePersist(){
-        this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.createdAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         this.modifiedAt = this.createdAt;
     }
 

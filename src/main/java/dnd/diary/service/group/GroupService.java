@@ -110,9 +110,12 @@ public class GroupService {
 			.groupNote(group.getGroupNote())
 			.groupImageUrl(group.getGroupImageUrl())
 			.groupCreateUserId(user.getId())
-			.groupCreatedAt(convertLocalDateTimeZone(group.getCreatedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
-			.groupModifiedAt(convertLocalDateTimeZone(group.getModifiedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
-			.recentUpdatedAt(convertLocalDateTimeZone(group.getRecentUpdatedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+            .groupCreatedAt(group.getCreatedAt())
+            .groupModifiedAt(group.getModifiedAt())
+            .recentUpdatedAt(group.getRecentUpdatedAt())
+//			.groupCreatedAt(convertLocalDateTimeZone(group.getCreatedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+//			.groupModifiedAt(convertLocalDateTimeZone(group.getModifiedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
+//			.recentUpdatedAt(convertLocalDateTimeZone(group.getRecentUpdatedAt(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))
 			.isGroupDelete(group.isDeleted())
 			.build();
 	}
