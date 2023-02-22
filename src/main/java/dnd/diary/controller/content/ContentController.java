@@ -88,4 +88,12 @@ public class ContentController {
     ) {
         return contentService.listMyMap(userDetails, x, y);
     }
+
+    // 지도 피드 상세보기
+    @GetMapping("content/map/detail")
+    public CustomResponseEntity<List<ContentDto.mapListContentDetail>> myMapListDetail(
+            @RequestParam final List<Long> contentId
+    ){
+        return contentService.listDetailMyMap(contentId);
+    }
 }

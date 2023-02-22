@@ -97,7 +97,7 @@ public class ContentService {
         Group group = getGroup(groupId);
         Point point = null;
 
-        if (request.getLatitude() != null && request.getLongitude() != null){
+        if (request.getLatitude() != null && request.getLongitude() != null) {
             String pointWKT = String.format("POINT(%s %s)", request.getLatitude(), request.getLongitude());
             point = (Point) new WKTReader().read(pointWKT);
         }
@@ -259,8 +259,23 @@ public class ContentService {
         );
     }
 
-    // method
+    @Transactional
+    public CustomResponseEntity<List<ContentDto.mapListContentDetail>> listDetailMyMap(List<Long> contentId) {
+        List<Content> contentList = contentRepository.findByIdIn(contentId);
+        return CustomResponseEntity.success(
+                contentList.stream().map((Content content) ->
+                        ContentDto.mapListContentDetail.response(
+                                content,
+                                content.getContentImages()
+                                        .stream()
+                                        .map(ContentDto.ImageResponseDto::response)
+                                        .toList()
+                        )
+                ).toList()
+        );
+    }
 
+    // method
     private void uploadFiles(List<MultipartFile> multipartFile, Content content) {
         multipartFile.forEach(file -> {
             String fileName = saveImage(file);
@@ -383,6 +398,7 @@ public class ContentService {
             uploadFiles(multipartFile, content);
         }
     }
+
     // validate
 
     private void validateUpdateContent(Long contentId) {
