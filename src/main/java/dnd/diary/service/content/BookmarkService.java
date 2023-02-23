@@ -26,19 +26,24 @@ public class BookmarkService {
     public CustomResponseEntity<BookmarkDto.addBookmarkDto> bookmarkAdd(
             UserDetails userDetails, Long contentId
     ) {
-        if (bookmarkRepository.existsByUserIdAndContentId(getUser(userDetails).getId(), contentId)){
-            throw new CustomException(Result.ALREADY_ADD_BOOKMARK);
-        }
-        return CustomResponseEntity.success(
-                BookmarkDto.addBookmarkDto.response(
-                        bookmarkRepository.save(
-                                Bookmark.builder()
-                                        .content(getContent(contentId))
-                                        .user(getUser(userDetails))
-                                        .build()
-                        )
-                )
+        Bookmark bookmark = bookmarkRepository.existsByUserIdAndContentId(
+                getUser(userDetails).getId(), contentId
         );
+        if (bookmark != null){
+            bookmarkRepository.delete(bookmark);
+            return CustomResponseEntity.successDeleteBookmark();
+        } else {
+            return CustomResponseEntity.success(
+                    BookmarkDto.addBookmarkDto.response(
+                            bookmarkRepository.save(
+                                    Bookmark.builder()
+                                            .content(getContent(contentId))
+                                            .user(getUser(userDetails))
+                                            .build()
+                            )
+                    )
+            );
+        }
     }
 
     // method
