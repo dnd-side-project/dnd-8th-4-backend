@@ -2,6 +2,7 @@ package dnd.diary.dto.userDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dnd.diary.domain.bookmark.Bookmark;
+import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
 import lombok.AllArgsConstructor;
@@ -141,5 +142,34 @@ public class UserDto {
                  .Images(images)
                  .build();
      }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Builder
+    public static class myAddListDto {
+        private Long contentId;
+        private Long groupId;
+        private String groupName;
+        private String content;
+        private LocalDateTime createAt;
+        private Integer imageSize;
+        List<ContentDto.ImageResponseDto> Images;
+
+        public static UserDto.myAddListDto response(
+                Content content,
+                List<ContentDto.ImageResponseDto> images
+        ){
+            return myAddListDto.builder()
+                    .contentId(content.getId())
+                    .groupId(content.getGroup().getId())
+                    .groupName(content.getGroup().getGroupName())
+                    .content(content.getContent())
+                    .createAt(content.getCreatedAt())
+                    .imageSize(images.size())
+                    .Images(images)
+                    .build();
+        }
     }
 }

@@ -3,6 +3,7 @@ package dnd.diary.service.user;
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
+import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
@@ -11,6 +12,7 @@ import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.BookmarkRepository;
+import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
@@ -42,7 +44,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final EmotionRepository emotionRepository;
+    private final ContentRepository contentRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -123,6 +125,28 @@ public class UserService {
         return CustomResponseEntity.success(bookmarkDtoPage);
     }
 
+    public CustomResponseEntity<Page<UserDto.myAddListDto>> listSearchMyAdd(UserDetails userDetails, Integer page) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+
+        Page<Content> pageMyContent = contentRepository.findByUserId(
+                user.getId(), PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        return CustomResponseEntity.success(
+                pageMyContent.map((Content content) ->
+                        UserDto.myAddListDto.response(
+                                content,content.getContentImages()
+                                        .stream()
+                                        .map(ContentDto.ImageResponseDto::response)
+                                        .toList()
+                        )
+                )
+        );
+    }
+
     // method
 
     private User getUser(String email) {
@@ -160,7 +184,6 @@ public class UserService {
         redisDao.setValues(email, rtk, Duration.ofDays(14));
         return rtk;
     }
-
     public UserSearchResponse searchUserList(String keyword) {
 
         List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCase(keyword);
@@ -180,6 +203,7 @@ public class UserService {
                 .userSearchInfoList(userSearchInfoList)
                 .build();
     }
+
     // Validate
 
     private void validateRegister(UserDto.RegisterDto request) {

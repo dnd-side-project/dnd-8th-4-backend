@@ -65,4 +65,13 @@ public class UserController {
         return userService.listMyBookmark(userDetails,page);
     }
 
+    // 작성한 글 조회
+    @GetMapping("auth/my/content")
+    public CustomResponseEntity<Page<UserDto.myAddListDto>> searchMyAddList(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam final Integer page
+    ){
+        return userService.listSearchMyAdd(userDetails, page);
+    }
+
 }
