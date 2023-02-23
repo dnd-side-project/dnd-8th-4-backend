@@ -59,11 +59,11 @@ public class MissionService {
 		} else {
 			LocalDateTime today = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 			// 미션 시작일 < 오늘 -> 미션 진행중 상태
-			if (today.isAfter(convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
+			if (today.isAfter(convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay().minusHours(9), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
 				missionStatus = MissionStatus.ACTIVE;
 			}
 			// 미션 종료일 < 오늘 -> 미션 종료 상태
-			if (today.isAfter(convertLocalDateTimeZone(request.getMissionEndDate().atStartOfDay().plusDays(1), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
+			if (today.isAfter(convertLocalDateTimeZone(request.getMissionEndDate().atStartOfDay().plusDays(1).minusHours(9), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
 				missionStatus = MissionStatus.FINISH;
 			}
 		}
@@ -74,7 +74,7 @@ public class MissionService {
 		Mission mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
 			, request.getExistPeriod()
 			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
-			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
+			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(23, 59, 59), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
 			, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
 			, request.getMissionColor(), missionStatus, point);
 		
