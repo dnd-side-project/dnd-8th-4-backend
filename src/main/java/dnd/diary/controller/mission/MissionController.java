@@ -30,7 +30,7 @@ public class MissionController {
 		return CustomResponseEntity.success();
 	}
 
-	@GetMapping
+	@GetMapping("/list")
 	public CustomResponseEntity<List<MissionResponse>> getMissionList(@RequestParam int missionStatus) {
 		return CustomResponseEntity.success(missionService.getMissionList(missionStatus));
 	}
