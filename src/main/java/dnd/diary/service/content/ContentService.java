@@ -378,6 +378,8 @@ public class ContentService {
                 (Content content) -> {
                     Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
                     Long emotionStatus;
+
+                    List<String> valuesList = redisDao.getValuesList("bookmark" + userDetails.getUsername());
                     if (byContentIdAndUserId == null) {
                         emotionStatus = -1L;
                     } else {
@@ -397,7 +399,8 @@ public class ContentService {
                                     .map(ContentDto.EmotionResponseGroupListDto::response)
                                     .toList(),
                             emotionStatus,
-                            Integer.parseInt(redisDao.getValues(redisKey))
+                            Integer.parseInt(redisDao.getValues(redisKey)),
+                            valuesList.contains(content.getId().toString())
                     );
                 }
         );
