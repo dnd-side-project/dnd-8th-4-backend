@@ -10,6 +10,9 @@ import java.util.List;
 import dnd.diary.domain.mission.UserAssignMission;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.mission.MissionCheckLocationRequest;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +46,7 @@ public class MissionService {
 
 	// 미션 생성
 	@Transactional
-	public MissionResponse createMission(MissionCreateRequest request) {
+	public MissionResponse createMission(MissionCreateRequest request) throws ParseException {
 		User user = findUser();
 		Group group = findGroup(request.getGroupId());
 
@@ -64,12 +67,14 @@ public class MissionService {
 		}
 
 		// 서버 기준 시간 + 9 -> 00:00 / 23:59 로
+		String pointWKT = String.format("POINT(%s %s)", request.getLatitude(), request.getLongitude());
+		Point point = (Point) new WKTReader().read(pointWKT);
 		Mission mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
 			, request.getExistPeriod()
 			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
 			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
 			, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
-			, request.getMissionColor(), missionStatus);
+			, request.getMissionColor(), missionStatus, point);
 		
 		missionRepository.save(mission);
 

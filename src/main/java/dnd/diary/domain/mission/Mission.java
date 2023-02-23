@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.locationtech.jts.geom.Point;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -61,6 +62,8 @@ public class Mission extends BaseEntity {
 
     private Integer missionColor;
 
+    private Point point;
+
     private boolean deleted = Boolean.FALSE;   // 미션 삭제 여부
 
     // 미션 생성자
@@ -80,7 +83,7 @@ public class Mission extends BaseEntity {
     @Builder
     private Mission(User user, Group group, String missionName, String missionNote, Boolean existPeriod
         , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, Double latitude, Double longitude
-        , Integer missionColor, MissionStatus missionStatus) {
+        , Integer missionColor, MissionStatus missionStatus, Point point) {
 
         this.missionCreateUser = user;
         this.group = group;
@@ -95,6 +98,7 @@ public class Mission extends BaseEntity {
         this.longitude = longitude;
         this.missionColor = missionColor;
         this.missionStatus = missionStatus;
+        this.point = point;
 
         // user.getUserAssignMissions().add(this);
         group.getMissions().add(this);
@@ -102,10 +106,10 @@ public class Mission extends BaseEntity {
 
     public static Mission toEntity(User user, Group group, String missionName, String missionNote, Boolean existPeriod
         , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, Double latitude, Double longitude
-        , Integer missionColor, MissionStatus missionStatus) {
+        , Integer missionColor, MissionStatus missionStatus, Point point ) {
         return new Mission(user, group, missionName, missionNote
             ,existPeriod, missionStartDate, missionEndDate
-            , missionLocationName, latitude, longitude, missionColor, missionStatus);
+            , missionLocationName, latitude, longitude, missionColor, missionStatus, point);
     }
 
     @PreRemove
