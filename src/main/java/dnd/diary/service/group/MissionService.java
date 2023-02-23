@@ -212,7 +212,9 @@ public class MissionService {
 		);
 
 		for (Mission mission : userMissionListWithInMap) {
-			missionResponseList.add(toMissionResponse(mission));
+			if (mission.getMissionStatus() == MissionStatus.ACTIVE) {
+				missionResponseList.add(toMissionResponse(mission));
+			}
 		}
 
 		return missionResponseList;
