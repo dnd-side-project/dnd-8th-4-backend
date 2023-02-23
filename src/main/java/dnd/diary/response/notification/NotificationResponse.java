@@ -29,6 +29,7 @@ public class NotificationResponse {
         private Long groupId;   // 초대된 그룹 ID
         private String groupName;   // 초대된 그룹 이름
         private String groupNote;   // 초대된 그룹 소개
+        private String groupImageUrl;   // 초대된 그룹 이미지
         @JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime groupInvitedAt;   // 그룹 초대 일자
         private boolean readYn;   // 알림 읽음 여부

@@ -90,6 +90,7 @@ public class MissionService {
 			.createUserId(user.getId())
 			.groupId(group.getId())
 			.groupName(group.getGroupName())
+			.groupImageUrl(group.getGroupImageUrl())
 
 			.existPeriod(request.getExistPeriod())
 			.missionStartDate(mission.getMissionStartDate())
@@ -128,7 +129,13 @@ public class MissionService {
 	public MissionResponse checkLocation(MissionCheckLocationRequest request) {
 		return MissionResponse.builder().build();
 	}
-	
+
+	// 미션 전체 목록 (히스토리) 조회
+
+
+	// 미션 상태별 목록 조회 -> 진행중인 미션 목록 조회
+
+
 	// 미션 글쓰기 인증 -> Content 생성 시 체크
 	
 	

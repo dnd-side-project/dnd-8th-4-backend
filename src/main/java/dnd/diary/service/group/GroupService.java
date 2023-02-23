@@ -324,8 +324,45 @@ public class GroupService {
 			.build();
 	}
 
+	public GroupDetailResponse getGroupDetail(Long groupId) {
+
+		User user = findUser();
+		Group targetGroup = findGroup(groupId);
+
+		// 그룹 구성원 정보
+		List<UserJoinGroup> userJoinGroupList = targetGroup.getUserJoinGroups();
+		List<GroupDetailResponse.GroupMemberInfo> groupMemberInfoList = new ArrayList<>();
+		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
+			User groupUser = userJoinGroup.getUser();
+			GroupDetailResponse.GroupMemberInfo groupMemberInfo = GroupDetailResponse.GroupMemberInfo.builder()
+				.userId(groupUser.getId())
+				.userName(groupUser.getName())
+				.userNickname(groupUser.getNickName())
+				.userEmail(groupUser.getEmail())
+				.userJoinGroupDated(userJoinGroup.getCreatedAt())   // 유저의 그룹 가입일
+				.build();
+
+			groupMemberInfoList.add(groupMemberInfo);
+		}
+
+		return GroupDetailResponse.builder()
+			.groupId(targetGroup.getId())
+			.groupName(targetGroup.getGroupName())
+			.groupNote(targetGroup.getGroupNote())
+			.groupImageUrl(targetGroup.getGroupImageUrl())
+			.hostUserInfo(new GroupDetailResponse.HostUserInfo(
+				targetGroup.getGroupCreateUser().getId(), targetGroup.getGroupCreateUser().getNickName(), targetGroup.getGroupCreateUser().getProfileImageUrl()
+			))
+			.groupMemberInfoList(groupMemberInfoList)
+			.build();
+	}
+
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();
 		return userRepository.findById(userInfo.getId()).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
+	}
+
+	private Group findGroup(Long groupId) {
+		return groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
 	}
 }

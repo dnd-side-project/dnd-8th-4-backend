@@ -48,6 +48,7 @@ public class NotificationService {
 				.groupId(invitedGroup.getId())
 				.groupName(invitedGroup.getGroupName())
 				.groupNote(invitedGroup.getGroupNote())
+				.groupImageUrl(invitedGroup.getGroupImageUrl())
 				.groupInvitedAt(invitedGroup.getCreatedAt())
 				.readYn(notification.isReadYn())
 				.build();
@@ -67,13 +68,16 @@ public class NotificationService {
 		if (!notification.isReadYn()) {
 			notification.readNotification();
 		}
+		Group group = notification.getInvite().getGroup();
 		return NotificationReadResponse.builder()
 			.notificationId(notification.getId())
 			.notificationType(NotificationType.INVITE)
 			.notificationInfo(
 				NotificationReadResponse.NotificationInfo.builder()
-					.groupId(notification.getInvite().getGroup().getId())
-					.groupName(notification.getInvite().getGroup().getGroupName())
+					.groupId(group.getId())
+					.groupName(group.getGroupName())
+					.groupNote(group.getGroupName())
+					.groupImageUrl(group.getGroupImageUrl())
 					.readYn(notification.isReadYn())
 					.build()
 			)
