@@ -95,14 +95,14 @@ public class ContentDto {
     public static class EmotionResponseDto {
         private Long id;
         private Long emotionStatus;
-        private String profileImage;
+        private String profileImageUrl;
         private Long userId;
 
         public static ContentDto.EmotionResponseDto response(Emotion emotion) {
             return EmotionResponseDto.builder()
                     .id(emotion.getId())
                     .emotionStatus(emotion.getEmotionStatus())
-                    .profileImage(emotion.getUser().getProfileImageUrl())
+                    .profileImageUrl(emotion.getUser().getProfileImageUrl())
                     .userId(emotion.getUser().getId())
                     .build();
         }

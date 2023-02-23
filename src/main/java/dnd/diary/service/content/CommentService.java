@@ -55,21 +55,12 @@ public class CommentService {
     }
 
     @Transactional
-    public CustomResponseEntity<CommentDto.pagePostsCommentDto> commentPage(
+    public CustomResponseEntity<Page<CommentDto.pageCommentDto>> commentPage(
             UserDetails userDetails, Long contentId, Integer page
     ) {
         validateCommentPage(contentId);
-        Content content = getContent(contentId);
         return CustomResponseEntity.success(
-                CommentDto.pagePostsCommentDto.response(
-                        getPageCommentDtos(userDetails, getPageComments(contentId, page)),
-                        content.getEmotions()
-                                .stream()
-                                .map(ContentDto.EmotionResponseDto::response)
-                                .toList(),
-                        (long) content.getEmotions().size(),
-                        (long) content.getComments().size()
-                )
+                getPageCommentDtos(userDetails, getPageComments(contentId, page))
         );
     }
 
@@ -103,12 +94,6 @@ public class CommentService {
                 );
     }
 
-    private List<ContentDto.EmotionResponseDto> getEmotionResponseDtos(Long contentId) {
-        List<Emotion> byContentId = emotionRepository.findByContentId(contentId);
-        List<ContentDto.EmotionResponseDto> emotion = byContentId.stream().map(ContentDto.EmotionResponseDto::response).toList();
-        return emotion;
-    }
-
     // validate
     private void validateCommentPage(Long contentId) {
         if (!contentRepository.existsById(contentId)){
@@ -120,5 +105,14 @@ public class CommentService {
         if (!contentRepository.existsById(contentId)){
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
+    }
+
+    public CustomResponseEntity<List<ContentDto.EmotionResponseDto>> emotionList(Long contentId) {
+        return CustomResponseEntity.success(
+                emotionRepository.findByContentId(contentId)
+                        .stream()
+                        .map(ContentDto.EmotionResponseDto::response)
+                        .toList()
+        );
     }
 }
