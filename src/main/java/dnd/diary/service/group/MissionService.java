@@ -5,6 +5,7 @@ import static dnd.diary.enumeration.Result.*;
 
 import java.time.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import dnd.diary.domain.mission.UserAssignMission;
@@ -58,11 +59,11 @@ public class MissionService {
 		} else {
 			LocalDateTime today = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 			// 미션 시작일 < 오늘 -> 미션 진행중 상태
-			if (today.isAfter(convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
+			if (today.isAfter(convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay().minusHours(9), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
 				missionStatus = MissionStatus.ACTIVE;
 			}
 			// 미션 종료일 < 오늘 -> 미션 종료 상태
-			if (today.isAfter(convertLocalDateTimeZone(request.getMissionEndDate().atStartOfDay().plusDays(1), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
+			if (today.isAfter(convertLocalDateTimeZone(request.getMissionEndDate().atStartOfDay().plusDays(1).minusHours(9), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
 				missionStatus = MissionStatus.FINISH;
 			}
 		}
@@ -73,7 +74,7 @@ public class MissionService {
 		Mission mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
 			, request.getExistPeriod()
 			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
-			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(LocalTime.MAX), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
+			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(23, 59, 59), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
 			, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
 			, request.getMissionColor(), missionStatus, point);
 		
@@ -81,13 +82,10 @@ public class MissionService {
 
 		// 그룹에 속한 구성원 모두에게 미션 할당
 		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
-		log.info("ID : {} 인 그룹의 구성원 수 : {}", group.getId(), userJoinGroupList.size());
 		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
 			User groupUser = userJoinGroup.getUser();
-			log.info("ID : {} 인 그룹에 속한 유저 ID : {}", group.getId(), groupUser.getId());
 			UserAssignMission userAssignMission = UserAssignMission.toEntity(groupUser, mission);
 			userAssignMissionRepository.save(userAssignMission);
-			log.info("ID : {} 인 유저에게 할당된 미션 순서(userAssignMission) ID : {}", groupUser.getId(), userAssignMission.getId());
 		}
 		
 		Period diff = Period.between(LocalDate.now(), request.getMissionEndDate());
@@ -145,14 +143,13 @@ public class MissionService {
 
 		User user = findUser();
 		MissionStatus findMissionStatus = MissionStatus.getName(missionStatus);
-		log.info("findMissionStatus name : {}", findMissionStatus);
-
 		List<UserAssignMission> userAssignMissionList = user.getUserAssignMissions();
 		List<MissionResponse> missionResponseList = new ArrayList<>();
 
 		for (UserAssignMission userAssignMission : userAssignMissionList) {
 			Mission mission = userAssignMission.getMission();
 			log.info("userAssignMission ID : {} 인 미션의 상태 : {}", userAssignMission.getId(), mission.getMissionStatus());
+			log.info("미션 시작일 : {} , 미션 종료일 : {}", mission.getMissionStartDate(), mission.getMissionEndDate());
 			if (MissionStatus.ALL == findMissionStatus) {
 				MissionResponse missionResponse = toMissionResponse(mission);
 				missionResponseList.add(missionResponse);
@@ -163,6 +160,7 @@ public class MissionService {
 				}
 			}
 		}
+		missionResponseList.sort(Comparator.comparing(MissionResponse::getMissionDday));
 		return missionResponseList;
 	}
 
@@ -216,7 +214,7 @@ public class MissionService {
 				missionResponseList.add(toMissionResponse(mission));
 			}
 		}
-
+		missionResponseList.sort(Comparator.comparing(MissionResponse::getMissionDday));
 		return missionResponseList;
 	}
 
