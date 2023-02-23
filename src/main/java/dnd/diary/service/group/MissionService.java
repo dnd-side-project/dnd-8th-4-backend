@@ -4,6 +4,7 @@ import static dnd.diary.domain.mission.DateUtil.convertLocalDateTimeZone;
 import static dnd.diary.enumeration.Result.*;
 
 import java.time.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import dnd.diary.domain.mission.UserAssignMission;
@@ -52,8 +53,8 @@ public class MissionService {
 			missionStatus = MissionStatus.ACTIVE;
 		} else {
 			LocalDateTime today = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
-			// 미션 시작일 > 오늘 -> 미션 진행중 상태
-			if (today.isBefore(convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
+			// 미션 시작일 < 오늘 -> 미션 진행중 상태
+			if (today.isAfter(convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
 				missionStatus = MissionStatus.ACTIVE;
 			}
 			// 미션 종료일 < 오늘 -> 미션 종료 상태
@@ -130,10 +131,18 @@ public class MissionService {
 		return MissionResponse.builder().build();
 	}
 
-	// 미션 전체 목록 (히스토리) 조회
+	// 미션 상태별 목록 조회 (0 : 전체, 1 : 시작 전, 2 : 진행중, 3 : 종료)
+	public List<MissionResponse> getMissionList(int missionStatus) {
+
+		String findMissionStatus = MissionStatus.getName(missionStatus);
+
+		List<MissionResponse> missionResponseList = new ArrayList<>();
+
+		return missionResponseList;
+	}
 
 
-	// 미션 상태별 목록 조회 -> 진행중인 미션 목록 조회
+	// 완료한 미션 목록 조회 -> 스티커 쪽
 
 
 	// 미션 글쓰기 인증 -> Content 생성 시 체크

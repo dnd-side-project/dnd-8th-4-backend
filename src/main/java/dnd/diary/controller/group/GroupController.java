@@ -79,7 +79,7 @@ public class GroupController {
 
 	@GetMapping
 	public CustomResponseEntity<GroupDetailResponse> getGroupDetail(@RequestParam Long groupId) {
-		 return CustomResponseEntity.success(groupService.getGroupDetail(groupId))
-;	}
+		 return CustomResponseEntity.success(groupService.getGroupDetail(groupId));
+	}
 
 }

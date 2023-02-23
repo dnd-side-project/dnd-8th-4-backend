@@ -353,6 +353,9 @@ public class GroupService {
 			.hostUserInfo(new GroupDetailResponse.HostUserInfo(
 				targetGroup.getGroupCreateUser().getId(), targetGroup.getGroupCreateUser().getNickName(), targetGroup.getGroupCreateUser().getProfileImageUrl()
 			))
+			.groupCreatedAt(targetGroup.getCreatedAt())
+			.groupModifiedAt(targetGroup.getModifiedAt())
+			.groupRecentUpdatedAt(targetGroup.getRecentUpdatedAt())
 			.groupMemberInfoList(groupMemberInfoList)
 			.build();
 	}
