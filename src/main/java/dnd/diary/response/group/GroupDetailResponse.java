@@ -53,7 +53,8 @@ public class GroupDetailResponse {
 		private String userName;
 		private String userNickname;
 		private String userEmail;
+		private String userProfileImageUrl;
 		@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
-		private LocalDateTime userJoinGroupDated;
+		private LocalDateTime userJoinGroupDatedAt;
 	}
 }

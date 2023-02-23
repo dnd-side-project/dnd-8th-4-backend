@@ -1,6 +1,5 @@
 package dnd.diary.service.group;
 
-import static dnd.diary.domain.mission.DateUtil.convertLocalDateTimeZone;
 import static dnd.diary.enumeration.Result.*;
 
 import dnd.diary.domain.group.Group;
@@ -30,8 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -346,7 +343,8 @@ public class GroupService {
 				.userName(groupUser.getName())
 				.userNickname(groupUser.getNickName())
 				.userEmail(groupUser.getEmail())
-				.userJoinGroupDated(userJoinGroup.getCreatedAt())   // 유저의 그룹 가입일
+				.userProfileImageUrl(groupUser.getProfileImageUrl())
+				.userJoinGroupDatedAt(userJoinGroup.getCreatedAt())   // 유저의 그룹 가입일
 				.build();
 
 			groupMemberInfoList.add(groupMemberInfo);
