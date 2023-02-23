@@ -14,6 +14,7 @@ import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.Invite;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.mission.Mission;
+import dnd.diary.domain.mission.UserAssignMission;
 import lombok.*;
 
 import javax.persistence.*;
@@ -103,9 +104,9 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private final List<CommentLike> commentLikes = new ArrayList<>();
 
-    // 사용자가 등록한 미션 목록
+    // 사용자에게 할당된 미션 목록 -> 그룹 구성원 모두에게 미션 할당
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private final List<Mission> missions = new ArrayList<>();
+    private List<UserAssignMission> userAssignMissions = new ArrayList<>();
 
     // 사용자 알림 목록 - 그룹 초대 + a
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

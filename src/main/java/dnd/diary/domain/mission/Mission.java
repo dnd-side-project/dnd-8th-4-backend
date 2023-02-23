@@ -19,6 +19,8 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -59,28 +61,28 @@ public class Mission extends BaseEntity {
 
     private Integer missionColor;
 
-    private Boolean locationCheck;
-
-    private Boolean contentCheck;
-
-    private Boolean isComplete;   // 미션 전체 완료 여부
-
     private boolean deleted = Boolean.FALSE;   // 미션 삭제 여부
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // 미션 생성자
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;    // createUser
+    private User missionCreateUser;
 
+    // 하나의 그룹 = 여러 개 미션 보유
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Group group;
+
+    // 미션 생성으로 -> 그룹 내 여러 명의 유저에게 미션 할당
+    @OneToMany(mappedBy = "mission", cascade = CascadeType.ALL)
+    private List<UserAssignMission> userAssignMissions = new ArrayList<>();
 
     @Builder
     private Mission(User user, Group group, String missionName, String missionNote, Boolean existPeriod
         , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, Double latitude, Double longitude
         , Integer missionColor, MissionStatus missionStatus) {
 
-        this.user = user;
+        this.missionCreateUser = user;
         this.group = group;
         this.missionName = missionName;
         this.missionNote = missionNote;
@@ -93,11 +95,8 @@ public class Mission extends BaseEntity {
         this.longitude = longitude;
         this.missionColor = missionColor;
         this.missionStatus = missionStatus;
-        this.locationCheck = false;
-        this.contentCheck = false;
-        this.isComplete = false;
 
-        user.getMissions().add(this);
+        // user.getUserAssignMissions().add(this);
         group.getMissions().add(this);
     }
 

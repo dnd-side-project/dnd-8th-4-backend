@@ -31,8 +31,9 @@ public enum Result {
 	NOT_FOUND_NOTIFICATION(2400, "존재하지 않는 알림"),
 
 	// 미션 관련
-	NOT_FOUND_MISSION(2500, "존재하지 않는 미션"),
-	FAIL_DELETE_MISSION(2501, "미션 생성자만 삭제 가능"),
+	HIGH_MAX_MISSION_NAME_LENGTH(2500, "미션 이름 최대 글자(20자) 초과"),
+	NOT_FOUND_MISSION(2501, "존재하지 않는 미션"),
+	FAIL_DELETE_MISSION(2502, "미션 생성자만 삭제 가능"),
 
 	// 피드 관련
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),
@@ -40,6 +41,7 @@ public enum Result {
 	COMMENT_LIKE_DELETE_OK(0, "댓글 좋아요 삭제 성공"),
 	NOT_FOUND_CONTENT(2300, "해당 게시글은 존재하지 않습니다."),
 	NOT_FOUND_COMMENT(2301, "해당 댓글은 존재하지 않습니다."),
+
 	NOT_MATCHED_USER_CONTENT(2302, "유저가 작성한 글이 아닙니다."),
 	NOT_SUPPORTED_EMOTION_STATUS(2303, "지원하지 않는 감정 상태입니다."),
 	ALREADY_ADD_BOOKMARK(2304, "이미 북마크한 게시물 입니다."),

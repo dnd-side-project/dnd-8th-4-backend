@@ -1,4 +1,6 @@
-package dnd.diary.controller.group;
+package dnd.diary.controller.mission;
+
+import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +16,11 @@ import lombok.RequiredArgsConstructor;
 public class MissionController {
 
 	private final MissionService missionService;
+	private final MissionValidator missionValidator;
 
 	@PostMapping
 	public CustomResponseEntity<MissionResponse> createMission(@RequestBody MissionCreateRequest request) {
+		missionValidator.checkCreateMission(request);
 		return CustomResponseEntity.success(missionService.createMission(request));
 	}
 
@@ -24,5 +28,10 @@ public class MissionController {
 	public CustomResponseEntity<Void> deleteMission(@RequestParam Long missionId) {
 		missionService.deleteMission(missionId);
 		return CustomResponseEntity.success();
+	}
+
+	@GetMapping
+	public CustomResponseEntity<List<MissionResponse>> getMissionList(@RequestParam int missionStatus) {
+		return CustomResponseEntity.success(missionService.getMissionList(missionStatus));
 	}
 }

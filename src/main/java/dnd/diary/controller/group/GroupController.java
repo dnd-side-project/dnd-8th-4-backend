@@ -77,4 +77,9 @@ public class GroupController {
 	 	return CustomResponseEntity.success(groupService.inviteGroupMember(request));
 	}
 
+	@GetMapping
+	public CustomResponseEntity<GroupDetailResponse> getGroupDetail(@RequestParam Long groupId) {
+		 return CustomResponseEntity.success(groupService.getGroupDetail(groupId));
+	}
+
 }
