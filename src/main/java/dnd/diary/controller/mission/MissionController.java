@@ -1,5 +1,7 @@
 package dnd.diary.controller.mission;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.*;
 
 import dnd.diary.dto.group.MissionCreateRequest;
@@ -26,5 +28,10 @@ public class MissionController {
 	public CustomResponseEntity<Void> deleteMission(@RequestParam Long missionId) {
 		missionService.deleteMission(missionId);
 		return CustomResponseEntity.success();
+	}
+
+	@GetMapping
+	public CustomResponseEntity<List<MissionResponse>> getMissionList(@RequestParam int missionStatus) {
+		return CustomResponseEntity.success(missionService.getMissionList(missionStatus));
 	}
 }

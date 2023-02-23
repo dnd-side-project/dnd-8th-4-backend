@@ -134,15 +134,60 @@ public class MissionService {
 	// 미션 상태별 목록 조회 (0 : 전체, 1 : 시작 전, 2 : 진행중, 3 : 종료)
 	public List<MissionResponse> getMissionList(int missionStatus) {
 
+		User user = findUser();
 		String findMissionStatus = MissionStatus.getName(missionStatus);
+		log.info("findMissionStatus name : {}", findMissionStatus);
 
+		List<UserAssignMission> userAssignMissionList = user.getUserAssignMissions();
 		List<MissionResponse> missionResponseList = new ArrayList<>();
 
+		for (UserAssignMission userAssignMission : userAssignMissionList) {
+			Mission mission = userAssignMission.getMission();
+			if (MissionStatus.ALL.equals(findMissionStatus)) {
+				MissionResponse missionResponse = toMissionResponse(mission);
+				missionResponseList.add(missionResponse);
+			} else {
+				if (findMissionStatus.equals(mission.getMissionStatus())) {
+					MissionResponse missionResponse = toMissionResponse(mission);
+					missionResponseList.add(missionResponse);
+				}
+			}
+		}
 		return missionResponseList;
+	}
+
+	private MissionResponse toMissionResponse(Mission mission) {
+		return MissionResponse.builder()
+			.missionId(mission.getId())
+			.missionName(mission.getMissionName())
+			.missionNote(mission.getMissionNote())
+			.createUserId(mission.getMissionCreateUser().getId())
+			.groupId(mission.getGroup().getId())
+			.groupName(mission.getGroup().getGroupName())
+			.groupImageUrl(mission.getGroup().getGroupImageUrl())
+
+			.existPeriod(mission.getExistPeriod())
+			.missionStartDate(mission.getMissionStartDate())
+			.missionEndDate(mission.getMissionEndDate())
+			.missionStatus(mission.getMissionStatus())
+
+			.missionLocationName(mission.getMissionLocationName())
+			.latitude(mission.getLatitude())
+			.longitude(mission.getLongitude())
+
+			.missionDday(
+				Period.between(LocalDate.now(ZoneId.of("Asia/Seoul")), mission.getMissionEndDate().toLocalDate()).getDays()
+			)
+			.missionColor(mission.getMissionColor())
+			.build();
 	}
 
 
 	// 완료한 미션 목록 조회 -> 스티커 쪽
+	public List<MissionResponse> getCompleteMissionList() {
+		List<MissionResponse> missionResponseList = new ArrayList<>();
+		return missionResponseList;
+	}
 
 
 	// 미션 글쓰기 인증 -> Content 생성 시 체크
