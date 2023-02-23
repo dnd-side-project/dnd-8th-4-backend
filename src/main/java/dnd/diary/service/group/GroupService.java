@@ -152,7 +152,6 @@ public class GroupService {
 			} else {
 				groupStar.update(GroupStarStatus.ADD);
 			}
-			// groupStarRepository.save(groupStar);
 		}
 
 		GroupStar newGroupStar = groupStarRepository.findByGroupIdAndUserId(groupId, user.getId());
@@ -244,7 +243,7 @@ public class GroupService {
 		for (Group group : searchGroupList) {
 			boolean isStarGroup = false;
 			for (GroupStar groupStar : group.getGroupStars()) {
-				if (user.getId().equals(groupStar.getUser().getId())) {
+				if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD && user.getId().equals(groupStar.getUser().getId())) {
 					isStarGroup = true;
 					break;
 				}
@@ -329,6 +328,14 @@ public class GroupService {
 		User user = findUser();
 		Group targetGroup = findGroup(groupId);
 
+		boolean isStarGroup = false;
+		for (GroupStar groupStar : targetGroup.getGroupStars()) {
+			if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD && user.getId().equals(groupStar.getUser().getId())) {
+				isStarGroup = true;
+				break;
+			}
+		}
+
 		// 그룹 구성원 정보
 		List<UserJoinGroup> userJoinGroupList = targetGroup.getUserJoinGroups();
 		List<GroupDetailResponse.GroupMemberInfo> groupMemberInfoList = new ArrayList<>();
@@ -356,6 +363,8 @@ public class GroupService {
 			.groupCreatedAt(targetGroup.getCreatedAt())
 			.groupModifiedAt(targetGroup.getModifiedAt())
 			.groupRecentUpdatedAt(targetGroup.getRecentUpdatedAt())
+			.memberCount(userJoinGroupList.size())
+			.isStarGroup(isStarGroup)
 			.groupMemberInfoList(groupMemberInfoList)
 			.build();
 	}

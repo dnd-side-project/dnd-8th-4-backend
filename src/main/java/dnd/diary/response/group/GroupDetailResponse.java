@@ -20,6 +20,16 @@ public class GroupDetailResponse {
 	private String groupNote;
 	private String groupImageUrl;
 
+	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
+	private LocalDateTime groupCreatedAt;
+	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
+	private LocalDateTime groupModifiedAt;
+	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
+	private LocalDateTime groupRecentUpdatedAt;
+
+	private long memberCount;
+	private Boolean isStarGroup;
+
 	private HostUserInfo hostUserInfo;
 	@Getter
 	@Builder
@@ -31,12 +41,6 @@ public class GroupDetailResponse {
 		private String hostUserProfileImageUrl;
 	}
 
-	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
-	private LocalDateTime groupCreatedAt;
-	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
-	private LocalDateTime groupModifiedAt;
-	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
-	private LocalDateTime groupRecentUpdatedAt;
 
 	private List<GroupMemberInfo> groupMemberInfoList;
 
