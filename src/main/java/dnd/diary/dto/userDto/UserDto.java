@@ -112,49 +112,33 @@ public class UserDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class BookmarkDto {
         private Long id;
+        private Long contentId;
         private Long userId;
         private Long groupId;
-        private String userName;
         private String groupName;
         private String content;
-        private Double latitude;
-        private Double longitude;
         private LocalDateTime createAt;
-        private long views;
-        private String contentLink;
-        private Long comments;
-        private Long emotions;
-        private Long emotionStatus;
+        private Integer imageSize;
         List<ContentDto.ImageResponseDto> Images;
-        List<ContentDto.EmotionResponseDto> emotionResponseDtos;
 
      public static UserDto.BookmarkDto response(
-             Bookmark bookmark, Integer views, Long emotionStatus,
-             List<ContentDto.ImageResponseDto> images,
-             List<ContentDto.EmotionResponseDto> emotionResponseDtos
+             Bookmark bookmark,
+             List<ContentDto.ImageResponseDto> images
      ){
          return BookmarkDto.builder()
-                 .id(bookmark.getContent().getId())
+                 .id(bookmark.getId())
+                 .contentId(bookmark.getContent().getId())
                  .userId(bookmark.getContent().getUser().getId())
                  .groupId(bookmark.getContent().getGroup().getId())
-                 .userName(bookmark.getContent().getUser().getNickName())
                  .groupName(bookmark.getContent().getGroup().getGroupName())
                  .content(bookmark.getContent().getContent())
-                 .latitude(bookmark.getContent().getLatitude())
-                 .longitude(bookmark.getContent().getLongitude())
                  .createAt(bookmark.getContent().getCreatedAt())
-                 .views(views)
-                 .contentLink(bookmark.getContent().getContentLink())
-                 .comments((long) bookmark.getContent().getComments().size())
-                 .emotions((long) bookmark.getContent().getEmotions().size())
-                 .emotionStatus(emotionStatus)
+                 .imageSize(images.size())
                  .Images(images)
-                 .emotionResponseDtos(emotionResponseDtos)
                  .build();
      }
     }
