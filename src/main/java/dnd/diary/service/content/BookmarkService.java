@@ -1,5 +1,6 @@
 package dnd.diary.service.content;
 
+import dnd.diary.config.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.User;
@@ -15,30 +16,45 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BookmarkService {
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
     private final BookmarkRepository bookmarkRepository;
+    private final RedisDao redisDao;
 
     @Transactional
     public CustomResponseEntity<BookmarkDto.addBookmarkDto> bookmarkAdd(
             UserDetails userDetails, Long contentId
     ) {
-        if (bookmarkRepository.existsByUserIdAndContentId(getUser(userDetails).getId(), contentId)){
-            throw new CustomException(Result.ALREADY_ADD_BOOKMARK);
-        }
-        return CustomResponseEntity.success(
-                BookmarkDto.addBookmarkDto.response(
-                        bookmarkRepository.save(
-                                Bookmark.builder()
-                                        .content(getContent(contentId))
-                                        .user(getUser(userDetails))
-                                        .build()
-                        )
-                )
+        Bookmark bookmark = bookmarkRepository.findByUserIdAndContentId(
+                getUser(userDetails).getId(), contentId
         );
+        String redisUserKey = "bookmark" + userDetails.getUsername();
+
+        if (bookmark != null){
+            bookmarkRepository.delete(bookmark);
+            List<String> valuesList = redisDao.getValuesList(redisUserKey);
+            redisDao.deleteValues(redisUserKey);
+            valuesList.remove(contentId.toString());
+            valuesList.forEach(s -> redisDao.setValuesList(redisUserKey,s));
+            return CustomResponseEntity.successDeleteBookmark();
+        } else {
+            redisDao.setValuesList(redisUserKey, String.valueOf(contentId));
+            return CustomResponseEntity.success(
+                    BookmarkDto.addBookmarkDto.response(
+                            bookmarkRepository.save(
+                                    Bookmark.builder()
+                                            .content(getContent(contentId))
+                                            .user(getUser(userDetails))
+                                            .build()
+                            )
+                    )
+            );
+        }
     }
 
     // method

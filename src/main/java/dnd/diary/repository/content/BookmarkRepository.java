@@ -6,10 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     Page<Bookmark> findByUserId(Long userId, Pageable pageable);
-    boolean existsByUserIdAndContentId(Long userId, Long contentId);
+    Bookmark findByUserIdAndContentId(Long userId, Long contentId);
 }

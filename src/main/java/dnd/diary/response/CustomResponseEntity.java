@@ -30,6 +30,14 @@ public class CustomResponseEntity<T> {
 			.build();
 	}
 
+	public static <T> CustomResponseEntity<T> successDeleteBookmark() {
+		return CustomResponseEntity.<T>builder()
+				.code(Result.BOOKMARK_DELETE_OK.getCode())
+				.message(Result.BOOKMARK_DELETE_OK.getMessage())
+				.build();
+	}
+
+
 	public static <T> CustomResponseEntity<T> successEmailCheck() {
 		return CustomResponseEntity.<T>builder()
 				.code(Result.POSSIBLE_USE_EMAIL.getCode())
