@@ -2,6 +2,7 @@ package dnd.diary.controller.mission;
 
 import java.util.List;
 
+import dnd.diary.dto.mission.MissionListByMapRequest;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,8 +33,20 @@ public class MissionController {
 		return CustomResponseEntity.success();
 	}
 
-	@GetMapping
+	@GetMapping("/list")
 	public CustomResponseEntity<List<MissionResponse>> getMissionList(@RequestParam int missionStatus) {
 		return CustomResponseEntity.success(missionService.getMissionList(missionStatus));
+	}
+
+	@GetMapping
+	public CustomResponseEntity<MissionResponse> getMission(@RequestParam Long missionId) {
+		return CustomResponseEntity.success(missionService.getMission(missionId));
+	}
+
+	@PostMapping("/list/map")
+	public CustomResponseEntity<List<MissionResponse>> getMissionListByMap(
+			@RequestBody MissionListByMapRequest request
+	) {
+		return CustomResponseEntity.success(missionService.getMissionListByMap(request));
 	}
 }

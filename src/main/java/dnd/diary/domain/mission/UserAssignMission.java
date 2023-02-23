@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PreRemove;
 
+import lombok.Builder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -47,6 +48,7 @@ public class UserAssignMission {
 
 	private boolean deleted = Boolean.FALSE;   // row 삭제 여부
 
+	@Builder
 	private UserAssignMission(User user, Mission mission) {
 		this.user = user;
 		this.mission = mission;

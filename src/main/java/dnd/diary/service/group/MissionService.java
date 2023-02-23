@@ -10,6 +10,7 @@ import java.util.List;
 import dnd.diary.domain.mission.UserAssignMission;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.mission.MissionCheckLocationRequest;
+import dnd.diary.dto.mission.MissionListByMapRequest;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -80,10 +81,13 @@ public class MissionService {
 
 		// 그룹에 속한 구성원 모두에게 미션 할당
 		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
+		log.info("ID : {} 인 그룹의 구성원 수 : {}", group.getId(), userJoinGroupList.size());
 		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
 			User groupUser = userJoinGroup.getUser();
+			log.info("ID : {} 인 그룹에 속한 유저 ID : {}", group.getId(), groupUser.getId());
 			UserAssignMission userAssignMission = UserAssignMission.toEntity(groupUser, mission);
 			userAssignMissionRepository.save(userAssignMission);
+			log.info("ID : {} 인 유저에게 할당된 미션 순서(userAssignMission) ID : {}", groupUser.getId(), userAssignMission.getId());
 		}
 		
 		Period diff = Period.between(LocalDate.now(), request.getMissionEndDate());
@@ -140,7 +144,7 @@ public class MissionService {
 	public List<MissionResponse> getMissionList(int missionStatus) {
 
 		User user = findUser();
-		String findMissionStatus = MissionStatus.getName(missionStatus);
+		MissionStatus findMissionStatus = MissionStatus.getName(missionStatus);
 		log.info("findMissionStatus name : {}", findMissionStatus);
 
 		List<UserAssignMission> userAssignMissionList = user.getUserAssignMissions();
@@ -148,17 +152,24 @@ public class MissionService {
 
 		for (UserAssignMission userAssignMission : userAssignMissionList) {
 			Mission mission = userAssignMission.getMission();
-			if (MissionStatus.ALL.equals(findMissionStatus)) {
+			log.info("userAssignMission ID : {} 인 미션의 상태 : {}", userAssignMission.getId(), mission.getMissionStatus());
+			if (MissionStatus.ALL == findMissionStatus) {
 				MissionResponse missionResponse = toMissionResponse(mission);
 				missionResponseList.add(missionResponse);
 			} else {
-				if (findMissionStatus.equals(mission.getMissionStatus())) {
+				if (findMissionStatus == mission.getMissionStatus()) {
 					MissionResponse missionResponse = toMissionResponse(mission);
 					missionResponseList.add(missionResponse);
 				}
 			}
 		}
 		return missionResponseList;
+	}
+
+	public MissionResponse getMission(Long missionId) {
+		User user = findUser();
+		Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
+		return toMissionResponse(mission);
 	}
 
 	private MissionResponse toMissionResponse(Mission mission) {
@@ -187,13 +198,33 @@ public class MissionService {
 			.build();
 	}
 
+	public List<MissionResponse> getMissionListByMap(MissionListByMapRequest missionListByMapRequest) {
+
+		User user = findUser();
+		List<Mission> userMissionList = new ArrayList<>();
+		user.getUserAssignMissions().forEach(
+				userAssignMission -> userMissionList.add(userAssignMission.getMission())
+		);
+		List<MissionResponse> missionResponseList = new ArrayList<>();
+		MissionListByMapRequest request = missionListByMapRequest.setStartXY();
+		List<Mission> userMissionListWithInMap = missionRepository.findWithinMap(
+				request.getStartLatitude(), request.getEndLatitude(), request.getStartLongitude(), request.getEndLongitude()
+		);
+
+		for (Mission mission : userMissionListWithInMap) {
+			if (mission.getMissionStatus() == MissionStatus.ACTIVE) {
+				missionResponseList.add(toMissionResponse(mission));
+			}
+		}
+
+		return missionResponseList;
+	}
 
 	// 완료한 미션 목록 조회 -> 스티커 쪽
 	public List<MissionResponse> getCompleteMissionList() {
 		List<MissionResponse> missionResponseList = new ArrayList<>();
 		return missionResponseList;
 	}
-
 
 	// 미션 글쓰기 인증 -> Content 생성 시 체크
 	
