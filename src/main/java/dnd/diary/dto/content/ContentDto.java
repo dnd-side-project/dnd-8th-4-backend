@@ -37,13 +37,14 @@ public class ContentDto {
         private Long comments;
         private Long emotions;
         private Long emotionStatus;
+        private Boolean bookmarkAddStatus;
         List<ContentDto.ImageResponseDto> Images;
         List<EmotionResponseGroupListDto> emotionResponseDtos;
 
         public static ContentDto.groupListPagePostsDto response(
                 Content content, List<ImageResponseDto> imageResponseDtos,
                 Long comments, Long emotions, List<EmotionResponseGroupListDto> emotionResponseGroupListDto,
-                Long emotionStatus, Integer views
+                Long emotionStatus, Integer views, Boolean bookmarkAddStatus
         ) {
             return groupListPagePostsDto.builder()
                     .id(content.getId())
@@ -62,6 +63,7 @@ public class ContentDto {
                     .comments(comments)
                     .emotions(emotions)
                     .emotionStatus(emotionStatus)
+                    .bookmarkAddStatus(bookmarkAddStatus)
                     .Images(imageResponseDtos)
                     .emotionResponseDtos(emotionResponseGroupListDto)
                     .build();
