@@ -89,6 +89,7 @@ public class MissionService {
 			.missionNote(mission.getMissionNote())
 			.createUserId(user.getId())
 			.groupId(group.getId())
+			.groupName(group.getGroupName())
 
 			.existPeriod(request.getExistPeriod())
 			.missionStartDate(mission.getMissionStartDate())
@@ -101,6 +102,7 @@ public class MissionService {
 
 			.missionDday(missionDday)
 			.missionColor(mission.getMissionColor())
+
 			.build();
 	}
 	

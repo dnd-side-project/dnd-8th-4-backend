@@ -22,7 +22,8 @@ public class MissionResponse {
 	private String missionNote;   // 미션 내용
 
 	private Long createUserId;   // 미션 생성자 ID
-	private Long groupId;   // 미션이 생성된 ID
+	private Long groupId;   // 미션이 생성된 그룹 ID
+	private String groupName;   // 미션이 생성된 그룹 이름
 
 	private Boolean existPeriod;
 	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
