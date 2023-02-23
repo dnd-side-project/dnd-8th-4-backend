@@ -115,4 +115,8 @@ public class Mission extends BaseEntity {
     public void deleteMission() {
         this.deleted = false;
     }
+
+    public void updateMissionStatus(MissionStatus missionStatus) {
+        this.missionStatus = missionStatus;
+    }
 }
