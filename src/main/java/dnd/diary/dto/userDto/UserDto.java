@@ -2,6 +2,8 @@ package dnd.diary.dto.userDto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dnd.diary.domain.bookmark.Bookmark;
+import dnd.diary.domain.comment.Comment;
+import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
 import lombok.AllArgsConstructor;
@@ -142,4 +144,62 @@ public class UserDto {
                  .build();
      }
     }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Builder
+    public static class myContentListDto {
+        private Long contentId;
+        private Long groupId;
+        private String groupName;
+        private String content;
+        private LocalDateTime createAt;
+        private Integer imageSize;
+        List<ContentDto.ImageResponseDto> Images;
+
+        public static UserDto.myContentListDto response(
+                Content content,
+                List<ContentDto.ImageResponseDto> images
+        ){
+            return myContentListDto.builder()
+                    .contentId(content.getId())
+                    .groupId(content.getGroup().getId())
+                    .groupName(content.getGroup().getGroupName())
+                    .content(content.getContent())
+                    .createAt(content.getCreatedAt())
+                    .imageSize(images.size())
+                    .Images(images)
+                    .build();
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Builder
+    public static class myCommentListDto {
+        private Long contentId;
+        private Long groupId;
+        private String groupName;
+        private String content;
+        private LocalDateTime createAt;
+        private Integer imageSize;
+        List<ContentDto.ImageResponseDto> Images;
+
+        public static UserDto.myCommentListDto response(
+                Content content, List<ContentDto.ImageResponseDto> images
+        ){
+            return myCommentListDto.builder()
+                    .contentId(content.getId())
+                    .groupId(content.getGroup().getId())
+                    .groupName(content.getGroup().getGroupName())
+                    .content(content.getContent())
+                    .createAt(content.getCreatedAt())
+                    .imageSize(images.size())
+                    .Images(images)
+                    .build();
+        }
+    }
+
 }

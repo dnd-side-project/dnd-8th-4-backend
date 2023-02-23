@@ -3,7 +3,8 @@ package dnd.diary.service.user;
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
-import dnd.diary.domain.content.Emotion;
+import dnd.diary.domain.comment.Comment;
+import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
@@ -11,7 +12,8 @@ import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.BookmarkRepository;
-import dnd.diary.repository.content.EmotionRepository;
+import dnd.diary.repository.content.CommentRepository;
+import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.user.UserSearchResponse;
@@ -29,21 +31,27 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import java.math.BigInteger;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
+    private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final EmotionRepository emotionRepository;
+    private final ContentRepository contentRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManager em;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisDao redisDao;
@@ -123,6 +131,28 @@ public class UserService {
         return CustomResponseEntity.success(bookmarkDtoPage);
     }
 
+    public CustomResponseEntity<Page<UserDto.myContentListDto>> listSearchMyContent(UserDetails userDetails, Integer page) {
+        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+                .orElseThrow(
+                        () -> new CustomException(Result.FAIL)
+                );
+
+        Page<Content> pageMyContent = contentRepository.findByUserId(
+                user.getId(), PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        return CustomResponseEntity.success(
+                pageMyContent.map((Content content) ->
+                        UserDto.myContentListDto.response(
+                                content,content.getContentImages()
+                                        .stream()
+                                        .map(ContentDto.ImageResponseDto::response)
+                                        .toList()
+                        )
+                )
+        );
+    }
+
     // method
 
     private User getUser(String email) {
@@ -160,7 +190,6 @@ public class UserService {
         redisDao.setValues(email, rtk, Duration.ofDays(14));
         return rtk;
     }
-
     public UserSearchResponse searchUserList(String keyword) {
 
         List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCase(keyword);
@@ -180,6 +209,7 @@ public class UserService {
                 .userSearchInfoList(userSearchInfoList)
                 .build();
     }
+
     // Validate
 
     private void validateRegister(UserDto.RegisterDto request) {
@@ -209,5 +239,42 @@ public class UserService {
         ) {
             throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
         }
+    }
+
+    public CustomResponseEntity<Page<UserDto.myCommentListDto>> listSearchMyComment(
+            UserDetails userDetails, Integer page
+    ) {
+        User user = getUser(userDetails.getUsername());
+        Query query = em.createNativeQuery(
+                        "" +
+                                "SELECT DISTINCT content_id \n" +
+                                "FROM comment AS c \n" +
+                                "WHERE user_id = ?"
+                ).setParameter(1,user.getId());
+
+        List<Long> contentId = new ArrayList<>();
+        List<BigInteger> contentIntegerId = query.getResultList();
+        contentIntegerId.forEach(id ->
+                contentId.add(id.longValue())
+        );
+
+        log.info(contentId.get(0).toString());
+        log.info(contentId.get(0).getClass().toString());
+
+        Page<Content> pageMyComment = contentRepository.findByIdIn(
+                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        return CustomResponseEntity.success(
+                pageMyComment.map((Content content) ->
+                        UserDto.myCommentListDto.response(
+                                content,
+                                content.getContentImages()
+                                        .stream()
+                                        .map(ContentDto.ImageResponseDto::response)
+                                        .toList()
+                                )
+                )
+        );
     }
 }
