@@ -4,7 +4,10 @@ import static dnd.diary.domain.mission.DateUtil.convertLocalDateTimeZone;
 import static dnd.diary.enumeration.Result.*;
 
 import java.time.*;
+import java.util.List;
 
+import dnd.diary.domain.mission.UserAssignMission;
+import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.mission.MissionCheckLocationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +20,8 @@ import dnd.diary.dto.group.MissionCreateRequest;
 import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupRepository;
-import dnd.diary.repository.group.MissionRepository;
+import dnd.diary.repository.mission.MissionRepository;
+import dnd.diary.repository.mission.UserAssignMissionRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.mission.MissionResponse;
 import dnd.diary.service.user.UserService;
@@ -32,6 +36,7 @@ public class MissionService {
 	private final MissionRepository missionRepository;
 	private final GroupRepository groupRepository;
 	private final UserRepository userRepository;
+	private final UserAssignMissionRepository userAssignMissionRepository;
 
 	private final UserService userService;
 
@@ -66,6 +71,14 @@ public class MissionService {
 			, request.getMissionColor(), missionStatus);
 		
 		missionRepository.save(mission);
+
+		// 그룹에 속한 구성원 모두에게 미션 할당
+		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
+		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
+			User groupUser = userJoinGroup.getUser();
+			UserAssignMission userAssignMission = UserAssignMission.toEntity(groupUser, mission);
+			userAssignMissionRepository.save(userAssignMission);
+		}
 		
 		Period diff = Period.between(LocalDate.now(), request.getMissionEndDate());
 		long missionDday = diff.getDays();
@@ -86,10 +99,6 @@ public class MissionService {
 			.latitude(mission.getLatitude())
 			.longitude(mission.getLongitude())
 
-			.locationCheck(mission.getLocationCheck())
-			.contentCheck(mission.getContentCheck())
-			.isComplete(mission.getIsComplete())
-
 			.missionDday(missionDday)
 			.missionColor(mission.getMissionColor())
 			.build();
@@ -101,7 +110,7 @@ public class MissionService {
 		User user = findUser();
 		Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
 
-		if (!user.getId().equals(mission.getUser().getId())) {
+		if (!user.getId().equals(mission.getMissionCreateUser().getId())) {
 			throw new CustomException(FAIL_DELETE_MISSION);
 		}
 		missionRepository.delete(mission);

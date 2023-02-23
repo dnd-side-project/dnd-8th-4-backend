@@ -34,10 +34,12 @@ public class MissionResponse {
 	private Double latitude;   // 미션 위치 위도
 	private Double longitude;   // 미션 위치 경도
 
-	private Boolean locationCheck;   // 미션에 대한 위치 인증 여부
-	private Boolean contentCheck;   // 미션에 대한 글쓰기 완료 여부
-	private Boolean isComplete;
+	// private Boolean locationCheck;   // 미션에 대한 위치 인증 여부
+	// private Boolean contentCheck;   // 미션에 대한 글쓰기 완료 여부
+	// private Boolean isComplete;
 
 	private long missionDday;   // 미션 종료까지 남은 일수
 	private Integer missionColor;
+
+	// 미션 참여자 목록 - 그룹 구성원
 }
