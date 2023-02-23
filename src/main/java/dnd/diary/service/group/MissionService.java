@@ -160,6 +160,12 @@ public class MissionService {
 		return missionResponseList;
 	}
 
+	public MissionResponse getMission(Long missionId) {
+		User user = findUser();
+		Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
+		return toMissionResponse(mission);
+	}
+
 	private MissionResponse toMissionResponse(Mission mission) {
 		return MissionResponse.builder()
 			.missionId(mission.getId())

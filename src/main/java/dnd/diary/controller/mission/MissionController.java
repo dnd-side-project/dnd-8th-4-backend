@@ -34,4 +34,9 @@ public class MissionController {
 	public CustomResponseEntity<List<MissionResponse>> getMissionList(@RequestParam int missionStatus) {
 		return CustomResponseEntity.success(missionService.getMissionList(missionStatus));
 	}
+
+	@GetMapping
+	public CustomResponseEntity<MissionResponse> getMission(@RequestParam Long missionId) {
+		return CustomResponseEntity.success(missionService.getMission(missionId));
+	}
 }
