@@ -30,8 +30,8 @@ public class UserController {
     // 이메일 중복 검사
     @GetMapping("auth/check")
     public CustomResponseEntity<Result> checkMatchEmail(
-        @RequestParam final String email
-    ){
+            @RequestParam final String email
+    ) {
         return userService.emailCheckMatch(email);
     }
 
@@ -61,17 +61,25 @@ public class UserController {
     public CustomResponseEntity<Page<UserDto.BookmarkDto>> myBookmarkList(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Integer page
-    ){
-        return userService.listMyBookmark(userDetails,page);
+    ) {
+        return userService.listMyBookmark(userDetails, page);
     }
 
     // 작성한 글 조회
     @GetMapping("auth/my/content")
-    public CustomResponseEntity<Page<UserDto.myAddListDto>> searchMyAddList(
+    public CustomResponseEntity<Page<UserDto.myContentListDto>> searchMyContentList(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Integer page
-    ){
-        return userService.listSearchMyAdd(userDetails, page);
+    ) {
+        return userService.listSearchMyContent(userDetails, page);
     }
 
+    // 작성한 댓글 조회
+    @GetMapping("auth/my/comment")
+    public CustomResponseEntity<Page<UserDto.myCommentListDto>> searchMyCommentList(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam final Integer page
+    ) {
+        return userService.listSearchMyComment(userDetails, page);
+    }
 }
