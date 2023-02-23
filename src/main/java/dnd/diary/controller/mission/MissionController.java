@@ -2,6 +2,7 @@ package dnd.diary.controller.mission;
 
 import java.util.List;
 
+import org.locationtech.jts.io.ParseException;
 import org.springframework.web.bind.annotation.*;
 
 import dnd.diary.dto.group.MissionCreateRequest;
@@ -19,7 +20,8 @@ public class MissionController {
 	private final MissionValidator missionValidator;
 
 	@PostMapping
-	public CustomResponseEntity<MissionResponse> createMission(@RequestBody MissionCreateRequest request) {
+	public CustomResponseEntity<MissionResponse> createMission(@RequestBody MissionCreateRequest request)
+			throws ParseException {
 		missionValidator.checkCreateMission(request);
 		return CustomResponseEntity.success(missionService.createMission(request));
 	}

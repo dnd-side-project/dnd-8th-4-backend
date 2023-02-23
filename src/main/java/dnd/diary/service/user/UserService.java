@@ -112,33 +112,13 @@ public class UserService {
                 PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        Page<UserDto.BookmarkDto> bookmarkDtoPage = bookmarkPage.map((Bookmark bookmark) -> {
-                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(
-                            bookmark.getContent().getId(), getUser(userDetails.getUsername()).getId()
-                    );
-
-                    Long emotionStatus;
-                    if (byContentIdAndUserId == null) {
-                        emotionStatus = -1L;
-                    } else {
-                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
-                    }
-
-                    String values = redisDao.getValues(bookmark.getContent().getId().toString());
-                    return UserDto.BookmarkDto.response(
-                            bookmark,
-                            Integer.parseInt(values),
-                            emotionStatus,
-                            bookmark.getContent().getContentImages()
-                                    .stream()
-                                    .map(ContentDto.ImageResponseDto::response)
-                                    .toList(),
-                            bookmark.getContent().getEmotions()
-                                    .stream()
-                                    .map(ContentDto.EmotionResponseDto::response)
-                                    .toList()
-                    );
-                }
+        Page<UserDto.BookmarkDto> bookmarkDtoPage = bookmarkPage.map((Bookmark bookmark) -> UserDto.BookmarkDto.response(
+                bookmark,
+                bookmark.getContent().getContentImages()
+                        .stream()
+                        .map(ContentDto.ImageResponseDto::response)
+                        .toList()
+        )
         );
         return CustomResponseEntity.success(bookmarkDtoPage);
     }
