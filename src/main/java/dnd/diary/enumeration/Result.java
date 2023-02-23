@@ -31,8 +31,9 @@ public enum Result {
 	NOT_FOUND_NOTIFICATION(2400, "존재하지 않는 알림"),
 
 	// 미션 관련
-	NOT_FOUND_MISSION(2500, "존재하지 않는 미션"),
-	FAIL_DELETE_MISSION(2501, "미션 생성자만 삭제 가능"),
+	HIGH_MAX_MISSION_NAME_LENGTH(2500, "미션 이름 최대 글자(20자) 초과"),
+	NOT_FOUND_MISSION(2501, "존재하지 않는 미션"),
+	FAIL_DELETE_MISSION(2502, "미션 생성자만 삭제 가능"),
 
 	// 피드 관련
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),

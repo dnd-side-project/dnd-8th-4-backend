@@ -1,4 +1,4 @@
-package dnd.diary.controller.group;
+package dnd.diary.controller.mission;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 public class MissionController {
 
 	private final MissionService missionService;
+	private final MissionValidator missionValidator;
 
 	@PostMapping
 	public CustomResponseEntity<MissionResponse> createMission(@RequestBody MissionCreateRequest request) {
+		missionValidator.checkCreateMission(request);
 		return CustomResponseEntity.success(missionService.createMission(request));
 	}
 
