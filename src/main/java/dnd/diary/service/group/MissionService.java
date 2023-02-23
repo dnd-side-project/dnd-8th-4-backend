@@ -113,6 +113,12 @@ public class MissionService {
 		if (!user.getId().equals(mission.getMissionCreateUser().getId())) {
 			throw new CustomException(FAIL_DELETE_MISSION);
 		}
+
+		// 미션 참여자(그룹 구성원) 에게 할당된 미션 삭제 처리
+		List<UserAssignMission> userAssignMissionList = mission.getUserAssignMissions();
+		userAssignMissionRepository.deleteAll(userAssignMissionList);
+
+		// 미션 삭제 처리
 		missionRepository.delete(mission);
 	}
 	
