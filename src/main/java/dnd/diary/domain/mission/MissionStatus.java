@@ -17,12 +17,12 @@ public enum MissionStatus {
         this.desc = desc;
     }
 
-    public static String getName(int code) {
+    public static MissionStatus getName(int code) {
         for (MissionStatus value : MissionStatus.values()) {
             if (value.getCode() == code) {
-                return value.name();
+                return value;
             }
         }
-        return ALL.name();
+        return ALL;
     }
 }

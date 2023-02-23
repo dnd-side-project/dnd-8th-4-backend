@@ -75,10 +75,13 @@ public class MissionService {
 
 		// 그룹에 속한 구성원 모두에게 미션 할당
 		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
+		log.info("ID : {} 인 그룹의 구성원 수 : {}", group.getId(), userJoinGroupList.size());
 		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
 			User groupUser = userJoinGroup.getUser();
+			log.info("ID : {} 인 그룹에 속한 유저 ID : {}", group.getId(), groupUser.getId());
 			UserAssignMission userAssignMission = UserAssignMission.toEntity(groupUser, mission);
 			userAssignMissionRepository.save(userAssignMission);
+			log.info("ID : {} 인 유저에게 할당된 미션 순서(userAssignMission) ID : {}", groupUser.getId(), userAssignMission.getId());
 		}
 		
 		Period diff = Period.between(LocalDate.now(), request.getMissionEndDate());
@@ -135,7 +138,7 @@ public class MissionService {
 	public List<MissionResponse> getMissionList(int missionStatus) {
 
 		User user = findUser();
-		String findMissionStatus = MissionStatus.getName(missionStatus);
+		MissionStatus findMissionStatus = MissionStatus.getName(missionStatus);
 		log.info("findMissionStatus name : {}", findMissionStatus);
 
 		List<UserAssignMission> userAssignMissionList = user.getUserAssignMissions();
@@ -143,11 +146,12 @@ public class MissionService {
 
 		for (UserAssignMission userAssignMission : userAssignMissionList) {
 			Mission mission = userAssignMission.getMission();
-			if (MissionStatus.ALL.equals(findMissionStatus)) {
+			log.info("userAssignMission ID : {} 인 미션의 상태 : {}", userAssignMission.getId(), mission.getMissionStatus());
+			if (MissionStatus.ALL == findMissionStatus) {
 				MissionResponse missionResponse = toMissionResponse(mission);
 				missionResponseList.add(missionResponse);
 			} else {
-				if (findMissionStatus.equals(mission.getMissionStatus())) {
+				if (findMissionStatus == mission.getMissionStatus()) {
 					MissionResponse missionResponse = toMissionResponse(mission);
 					missionResponseList.add(missionResponse);
 				}
