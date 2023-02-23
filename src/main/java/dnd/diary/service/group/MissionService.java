@@ -5,6 +5,7 @@ import static dnd.diary.enumeration.Result.*;
 
 import java.time.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import dnd.diary.domain.mission.UserAssignMission;
@@ -163,6 +164,7 @@ public class MissionService {
 				}
 			}
 		}
+		missionResponseList.sort(Comparator.comparing(MissionResponse::getMissionDday));
 		return missionResponseList;
 	}
 
@@ -216,7 +218,7 @@ public class MissionService {
 				missionResponseList.add(toMissionResponse(mission));
 			}
 		}
-
+		missionResponseList.sort(Comparator.comparing(MissionResponse::getMissionDday));
 		return missionResponseList;
 	}
 
