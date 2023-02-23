@@ -10,6 +10,7 @@ import java.util.List;
 import dnd.diary.domain.mission.UserAssignMission;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.mission.MissionCheckLocationRequest;
+import dnd.diary.dto.mission.MissionListByMapRequest;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -197,13 +198,31 @@ public class MissionService {
 			.build();
 	}
 
+	public List<MissionResponse> getMissionListByMap(MissionListByMapRequest missionListByMapRequest) {
+
+		User user = findUser();
+		List<Mission> userMissionList = new ArrayList<>();
+		user.getUserAssignMissions().forEach(
+				userAssignMission -> userMissionList.add(userAssignMission.getMission())
+		);
+		List<MissionResponse> missionResponseList = new ArrayList<>();
+		MissionListByMapRequest request = missionListByMapRequest.setStartXY();
+		List<Mission> userMissionListWithInMap = missionRepository.findWithinMap(
+				request.getStartLatitude(), request.getEndLatitude(), request.getStartLongitude(), request.getEndLongitude()
+		);
+
+		for (Mission mission : userMissionListWithInMap) {
+			missionResponseList.add(toMissionResponse(mission));
+		}
+
+		return missionResponseList;
+	}
 
 	// 완료한 미션 목록 조회 -> 스티커 쪽
 	public List<MissionResponse> getCompleteMissionList() {
 		List<MissionResponse> missionResponseList = new ArrayList<>();
 		return missionResponseList;
 	}
-
 
 	// 미션 글쓰기 인증 -> Content 생성 시 체크
 	

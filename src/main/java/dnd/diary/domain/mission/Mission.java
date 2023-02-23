@@ -62,7 +62,7 @@ public class Mission extends BaseEntity {
 
     private Integer missionColor;
 
-    private Point point;
+//    private Point point;
 
     private boolean deleted = Boolean.FALSE;   // 미션 삭제 여부
 
@@ -98,9 +98,8 @@ public class Mission extends BaseEntity {
         this.longitude = longitude;
         this.missionColor = missionColor;
         this.missionStatus = missionStatus;
-        this.point = point;
+//        this.point = point;
 
-        // user.getUserAssignMissions().add(this);
         group.getMissions().add(this);
     }
 
