@@ -7,11 +7,13 @@ import java.time.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import dnd.diary.domain.mission.UserAssignMission;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.mission.MissionCheckLocationRequest;
 import dnd.diary.dto.mission.MissionListByMapRequest;
+import dnd.diary.response.mission.MissionCheckLocationResponse;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -45,6 +47,8 @@ public class MissionService {
 	private final UserAssignMissionRepository userAssignMissionRepository;
 
 	private final UserService userService;
+
+	private final int MISSION_DISTANCE_LIMIT = 50;
 
 	// 미션 생성
 	@Transactional
@@ -134,7 +138,7 @@ public class MissionService {
 	}
 	
 	// 미션 위치 인증
-	public MissionResponse checkLocation(MissionCheckLocationRequest request) {
+	public MissionCheckLocationResponse checkLocation(MissionCheckLocationRequest request) {
 
 		// 유저가 가진 미션이 맞는지 확인
 		User user = findUser();
@@ -142,10 +146,12 @@ public class MissionService {
 		List<Long> userAssignMissionIdList = new ArrayList<>();
 		List<Long> userAssignMissionGroupIdList = new ArrayList<>();
 		userAssignMissionList.forEach(
-			userAssignMission ->  {
-				userAssignMissionIdList.add(userAssignMission.getMission().getId());
-				userAssignMissionGroupIdList.add(userAssignMission.getMission().getGroup().getId());
-			}
+				userAssignMission -> {
+					log.info("유저가 가진 미션 ID : {}", userAssignMission.getMission().getId());
+					userAssignMissionIdList.add(userAssignMission.getMission().getId());
+					log.info("유저가 가진 미션이 속한 그룹 ID : {}", userAssignMission.getMission().getGroup().getId());
+					userAssignMissionGroupIdList.add(userAssignMission.getMission().getGroup().getId());
+				}
 		);
 		// 해당 그룹의 미션이 맞는지 확인
 		if (!userAssignMissionGroupIdList.contains(request.getGroupId())) {
@@ -162,15 +168,54 @@ public class MissionService {
 		}
 
 		// 미션 위치 기준 현재 자신의 위치가 반경 50m 이내에 있는지 체크
+		boolean checkLocationMission = false;
+		Double checkDistance = distance(request.getCurrLatitude(), request.getCurrLongitude()
+				, targetMission.getLatitude(), targetMission.getLongitude());
+		log.info("미션 인증 위치와 현재 위치 간 거리 : {}", checkDistance);
 
+		UserAssignMission checkUserAssignMission = null;
+		if (checkDistance.intValue() <= MISSION_DISTANCE_LIMIT) {
 
-		// 미션의 위치 인증 상태 업데이트
-		targetMission.updateMissionStatus();
+			checkLocationMission = true;
 
-
-
-		return MissionResponse.builder().build();
+			for (UserAssignMission userAssignMission : targetMission.getUserAssignMissions()) {
+				if (user.getId().equals(userAssignMission.getUser().getId())) {
+					checkUserAssignMission = userAssignMission;
+					log.info("위치 인증 상태 업데이트 전 : {}", checkUserAssignMission.getLocationCheck());
+					// 유저에게 할당된 미션의 위치 인증 상태 업데이트
+					checkUserAssignMission.completeLocationCheck();
+					log.info("위치 인증 상태 업데이트 후 : {}", checkUserAssignMission.getLocationCheck());
+					break;
+				}
+			}
+		}
+		return MissionCheckLocationResponse.builder()
+				.missionId(targetMission.getId())
+				.locationCheck(checkLocationMission)
+				.contentCheck(checkUserAssignMission.getContentCheck())
+				.isComplete(checkUserAssignMission.getIsComplete())
+				.build();
 	}
+
+	private static double distance(double lat1, double lon1, double lat2, double lon2){
+		double theta = lon1 - lon2;
+		double dist = Math.sin(deg2rad(lat1))* Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1))*Math.cos(deg2rad(lat2))*Math.cos(deg2rad(theta));
+		dist = Math.acos(dist);
+		dist = rad2deg(dist);
+		dist = dist * 60*1.1515*1609.344;
+
+		return dist; // 단위 m
+	}
+
+	// 10진수를 radian 으로 변환
+	private static double deg2rad(double deg){
+		return (deg * Math.PI/180.0);
+	}
+	// radian 을 10진수로 변환
+	private static double rad2deg(double rad){
+		return (rad * 180 / Math.PI);
+	}
+
 
 	// 미션 상태별 목록 조회 (0 : 전체, 1 : 시작 전, 2 : 진행중, 3 : 종료)
 	public List<MissionResponse> getMissionList(int missionStatus) {
