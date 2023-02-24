@@ -52,6 +52,9 @@ public class User extends BaseEntity {
 
     private String profileImageUrl;
 
+    private Long level;   // 스티커 획득 기준인 레벨
+    private Long subLevel;   // 레벨 상승 기준 현재 위치(0 -> 1 -> 2 -> 3이 되면 레벨 + 1 / subLevel 0 으로)
+
     // 유저 권한
     @ManyToMany
     @JoinTable(

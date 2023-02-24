@@ -67,4 +67,13 @@ public class UserAssignMission {
 	public void deleteMission() {
 		this.deleted = false;
 	}
+
+	public void completeLocationCheck() {
+		this.locationCheck = true;
+	}
+	public void completeContentCheck() {
+		this.contentCheck = true;
+		this.isComplete = true;
+	}
+
 }

@@ -34,6 +34,9 @@ public enum Result {
 	HIGH_MAX_MISSION_NAME_LENGTH(2500, "미션 이름 최대 글자(20자) 초과"),
 	NOT_FOUND_MISSION(2501, "존재하지 않는 미션"),
 	FAIL_DELETE_MISSION(2502, "미션 생성자만 삭제 가능"),
+	INVALID_MISSION_PERIOD(2503, "미션 진행 기간이 아님"),
+	INVALID_USER_MISSION(2504, "유저가 가진 미션이 아닌 경우"),
+	INVALID_GROUP_MISSION(2505, "그룹이 가진 미션이 아닌 경우"),
 
 	// 피드 관련
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),

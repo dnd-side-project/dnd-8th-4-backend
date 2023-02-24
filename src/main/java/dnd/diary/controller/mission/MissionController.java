@@ -2,7 +2,9 @@ package dnd.diary.controller.mission;
 
 import java.util.List;
 
+import dnd.diary.dto.mission.MissionCheckLocationRequest;
 import dnd.diary.dto.mission.MissionListByMapRequest;
+import dnd.diary.response.mission.MissionCheckLocationResponse;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,5 +50,10 @@ public class MissionController {
 			@RequestBody MissionListByMapRequest request
 	) {
 		return CustomResponseEntity.success(missionService.getMissionListByMap(request));
+	}
+
+	@PostMapping("/certification/location")
+	public CustomResponseEntity<MissionCheckLocationResponse> checkLocation(@RequestBody MissionCheckLocationRequest request) {
+		return CustomResponseEntity.success(missionService.checkLocation(request));
 	}
 }

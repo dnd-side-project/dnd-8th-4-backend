@@ -116,6 +116,7 @@ public class Mission extends BaseEntity {
         this.deleted = false;
     }
 
+    // 미션 진행 기간에 따른 상태
     public void updateMissionStatus(MissionStatus missionStatus) {
         this.missionStatus = missionStatus;
     }
