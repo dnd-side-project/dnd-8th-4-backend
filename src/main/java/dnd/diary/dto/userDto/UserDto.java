@@ -124,12 +124,15 @@ public class UserDto {
         private String groupName;
         private String content;
         private LocalDateTime createAt;
+        private Integer views;
+        private Integer comments;
         private Integer imageSize;
         List<ContentDto.ImageResponseDto> Images;
 
      public static UserDto.BookmarkDto response(
              Bookmark bookmark,
-             List<ContentDto.ImageResponseDto> images
+             List<ContentDto.ImageResponseDto> images,
+             Integer views
      ){
          return BookmarkDto.builder()
                  .id(bookmark.getId())
@@ -139,6 +142,8 @@ public class UserDto {
                  .groupName(bookmark.getContent().getGroup().getGroupName())
                  .content(bookmark.getContent().getContent())
                  .createAt(bookmark.getContent().getCreatedAt())
+                 .views(views)
+                 .comments(bookmark.getContent().getComments().size())
                  .imageSize(images.size())
                  .Images(images)
                  .build();
@@ -155,12 +160,15 @@ public class UserDto {
         private String groupName;
         private String content;
         private LocalDateTime createAt;
+        private Integer views;
+        private Integer comments;
         private Integer imageSize;
         List<ContentDto.ImageResponseDto> Images;
 
         public static UserDto.myContentListDto response(
                 Content content,
-                List<ContentDto.ImageResponseDto> images
+                List<ContentDto.ImageResponseDto> images,
+                Integer views
         ){
             return myContentListDto.builder()
                     .contentId(content.getId())
@@ -168,6 +176,8 @@ public class UserDto {
                     .groupName(content.getGroup().getGroupName())
                     .content(content.getContent())
                     .createAt(content.getCreatedAt())
+                    .views(views)
+                    .comments(content.getComments().size())
                     .imageSize(images.size())
                     .Images(images)
                     .build();
@@ -184,11 +194,13 @@ public class UserDto {
         private String groupName;
         private String content;
         private LocalDateTime createAt;
+        private Integer views;
+        private Integer comments;
         private Integer imageSize;
         List<ContentDto.ImageResponseDto> Images;
 
         public static UserDto.myCommentListDto response(
-                Content content, List<ContentDto.ImageResponseDto> images
+                Content content, List<ContentDto.ImageResponseDto> images, Integer views
         ){
             return myCommentListDto.builder()
                     .contentId(content.getId())
@@ -196,6 +208,8 @@ public class UserDto {
                     .groupName(content.getGroup().getGroupName())
                     .content(content.getContent())
                     .createAt(content.getCreatedAt())
+                    .views(views)
+                    .comments(content.getComments().size())
                     .imageSize(images.size())
                     .Images(images)
                     .build();
