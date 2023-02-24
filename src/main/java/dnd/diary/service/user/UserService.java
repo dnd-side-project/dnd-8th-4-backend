@@ -121,11 +121,14 @@ public class UserService {
         );
 
         Page<UserDto.BookmarkDto> bookmarkDtoPage = bookmarkPage.map((Bookmark bookmark) -> UserDto.BookmarkDto.response(
-                bookmark,
-                bookmark.getContent().getContentImages()
+                bookmark
+                , bookmark.getContent().getContentImages()
                         .stream()
                         .map(ContentDto.ImageResponseDto::response)
                         .toList()
+                , Integer.parseInt(
+                        redisDao.getValues(bookmark.getContent().getId().toString())
+                )
         )
         );
         return CustomResponseEntity.success(bookmarkDtoPage);
@@ -144,10 +147,12 @@ public class UserService {
         return CustomResponseEntity.success(
                 pageMyContent.map((Content content) ->
                         UserDto.myContentListDto.response(
-                                content,content.getContentImages()
+                                content,
+                                content.getContentImages()
                                         .stream()
                                         .map(ContentDto.ImageResponseDto::response)
-                                        .toList()
+                                        .toList(),
+                                Integer.parseInt(redisDao.getValues(content.getId().toString()))
                         )
                 )
         );
@@ -272,7 +277,8 @@ public class UserService {
                                 content.getContentImages()
                                         .stream()
                                         .map(ContentDto.ImageResponseDto::response)
-                                        .toList()
+                                        .toList(),
+                                Integer.parseInt(redisDao.getValues(content.getId().toString()))
                                 )
                 )
         );
