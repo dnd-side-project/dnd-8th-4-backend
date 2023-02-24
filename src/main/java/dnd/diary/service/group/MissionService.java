@@ -135,6 +135,40 @@ public class MissionService {
 	
 	// 미션 위치 인증
 	public MissionResponse checkLocation(MissionCheckLocationRequest request) {
+
+		// 유저가 가진 미션이 맞는지 확인
+		User user = findUser();
+		List<UserAssignMission> userAssignMissionList = user.getUserAssignMissions();
+		List<Long> userAssignMissionIdList = new ArrayList<>();
+		List<Long> userAssignMissionGroupIdList = new ArrayList<>();
+		userAssignMissionList.forEach(
+			userAssignMission ->  {
+				userAssignMissionIdList.add(userAssignMission.getMission().getId());
+				userAssignMissionGroupIdList.add(userAssignMission.getMission().getGroup().getId());
+			}
+		);
+		// 해당 그룹의 미션이 맞는지 확인
+		if (!userAssignMissionGroupIdList.contains(request.getGroupId())) {
+			throw new CustomException(INVALID_GROUP_MISSION);
+		}
+		// 유저가 가진 미션이 맞는지 확인
+		if (!userAssignMissionIdList.contains(request.getMissionId())) {
+			throw new CustomException(INVALID_USER_MISSION);
+		}
+		// 미션 진행 기간인지 확인
+		Mission targetMission = missionRepository.findById(request.getMissionId()).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
+		if (targetMission.getMissionStatus() != MissionStatus.ACTIVE) {
+			throw new CustomException(INVALID_MISSION_PERIOD);
+		}
+
+		// 미션 위치 기준 현재 자신의 위치가 반경 50m 이내에 있는지 체크
+
+
+		// 미션의 위치 인증 상태 업데이트
+		targetMission.updateMissionStatus();
+
+
+
 		return MissionResponse.builder().build();
 	}
 
