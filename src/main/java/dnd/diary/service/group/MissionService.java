@@ -174,21 +174,19 @@ public class MissionService {
 		log.info("미션 인증 위치와 현재 위치 간 거리 : {}", checkDistance);
 
 		UserAssignMission checkUserAssignMission = null;
-		if (checkDistance.intValue() <= MISSION_DISTANCE_LIMIT) {
-
-			checkLocationMission = true;
-
-			for (UserAssignMission userAssignMission : targetMission.getUserAssignMissions()) {
-				if (user.getId().equals(userAssignMission.getUser().getId())) {
-					checkUserAssignMission = userAssignMission;
-					log.info("위치 인증 상태 업데이트 전 : {}", checkUserAssignMission.getLocationCheck());
-					// 유저에게 할당된 미션의 위치 인증 상태 업데이트
-					checkUserAssignMission.completeLocationCheck();
-					log.info("위치 인증 상태 업데이트 후 : {}", checkUserAssignMission.getLocationCheck());
-					break;
+		for (UserAssignMission userAssignMission : targetMission.getUserAssignMissions()) {
+			if (user.getId().equals(userAssignMission.getUser().getId())) {
+				checkUserAssignMission = userAssignMission;
+				if (checkDistance.intValue() <= MISSION_DISTANCE_LIMIT) {
+					checkLocationMission = true;
 				}
+				log.info("위치 인증 상태 업데이트 전 : {}", checkUserAssignMission.getLocationCheck());
+				checkUserAssignMission.completeLocationCheck();
+				log.info("위치 인증 상태 업데이트 후 : {}", checkUserAssignMission.getLocationCheck());
+				break;
 			}
 		}
+
 		return MissionCheckLocationResponse.builder()
 				.missionId(targetMission.getId())
 				.locationCheck(checkLocationMission)
@@ -204,7 +202,7 @@ public class MissionService {
 		dist = rad2deg(dist);
 		dist = dist * 60*1.1515*1609.344;
 
-		return dist; // 단위 m
+		return dist;  // 단위 m
 	}
 
 	// 10진수를 radian 으로 변환
@@ -215,7 +213,6 @@ public class MissionService {
 	private static double rad2deg(double rad){
 		return (rad * 180 / Math.PI);
 	}
-
 
 	// 미션 상태별 목록 조회 (0 : 전체, 1 : 시작 전, 2 : 진행중, 3 : 종료)
 	public List<MissionResponse> getMissionList(int missionStatus) {
