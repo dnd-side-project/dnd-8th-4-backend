@@ -2,8 +2,10 @@ package dnd.diary.controller.mission;
 
 import java.util.List;
 
+import dnd.diary.dto.mission.MissionCheckContentRequest;
 import dnd.diary.dto.mission.MissionCheckLocationRequest;
 import dnd.diary.dto.mission.MissionListByMapRequest;
+import dnd.diary.response.mission.MissionCheckContentResponse;
 import dnd.diary.response.mission.MissionCheckLocationResponse;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +42,11 @@ public class MissionController {
 		return CustomResponseEntity.success(missionService.getMissionList(missionStatus));
 	}
 
+	@GetMapping("list/main")
+	public CustomResponseEntity<List<MissionResponse>> getReadyAndActiveMissionList() {
+		return CustomResponseEntity.success(missionService.getReadyAndActiveMissionList());
+	}
+
 	@GetMapping
 	public CustomResponseEntity<MissionResponse> getMission(@RequestParam Long missionId) {
 		return CustomResponseEntity.success(missionService.getMission(missionId));
@@ -53,7 +60,12 @@ public class MissionController {
 	}
 
 	@PostMapping("/certification/location")
-	public CustomResponseEntity<MissionCheckLocationResponse> checkLocation(@RequestBody MissionCheckLocationRequest request) {
-		return CustomResponseEntity.success(missionService.checkLocation(request));
+	public CustomResponseEntity<MissionCheckLocationResponse> checkMissionLocation(@RequestBody MissionCheckLocationRequest request) {
+		return CustomResponseEntity.success(missionService.checkMissionLocation(request));
+	}
+
+	@PostMapping("/certification/content")
+	public CustomResponseEntity<MissionCheckContentResponse> checkMissionContent(@RequestBody MissionCheckContentRequest request) {
+		return CustomResponseEntity.success(missionService.checkMissionContent(request));
 	}
 }
