@@ -27,9 +27,9 @@ public class MissionResponse {
 	private String groupImageUrl;   // 미션이 생성된 그룹 이미지
 
 	private Boolean existPeriod;
-	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy.MM.dd")
 	private LocalDateTime missionStartDate;   // 미션 시작일
-	@JsonFormat(pattern = "yyyy.MM.dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy.MM.dd")
 	private LocalDateTime missionEndDate;   // 미션 종료일
 	private MissionStatus missionStatus;   // 미션 기간에 따른 상태
 

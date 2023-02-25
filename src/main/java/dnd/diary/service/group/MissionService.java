@@ -11,8 +11,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import dnd.diary.domain.mission.UserAssignMission;
 import dnd.diary.domain.user.UserJoinGroup;
+import dnd.diary.dto.mission.MissionCheckContentRequest;
 import dnd.diary.dto.mission.MissionCheckLocationRequest;
 import dnd.diary.dto.mission.MissionListByMapRequest;
+import dnd.diary.response.mission.MissionCheckContentResponse;
 import dnd.diary.response.mission.MissionCheckLocationResponse;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
@@ -138,7 +140,7 @@ public class MissionService {
 	}
 	
 	// 미션 위치 인증
-	public MissionCheckLocationResponse checkLocation(MissionCheckLocationRequest request) {
+	public MissionCheckLocationResponse checkMissionLocation(MissionCheckLocationRequest request) {
 
 		// 유저가 가진 미션이 맞는지 확인
 		User user = findUser();
@@ -168,7 +170,7 @@ public class MissionService {
 		}
 
 		// 미션 위치 기준 현재 자신의 위치가 반경 50m 이내에 있는지 체크
-		boolean checkLocationMission = false;
+		boolean checkLocationMissionFlag = false;
 		Double checkDistance = distance(request.getCurrLatitude(), request.getCurrLongitude()
 				, targetMission.getLatitude(), targetMission.getLongitude());
 		log.info("미션 인증 위치와 현재 위치 간 거리 : {}", checkDistance);
@@ -178,7 +180,7 @@ public class MissionService {
 			if (user.getId().equals(userAssignMission.getUser().getId())) {
 				checkUserAssignMission = userAssignMission;
 				if (checkDistance.intValue() <= MISSION_DISTANCE_LIMIT) {
-					checkLocationMission = true;
+					checkLocationMissionFlag = true;
 				}
 				log.info("위치 인증 상태 업데이트 전 : {}", checkUserAssignMission.getLocationCheck());
 				checkUserAssignMission.completeLocationCheck();
@@ -189,7 +191,7 @@ public class MissionService {
 
 		return MissionCheckLocationResponse.builder()
 				.missionId(targetMission.getId())
-				.locationCheck(checkLocationMission)
+				.locationCheck(checkLocationMissionFlag)
 				.contentCheck(checkUserAssignMission.getContentCheck())
 				.isComplete(checkUserAssignMission.getIsComplete())
 				.build();
@@ -214,6 +216,14 @@ public class MissionService {
 		return (rad * 180 / Math.PI);
 	}
 
+	// 미션 게시물 인증
+	public MissionCheckContentResponse checkMissionContent(MissionCheckContentRequest request) {
+
+
+		return MissionCheckContentResponse.builder().build();
+	}
+
+
 	// 미션 상태별 목록 조회 (0 : 전체, 1 : 시작 전, 2 : 진행중, 3 : 종료)
 	public List<MissionResponse> getMissionList(int missionStatus) {
 
@@ -237,6 +247,13 @@ public class MissionService {
 			}
 		}
 		missionResponseList.sort(Comparator.comparing(MissionResponse::getMissionDday));
+		return missionResponseList;
+	}
+
+	// 시작 전인 미션 + 진행 중인 미션
+	public List<MissionResponse> getReadyAndActiveMissionList() {
+		List<MissionResponse> missionResponseList = getMissionList(MissionStatus.READY.getCode());
+		missionResponseList.addAll(getMissionList(MissionStatus.ACTIVE.getCode()));
 		return missionResponseList;
 	}
 
@@ -300,8 +317,6 @@ public class MissionService {
 		return missionResponseList;
 	}
 
-	// 미션 글쓰기 인증 -> Content 생성 시 체크
-	
 	
 	// 미션 완료 체크
 
