@@ -49,7 +49,7 @@ public class NotificationService {
 				.groupName(invitedGroup.getGroupName())
 				.groupNote(invitedGroup.getGroupNote())
 				.groupImageUrl(invitedGroup.getGroupImageUrl())
-				.groupInvitedAt(invitedGroup.getCreatedAt())
+				.groupInvitedAt(notification.getCreatedAt())   // 초대된 날짜
 				.readYn(notification.isReadYn())
 				.build();
 			notificationInfoList.add(notificationInfo);
