@@ -19,7 +19,6 @@ public class UserDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class RegisterDto {
@@ -32,11 +31,8 @@ public class UserDto {
         private String name;
         @NotNull(message = "닉네임이 입력되지 않았습니다.")
         private String nickName;
-
         private String phoneNumber;
-
         private String profileImageUrl;
-
         private String atk;
         private String rtk;
 
@@ -44,6 +40,7 @@ public class UserDto {
             return RegisterDto.builder()
                     .id(user.getId())
                     .email(user.getEmail())
+                    .password("암호화 되었습니다.")
                     .name(user.getName())
                     .nickName(user.getNickName())
                     .phoneNumber(user.getPhoneNumber())
@@ -60,12 +57,12 @@ public class UserDto {
     @Builder
     public static class UpdateDto {
         @NotNull(message = "닉네임이 입력되지 않았습니다.")
-        private String nickName;
+        private String nickname;
         private String profileImageUrl;
 
         public static UserDto.UpdateDto response(User user) {
             return UpdateDto.builder()
-                    .nickName(user.getNickName())
+                    .nickname(user.getNickName())
                     .profileImageUrl(user.getProfileImageUrl())
                     .build();
         }

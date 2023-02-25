@@ -68,12 +68,20 @@ public class UserService {
             .build();
 
     @Transactional
-    public UserDto.RegisterDto register(UserDto.RegisterDto request) {
+    public UserDto.RegisterDto register(UserDto.RegisterDto request, MultipartFile file) {
         validateRegister(request);
+
+        String fileName = null;
+        String fileUrl = null;
+
+        if (file != null) {
+            fileName = saveImage(file);
+            fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+        }
 
         return UserDto.RegisterDto.response(
                 userRepository.save(
-                        addUserFromRequest(request)
+                        addUserFromRequest(request,fileUrl)
                 ),
                 tokenProvider.createToken(
                         getAuthentication(request.getEmail(), request.getPassword())
@@ -235,7 +243,14 @@ public class UserService {
     @Transactional
     public UserDto.UpdateDto userUpdateProfile(UserDetails userDetails, UserDto.UpdateDto request, MultipartFile file) {
         User user = getUser(userDetails.getUsername());
-        String fileName = saveImage(file);
+        String fileName = null;
+        String fileUrl = null;
+
+        if (file != null) {
+            fileName = saveImage(file);
+            fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+        }
+
         return UserDto.UpdateDto.response(
                 userRepository.save(
                         User.builder()
@@ -243,9 +258,9 @@ public class UserService {
                                 .email(user.getEmail())
                                 .password(user.getPassword())
                                 .name(user.getName())
-                                .nickName(request.getNickName())
+                                .nickName(request.getNickname())
                                 .phoneNumber(user.getPhoneNumber())
-                                .profileImageUrl(amazonS3Client.getUrl(bucket,fileName).toString())
+                                .profileImageUrl(fileUrl)
                                 .level(user.getLevel())
                                 .subLevel(user.getSubLevel())
                                 .deleteAt(user.getDeleteAt())
@@ -272,14 +287,14 @@ public class UserService {
         return authentication;
     }
 
-    private User addUserFromRequest(UserDto.RegisterDto request) {
+    private User addUserFromRequest(UserDto.RegisterDto request, String fileUrl) {
         return User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .nickName(request.getNickName())
                 .phoneNumber(request.getPhoneNumber())
-                .profileImageUrl(request.getProfileImageUrl())
+                .profileImageUrl(fileUrl)
                 .authorities(Collections.singleton(authority))
                 .build();
     }
