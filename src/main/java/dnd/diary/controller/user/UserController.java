@@ -53,6 +53,16 @@ public class UserController {
         return CustomResponseEntity.successLogout();
     }
 
+    // 회원 탈퇴
+    @DeleteMapping("auth")
+    public CustomResponseEntity<Void> userDelete(
+            @AuthenticationPrincipal final UserDetails userDetails,
+            @RequestHeader(value = "Authorization") String auth
+    ) {
+        userService.deleteUser(userDetails, auth);
+        return CustomResponseEntity.successDelete();
+    }
+
     // 정보 조회
     @GetMapping("auth/my/info")
     public CustomResponseEntity<UserDto.InfoDto> userMyList(
