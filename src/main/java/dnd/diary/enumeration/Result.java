@@ -37,6 +37,8 @@ public enum Result {
 	INVALID_MISSION_PERIOD(2503, "미션 진행 기간이 아님"),
 	INVALID_USER_MISSION(2504, "유저가 가진 미션이 아닌 경우"),
 	INVALID_GROUP_MISSION(2505, "그룹이 가진 미션이 아닌 경우"),
+	NOT_CHECK_MISSION_LOCATION(2506, "위치 인증이 완료되지 않은 미션"),
+	ALREADY_COMPLETE_MISSION(2507, "이미 완료된 미션"),
 
 	// 피드 관련
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),

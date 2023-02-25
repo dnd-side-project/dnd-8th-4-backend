@@ -7,4 +7,6 @@ import dnd.diary.domain.mission.UserAssignMission;
 
 @Repository
 public interface UserAssignMissionRepository extends JpaRepository<UserAssignMission, Long> {
+
+    UserAssignMission findByUserIdAndMissionId(Long userId, Long missionId);
 }
