@@ -43,6 +43,16 @@ public class UserController {
         return CustomResponseEntity.success(userService.login(request));
     }
 
+    // 로그아웃
+    @PostMapping("auth/logout")
+    public CustomResponseEntity<Void> login(
+            @AuthenticationPrincipal final UserDetails userDetails,
+            @RequestHeader(value = "Authorization") String auth
+    ) {
+        userService.logout(userDetails, auth);
+        return CustomResponseEntity.successLogout();
+    }
+
     // 정보 조회
     @GetMapping("auth/my/info")
     public CustomResponseEntity<UserDto.InfoDto> userMyList(

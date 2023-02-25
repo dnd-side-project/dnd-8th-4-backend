@@ -30,6 +30,13 @@ public class CustomResponseEntity<T> {
 			.build();
 	}
 
+	public static <T> CustomResponseEntity<T> successLogout() {
+		return CustomResponseEntity.<T>builder()
+				.code(Result.LOGOUT_OK.getCode())
+				.message(Result.LOGOUT_OK.getMessage())
+				.build();
+	}
+
 	public static <T> CustomResponseEntity<T> successDeleteBookmark() {
 		return CustomResponseEntity.<T>builder()
 				.code(Result.BOOKMARK_DELETE_OK.getCode())
