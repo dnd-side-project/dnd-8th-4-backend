@@ -9,7 +9,7 @@ public enum Result {
 	LOGOUT_OK(0, "로그아웃 성공"),
 	DELETE_OK(0, "회원 탈퇴 성공"),
 	FAIL(-1, "실패"),
-	NOT_USES_TOKEN(-2, "만료된 토큰입니다."),
+	NOT_USES_TOKEN(-2, "유효한 토큰이 존재하지 않습니다."),
 
 	// 유저 관련
 	NOT_FOUND_USER(2200, "존재하지 않는 사용자"),
