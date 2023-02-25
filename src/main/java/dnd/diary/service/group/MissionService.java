@@ -155,9 +155,7 @@ public class MissionService {
 		List<Long> userAssignMissionGroupIdList = new ArrayList<>();
 		userAssignMissionList.forEach(
 				userAssignMission -> {
-					log.info("유저가 가진 미션 ID : {}", userAssignMission.getMission().getId());
 					userAssignMissionIdList.add(userAssignMission.getMission().getId());
-					log.info("유저가 가진 미션이 속한 그룹 ID : {}", userAssignMission.getMission().getGroup().getId());
 					userAssignMissionGroupIdList.add(userAssignMission.getMission().getGroup().getId());
 				}
 		);
@@ -179,7 +177,6 @@ public class MissionService {
 		boolean checkLocationMissionFlag = false;
 		Double checkDistance = distance(request.getCurrLatitude(), request.getCurrLongitude()
 				, targetMission.getLatitude(), targetMission.getLongitude());
-		log.info("미션 인증 위치와 현재 위치 간 거리 : {}", checkDistance);
 
 		UserAssignMission checkUserAssignMission = null;
 		for (UserAssignMission userAssignMission : targetMission.getUserAssignMissions()) {
@@ -188,9 +185,7 @@ public class MissionService {
 				if (checkDistance.intValue() <= MISSION_DISTANCE_LIMIT) {
 					checkLocationMissionFlag = true;
 				}
-				log.info("위치 인증 상태 업데이트 전 : {}", checkUserAssignMission.getLocationCheck());
 				checkUserAssignMission.completeLocationCheck();
-				log.info("위치 인증 상태 업데이트 후 : {}", checkUserAssignMission.getLocationCheck());
 				break;
 			}
 		}
@@ -227,7 +222,6 @@ public class MissionService {
 	public MissionCheckContentResponse checkMissionContent(UserDetails userDetails, List<MultipartFile> multipartFile, MissionCheckContentRequest request) throws ParseException {
 
 		User user = getUser(userDetails);
-		// missionId 로 미션 정보 조회
 		Mission targetMission = missionRepository.findById(request.getMissionId()).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
 
 		// 미션 진행 기간인지 확인
@@ -235,7 +229,6 @@ public class MissionService {
 			throw new CustomException(INVALID_MISSION_PERIOD);
 		}
 		UserAssignMission targetUserAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), request.getMissionId());
-		log.info("targetUserAssignMission ID : {}", targetUserAssignMission.getId());
 		// 위치 인증이 우선 진행된 미션인지 확인
 		if (!targetUserAssignMission.getLocationCheck()) {
 			throw new CustomException(NOT_CHECK_MISSION_LOCATION);
@@ -258,11 +251,7 @@ public class MissionService {
 		);
 
 		// 유저 미션 게시글 인증 상태 업데이트
-		log.info("게시글 인증 전 미션 게시글 인증 상태 : {}", targetUserAssignMission.getLocationCheck());
-		log.info("게시글 인증 전 미션 완료 상태 : {}", targetUserAssignMission.getIsComplete());
 		targetUserAssignMission.completeContentCheck();
-		log.info("게시글 인증 전 미션 게시글 인증 상태 : {}", targetUserAssignMission.getLocationCheck());
-		log.info("게시글 인증 전 미션 완료 상태 : {}", targetUserAssignMission.getIsComplete());
 
 		return MissionCheckContentResponse.builder()
 				.missionId(targetMission.getId())
@@ -280,7 +269,6 @@ public class MissionService {
 		return user;
 	}
 
-
 	// 미션 상태별 목록 조회 (0 : 전체, 1 : 시작 전, 2 : 진행중, 3 : 종료)
 	public List<MissionResponse> getMissionList(int missionStatus) {
 
@@ -291,8 +279,6 @@ public class MissionService {
 
 		for (UserAssignMission userAssignMission : userAssignMissionList) {
 			Mission mission = userAssignMission.getMission();
-			log.info("userAssignMission ID : {} 인 미션의 상태 : {}", userAssignMission.getId(), mission.getMissionStatus());
-			log.info("미션 시작일 : {} , 미션 종료일 : {}", mission.getMissionStartDate(), mission.getMissionEndDate());
 			if (MissionStatus.ALL == findMissionStatus) {
 				MissionResponse missionResponse = toMissionResponse(mission);
 				missionResponseList.add(missionResponse);
@@ -373,10 +359,6 @@ public class MissionService {
 		List<MissionResponse> missionResponseList = new ArrayList<>();
 		return missionResponseList;
 	}
-
-	
-	// 미션 완료 체크
-
 
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();
