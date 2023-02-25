@@ -8,6 +8,8 @@ import dnd.diary.dto.mission.MissionListByMapRequest;
 import dnd.diary.response.mission.MissionCheckContentResponse;
 import dnd.diary.response.mission.MissionCheckLocationResponse;
 import org.locationtech.jts.io.ParseException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import dnd.diary.dto.group.MissionCreateRequest;
@@ -15,6 +17,7 @@ import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.MissionResponse;
 import dnd.diary.service.group.MissionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/mission")
@@ -60,12 +63,17 @@ public class MissionController {
 	}
 
 	@PostMapping("/certification/location")
-	public CustomResponseEntity<MissionCheckLocationResponse> checkMissionLocation(@RequestBody MissionCheckLocationRequest request) {
+	public CustomResponseEntity<MissionCheckLocationResponse> checkMissionLocation(
+			@RequestBody MissionCheckLocationRequest request) {
 		return CustomResponseEntity.success(missionService.checkMissionLocation(request));
 	}
 
 	@PostMapping("/certification/content")
-	public CustomResponseEntity<MissionCheckContentResponse> checkMissionContent(@RequestBody MissionCheckContentRequest request) {
-		return CustomResponseEntity.success(missionService.checkMissionContent(request));
+	public CustomResponseEntity<MissionCheckContentResponse> checkMissionContent(
+			@AuthenticationPrincipal final UserDetails user,
+			@RequestPart(required = false) final List<MultipartFile> multipartFile,
+			@RequestBody MissionCheckContentRequest request
+	) throws ParseException {
+		return CustomResponseEntity.success(missionService.checkMissionContent(user, multipartFile, request));
 	}
 }
