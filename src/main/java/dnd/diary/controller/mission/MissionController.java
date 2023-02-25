@@ -62,13 +62,13 @@ public class MissionController {
 		return CustomResponseEntity.success(missionService.getMissionListByMap(request));
 	}
 
-	@PostMapping("/certification/location")
+	@PostMapping("/check/location")
 	public CustomResponseEntity<MissionCheckLocationResponse> checkMissionLocation(
 			@RequestBody MissionCheckLocationRequest request) {
 		return CustomResponseEntity.success(missionService.checkMissionLocation(request));
 	}
 
-	@PostMapping("/certification/content")
+	@PostMapping("/check/content")
 	public CustomResponseEntity<MissionCheckContentResponse> checkMissionContent(
 			@AuthenticationPrincipal final UserDetails user,
 			@RequestPart(required = false) final List<MultipartFile> multipartFile,
