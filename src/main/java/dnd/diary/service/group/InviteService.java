@@ -7,6 +7,7 @@ import java.util.List;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.mission.Mission;
 import dnd.diary.domain.mission.UserAssignMission;
+import dnd.diary.enumeration.NotificationType;
 import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.repository.mission.UserAssignMissionRepository;
 import dnd.diary.response.notification.NotificationResponse;
@@ -19,7 +20,6 @@ import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupRepository;
-import dnd.diary.repository.group.InviteRepository;
 import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.service.user.UserService;
@@ -46,9 +46,8 @@ public class InviteService {
 		User user = findUser();
 		Group invitedGroup = findGroup(groupId);
 
-		checkAlreadyExist(user, invitedGroup);   //
+		checkAlreadyExist(user, invitedGroup);
 
-		// 그룹 가입 처리
 		UserJoinGroup userJoinGroup = UserJoinGroup.toEntity(user, invitedGroup);
 		userJoinGroupRepository.save(userJoinGroup);
 
@@ -62,21 +61,10 @@ public class InviteService {
 			log.info("그룹 가입 수락으로 추가될 할당된 addUserAssignMission ID : {}", addUserAssignMission.getId());
 		}
 
-		// 알림 읽음 처리
 		Notification notification = findNotification(notificationId);
 		notification.readNotification();
 
-		NotificationResponse.NotificationInfo notificationInfo = NotificationResponse.NotificationInfo.builder()
-				.notificationId(notification.getId())
-				.groupId(invitedGroup.getId())
-				.groupName(invitedGroup.getGroupName())
-				.groupNote(invitedGroup.getGroupNote())
-				.groupImageUrl(invitedGroup.getGroupImageUrl())
-				.groupInvitedAt(notification.getCreatedAt())
-				.readYn(notification.isReadYn())
-				.build();
-
-		return notificationInfo;
+		return toNotificationResponse(notification, invitedGroup);
 	}
 
 	// 초대 거절
@@ -87,11 +75,15 @@ public class InviteService {
 
 		checkAlreadyExist(user, invitedGroup);
 
-		// 알림 읽음 처리
 		Notification notification = findNotification(notificationId);
 		notification.readNotification();
 
+		return toNotificationResponse(notification, invitedGroup);
+	}
+
+	private NotificationResponse.NotificationInfo toNotificationResponse(Notification notification, Group invitedGroup) {
 		NotificationResponse.NotificationInfo notificationInfo = NotificationResponse.NotificationInfo.builder()
+				.notificationType(NotificationType.INVITE)
 				.notificationId(notification.getId())
 				.groupId(invitedGroup.getId())
 				.groupName(invitedGroup.getGroupName())
@@ -104,7 +96,6 @@ public class InviteService {
 		return notificationInfo;
 	}
 
-	// 이미 가입한 그룹인지 체크
 	private void checkAlreadyExist(User user, Group group) {
 		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
 		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
