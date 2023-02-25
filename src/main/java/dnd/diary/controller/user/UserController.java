@@ -25,9 +25,10 @@ public class UserController {
     // 회원가입
     @PostMapping("auth")
     public CustomResponseEntity<UserDto.RegisterDto> register(
-            @Valid @RequestBody final UserDto.RegisterDto request
+            @Valid @RequestPart final UserDto.RegisterDto request,
+            @RequestPart(required = false) final MultipartFile file
     ) {
-        return CustomResponseEntity.success(userService.register(request));
+        return CustomResponseEntity.success(userService.register(request,file));
     }
 
     // 이메일 중복 검사
