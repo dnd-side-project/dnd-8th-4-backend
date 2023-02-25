@@ -69,7 +69,7 @@ public class InviteService {
 
 	// 초대 거절
 	@Transactional
-	public NotificationResponse.NotificationInfo rejectInvite(Long groupId, Long notificationId, boolean acceptYn) {
+	public NotificationResponse.NotificationInfo rejectInvite(Long groupId, Long notificationId) {
 		User user = findUser();
 		Group invitedGroup = findGroup(groupId);
 

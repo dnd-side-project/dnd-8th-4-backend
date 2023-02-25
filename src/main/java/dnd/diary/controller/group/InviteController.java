@@ -29,6 +29,6 @@ public class InviteController {
             @RequestParam Long groupId,
             @RequestParam Long notificationId
     ) {
-        return CustomResponseEntity.success(inviteService.acceptInvite(groupId, notificationId));
+        return CustomResponseEntity.success(inviteService.rejectInvite(groupId, notificationId));
     }
 }
