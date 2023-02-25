@@ -1,6 +1,9 @@
 package dnd.diary.config.Jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dnd.diary.enumeration.Result;
+import dnd.diary.exception.CustomException;
+import dnd.diary.exception.CustomExceptionResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -26,5 +29,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.getWriter().write(objectMapper.writeValueAsString(
+                CustomExceptionResponse.entryPointResponse.response(
+                        new CustomException(Result.NOT_USES_TOKEN)
+                )
+        ));
     }
 }

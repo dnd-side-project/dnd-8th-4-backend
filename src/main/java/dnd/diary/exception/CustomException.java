@@ -2,8 +2,10 @@ package dnd.diary.exception;
 
 import dnd.diary.enumeration.Result;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class CustomException extends RuntimeException {
 
 	private Result result;
