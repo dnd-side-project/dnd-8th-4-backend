@@ -1,10 +1,14 @@
 package dnd.diary.service.user;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
-import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
+import dnd.diary.domain.content.ContentImage;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
@@ -12,16 +16,17 @@ import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.BookmarkRepository;
-import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.user.UserSearchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -30,28 +35,30 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
-    private final CommentRepository commentRepository;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ContentRepository contentRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager em;
+    private final AmazonS3Client amazonS3Client;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisDao redisDao;
@@ -121,15 +128,15 @@ public class UserService {
         );
 
         Page<UserDto.BookmarkDto> bookmarkDtoPage = bookmarkPage.map((Bookmark bookmark) -> UserDto.BookmarkDto.response(
-                bookmark
-                , bookmark.getContent().getContentImages()
-                        .stream()
-                        .map(ContentDto.ImageResponseDto::response)
-                        .toList()
-                , Integer.parseInt(
-                        redisDao.getValues(bookmark.getContent().getId().toString())
+                        bookmark
+                        , bookmark.getContent().getContentImages()
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList()
+                        , Integer.parseInt(
+                                redisDao.getValues(bookmark.getContent().getId().toString())
+                        )
                 )
-        )
         );
         return CustomResponseEntity.success(bookmarkDtoPage);
     }
@@ -144,7 +151,7 @@ public class UserService {
                         "SELECT DISTINCT content_id \n" +
                         "FROM comment AS c \n" +
                         "WHERE user_id = ?"
-        ).setParameter(1,user.getId());
+        ).setParameter(1, user.getId());
 
         List<Long> contentId = new ArrayList<>();
         List<BigInteger> contentIntegerId = query.getResultList();
@@ -225,6 +232,28 @@ public class UserService {
         );
     }
 
+    @Transactional
+    public UserDto.UpdateDto userUpdateProfile(UserDetails userDetails, UserDto.UpdateDto request, MultipartFile file) {
+        User user = getUser(userDetails.getUsername());
+        String fileName = saveImage(file);
+        return UserDto.UpdateDto.response(
+                userRepository.save(
+                        User.builder()
+                                .id(user.getId())
+                                .email(user.getEmail())
+                                .password(user.getPassword())
+                                .name(user.getName())
+                                .nickName(request.getNickName())
+                                .phoneNumber(user.getPhoneNumber())
+                                .profileImageUrl(amazonS3Client.getUrl(bucket,fileName).toString())
+                                .level(user.getLevel())
+                                .subLevel(user.getSubLevel())
+                                .deleteAt(user.getDeleteAt())
+                                .build()
+                )
+        );
+    }
+
     // method
 
     private User getUser(String email) {
@@ -234,6 +263,7 @@ public class UserService {
                 () -> new CustomException(Result.FAIL)
         );
     }
+
     private Authentication getAuthentication(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
@@ -311,5 +341,33 @@ public class UserService {
         ) {
             throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
         }
+    }
+
+    private String saveImage(MultipartFile file) {
+        String fileName = createFileName(file.getOriginalFilename());
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(file.getSize());
+        objectMetadata.setContentType(file.getContentType());
+
+        try (InputStream inputStream = file.getInputStream()) {
+            amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+        }
+        return fileName;
+    }
+
+    private String getFileExtension(String fileName) {
+        try {
+            return fileName.substring(fileName.lastIndexOf("."));
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일(" + fileName + ") 입니다.");
+        }
+    }
+
+    private String createFileName(String fileName) {
+        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
 }

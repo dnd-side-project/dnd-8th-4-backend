@@ -56,6 +56,23 @@ public class UserDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
+    @Getter
+    @Builder
+    public static class UpdateDto {
+        @NotNull(message = "닉네임이 입력되지 않았습니다.")
+        private String nickName;
+        private String profileImageUrl;
+
+        public static UserDto.UpdateDto response(User user) {
+            return UpdateDto.builder()
+                    .nickName(user.getNickName())
+                    .profileImageUrl(user.getProfileImageUrl())
+                    .build();
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
