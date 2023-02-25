@@ -210,6 +210,21 @@ public class UserService {
         );
     }
 
+    @Transactional
+    public void deleteUser(UserDetails userDetails, String auth) {
+        String atk = auth.substring(7);
+        if (redisDao.getValues(userDetails.getUsername()) != null) {
+            redisDao.deleteValues(userDetails.getUsername());
+        }
+        redisDao.setValues(atk, "logout", Duration.ofMillis(
+                        tokenProvider.getExpiration(atk)
+                )
+        );
+        userRepository.delete(
+                getUser(userDetails.getUsername())
+        );
+    }
+
     // method
 
     private User getUser(String email) {
@@ -219,7 +234,6 @@ public class UserService {
                 () -> new CustomException(Result.FAIL)
         );
     }
-
     private Authentication getAuthentication(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
@@ -227,6 +241,7 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
     }
+
     private User addUserFromRequest(UserDto.RegisterDto request) {
         return User.builder()
                 .email(request.getEmail())
