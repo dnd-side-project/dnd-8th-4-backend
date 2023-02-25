@@ -134,6 +134,46 @@ public class UserService {
         return CustomResponseEntity.success(bookmarkDtoPage);
     }
 
+    @Transactional
+    public CustomResponseEntity<Page<UserDto.myCommentListDto>> listSearchMyComment(
+            UserDetails userDetails, Integer page
+    ) {
+        User user = getUser(userDetails.getUsername());
+        Query query = em.createNativeQuery(
+                "" +
+                        "SELECT DISTINCT content_id \n" +
+                        "FROM comment AS c \n" +
+                        "WHERE user_id = ?"
+        ).setParameter(1,user.getId());
+
+        List<Long> contentId = new ArrayList<>();
+        List<BigInteger> contentIntegerId = query.getResultList();
+        contentIntegerId.forEach(id ->
+                contentId.add(id.longValue())
+        );
+
+        log.info(contentId.get(0).toString());
+        log.info(contentId.get(0).getClass().toString());
+
+        Page<Content> pageMyComment = contentRepository.findByIdIn(
+                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        return CustomResponseEntity.success(
+                pageMyComment.map((Content content) ->
+                        UserDto.myCommentListDto.response(
+                                content,
+                                content.getContentImages()
+                                        .stream()
+                                        .map(ContentDto.ImageResponseDto::response)
+                                        .toList(),
+                                Integer.parseInt(redisDao.getValues(content.getId().toString()))
+                        )
+                )
+        );
+    }
+
+    @Transactional
     public CustomResponseEntity<Page<UserDto.myContentListDto>> listSearchMyContent(UserDetails userDetails, Integer page) {
         User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
                 .orElseThrow(
@@ -158,6 +198,18 @@ public class UserService {
         );
     }
 
+    @Transactional
+    public void logout(UserDetails userDetails, String auth) {
+        String atk = auth.substring(7);
+        if (redisDao.getValues(userDetails.getUsername()) != null) {
+            redisDao.deleteValues(userDetails.getUsername());
+        }
+        redisDao.setValues(atk, "logout", Duration.ofMillis(
+                        tokenProvider.getExpiration(atk)
+                )
+        );
+    }
+
     // method
 
     private User getUser(String email) {
@@ -175,7 +227,6 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
     }
-
     private User addUserFromRequest(UserDto.RegisterDto request) {
         return User.builder()
                 .email(request.getEmail())
@@ -195,6 +246,7 @@ public class UserService {
         redisDao.setValues(email, rtk, Duration.ofDays(14));
         return rtk;
     }
+
     public UserSearchResponse searchUserList(String keyword) {
 
         List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCase(keyword);
@@ -244,43 +296,5 @@ public class UserService {
         ) {
             throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
         }
-    }
-
-    public CustomResponseEntity<Page<UserDto.myCommentListDto>> listSearchMyComment(
-            UserDetails userDetails, Integer page
-    ) {
-        User user = getUser(userDetails.getUsername());
-        Query query = em.createNativeQuery(
-                        "" +
-                                "SELECT DISTINCT content_id \n" +
-                                "FROM comment AS c \n" +
-                                "WHERE user_id = ?"
-                ).setParameter(1,user.getId());
-
-        List<Long> contentId = new ArrayList<>();
-        List<BigInteger> contentIntegerId = query.getResultList();
-        contentIntegerId.forEach(id ->
-                contentId.add(id.longValue())
-        );
-
-        log.info(contentId.get(0).toString());
-        log.info(contentId.get(0).getClass().toString());
-
-        Page<Content> pageMyComment = contentRepository.findByIdIn(
-                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        return CustomResponseEntity.success(
-                pageMyComment.map((Content content) ->
-                        UserDto.myCommentListDto.response(
-                                content,
-                                content.getContentImages()
-                                        .stream()
-                                        .map(ContentDto.ImageResponseDto::response)
-                                        .toList(),
-                                Integer.parseInt(redisDao.getValues(content.getId().toString()))
-                                )
-                )
-        );
     }
 }
