@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class GroupStarListResponse {
 	private Long groupId;   // 그룹 ID
 	private String groupName;   // 그룹 이름
-	private String groupImageUrl;
+	private String groupImageUrl;   // 그룹 이미지 url
+	private int memberCount;   // 그룹 인원 수
 }
