@@ -56,6 +56,7 @@ public class MissionService {
 	private final ContentService contentService;
 
 	private final int MISSION_DISTANCE_LIMIT = 50;
+	private final int LEVEL_UP_DEGREE = 3;
 
 	// 미션 생성
 	@Transactional
@@ -188,6 +189,13 @@ public class MissionService {
 				checkUserAssignMission.completeLocationCheck();
 				break;
 			}
+		}
+
+		// 미션 인증 레벨 업데이트
+		user.updateSubLevel();
+		//
+		if (user.getSubLevel() == LEVEL_UP_DEGREE) {
+			user.updateLevel();
 		}
 
 		return MissionCheckLocationResponse.builder()

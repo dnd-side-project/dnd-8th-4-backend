@@ -134,4 +134,13 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
     private final List<Notification> notifications = new ArrayList<>();
+
+    public void updateLevel() {
+        this.level += 1;
+        this.subLevel = 0L;
+    }
+
+    public void updateSubLevel() {
+        this.subLevel += 1;
+    }
 }
