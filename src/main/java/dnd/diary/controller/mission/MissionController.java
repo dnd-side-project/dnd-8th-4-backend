@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import dnd.diary.dto.group.MissionCreateRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.MissionResponse;
-import dnd.diary.service.group.MissionService;
+import dnd.diary.service.mission.MissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 

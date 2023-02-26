@@ -20,9 +20,24 @@ public class Sticker {
     private Long id;
 
     @NotNull
+    private String stickerName;
+
+    @NotNull
+    private Long stickerLevel;
+
+    @NotNull
     private String stickerUrl;
 
     @OneToMany(mappedBy = "sticker")
     private List<UserSticker> userStickers = new ArrayList<>();
 
+    private Sticker(String stickerName, Long stickerLevel, String stickerUrl) {
+        this.stickerName = stickerName;
+        this.stickerLevel = stickerLevel;
+        this.stickerUrl = stickerUrl;
+    }
+
+    public static Sticker toEntity(String stickerName, Long stickerLevel, String stickerUrl) {
+        return new Sticker(stickerName, stickerLevel, stickerUrl);
+    }
 }

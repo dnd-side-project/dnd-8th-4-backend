@@ -1,4 +1,4 @@
-package dnd.diary.service.group;
+package dnd.diary.service.mission;
 
 import dnd.diary.domain.mission.Mission;
 import dnd.diary.domain.mission.MissionStatus;

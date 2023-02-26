@@ -45,6 +45,10 @@ public enum Result {
 	NOT_CHECK_MISSION_LOCATION(2506, "위치 인증이 완료되지 않은 미션"),
 	ALREADY_COMPLETE_MISSION(2507, "이미 완료된 미션"),
 
+	// 스티커 관련
+	ALREADY_EXIST_STICKER_NAME(2600, "이미 존재하는 스티커 이름"),
+	ALREADY_EXIST_STICKER_LEVEL(2601, "이미 존재하는 스티커 획득 레벨"),
+
 	// 피드 관련
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),
 	EMOTION_DELETE_OK(0, "공감 삭제 성공"),
