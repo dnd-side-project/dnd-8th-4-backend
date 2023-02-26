@@ -1,15 +1,10 @@
 package dnd.diary.response.mission;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import dnd.diary.domain.mission.MissionStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Builder
@@ -40,8 +35,9 @@ public class MissionResponse {
 	private long missionDday;   // 미션 종료까지 남은 일수
 	private Integer missionColor;
 
-	// 미션 참여자 목록 - 그룹 구성원
-	private List<UserAssignMissionInfo> userAssignMissionInfoList;
+	// 조회 유저의 해당 미션에 대한 달성 현황
+	@Setter
+	private UserAssignMissionInfo userAssignMissionInfo;
 
 	@Getter
 	@Builder

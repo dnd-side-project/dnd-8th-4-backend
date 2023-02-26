@@ -307,7 +307,39 @@ public class MissionService {
 		return missionResponseList;
 	}
 
-	// 시작 전인 미션 + 진행 중인 미션
+	// 그룹 메인 진입 페이지 내 [시작 전/진행 중] 미션 목록 조회
+	public List<MissionResponse> getReadyAndActiveGroupMissionList(int groupId) {
+
+		User user = findUser();
+		Group group = findGroup(Long.parseLong(String.valueOf(groupId)));
+
+		List<MissionResponse> missionResponseList = new ArrayList<>();
+
+		List<Mission> missionListInGroup = group.getMissions();
+		for (Mission mission : missionListInGroup) {
+			if (mission.getMissionStatus() == MissionStatus.READY || mission.getMissionStatus() == MissionStatus.ACTIVE) {
+				MissionResponse missionResponse = toMissionResponse(mission);
+
+				UserAssignMission userAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), mission.getId());
+				MissionResponse.UserAssignMissionInfo userAssignMissionInfo = MissionResponse.UserAssignMissionInfo.builder()
+						.userId(user.getId())
+						.userNickname(user.getNickName())
+						.missionId(mission.getId())
+						.locationCheck(userAssignMission.getLocationCheck())
+						.contentCheck(userAssignMission.getContentCheck())
+						.isComplete(userAssignMission.getIsComplete())
+						.build();
+
+				missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
+
+				missionResponseList.add(missionResponse);
+			}
+		}
+
+		return missionResponseList;
+	}
+
+	// 시작 전인 미션 + 진행 중인 미션 전체
 	public List<MissionResponse> getReadyAndActiveMissionList() {
 		List<MissionResponse> missionResponseList = getMissionList(MissionStatus.READY.getCode());
 		missionResponseList.addAll(getMissionList(MissionStatus.ACTIVE.getCode()));
