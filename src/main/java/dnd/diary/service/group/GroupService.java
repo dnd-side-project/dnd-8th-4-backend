@@ -238,11 +238,13 @@ public class GroupService {
 
 		for (GroupStar groupStar : userGroupStarList) {
 			if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD) {
+				Group group = groupStar.getGroup();
 				groupListResponseList.add(
 					GroupStarListResponse.builder()
-						.groupId(groupStar.getGroup().getId())
-						.groupName(groupStar.getGroup().getGroupName())
-						.groupImageUrl(groupStar.getGroup().getGroupImageUrl())
+						.groupId(group.getId())
+						.groupName(group.getGroupName())
+						.groupImageUrl(group.getGroupImageUrl())
+						.memberCount(group.getUserJoinGroups().size())
 						.build()
 				);
 			}

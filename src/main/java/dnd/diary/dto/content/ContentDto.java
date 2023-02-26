@@ -328,6 +328,8 @@ public class ContentDto {
     @Builder
     public static class ContentSearchDto {
         private Long userId;
+        private String userName;
+        private String profileImageUrl;
         private Long contentId;
         private Long groupId;
         private String content;
@@ -343,6 +345,8 @@ public class ContentDto {
         ) {
             return ContentSearchDto.builder()
                     .userId(content.getUser().getId())
+                    .userName(content.getUser().getName())
+                    .profileImageUrl(content.getUser().getProfileImageUrl())
                     .contentId(content.getId())
                     .groupId(content.getId())
                     .content(content.getContent())
