@@ -52,7 +52,7 @@ public class User extends BaseEntity {
 
     private String profileImageUrl;
 
-    private Long level;   // 스티커 획득 기준인 레벨
+    private Long mainLevel;   // 스티커 획득 기준인 레벨
     private Long subLevel;   // 레벨 상승 기준 현재 위치(0 -> 1 -> 2 -> 3이 되면 레벨 + 1 / subLevel 0 으로)
 
     // 유저 권한
@@ -116,7 +116,7 @@ public class User extends BaseEntity {
     private final List<Notification> notifications = new ArrayList<>();
 
     public void updateLevel() {
-        this.level += 1;
+        this.mainLevel += 1;
         this.subLevel = 0L;
     }
 
