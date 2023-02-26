@@ -30,6 +30,7 @@ public enum Result {
 	HIGH_MAX_INVITE_MEMBER_COUNT(2109, "최대 초대 인원 초과"),
 	HIGH_MAX_GROUP_MEMBER_COUNT(2110, "그룹 최대 인원 초과"),
 	ALREADY_EXIST_IN_GROUP(2111, "이미 그룹에 가입된 사용자"),
+	ALREADY_EXIST_GROUP_NAME(2112, "이미 존재하는 그룹 이름"),
 
 	// 알림 관련
 	NOT_FOUND_NOTIFICATION(2400, "존재하지 않는 알림"),

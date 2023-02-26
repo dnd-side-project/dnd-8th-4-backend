@@ -60,6 +60,9 @@ public class GroupService {
 			imageUrl = s3Service.uploadImage(multipartFile);
 		}
 
+		// 그룹 이름 중복 체크
+		validCreateAndUpdateGroup(request.getGroupName());
+
 		Group group = Group.toEntity(request.getGroupName(), request.getGroupNote(), imageUrl, hostUser);
 		groupRepository.save(group);
 
@@ -98,6 +101,8 @@ public class GroupService {
 		if (multipartFile != null) {
 			imageUrl = s3Service.uploadImage(multipartFile);
 		}
+
+		validCreateAndUpdateGroup(request.getGroupName());
 
 		group.update(request.getGroupName(), request.getGroupNote(), imageUrl);
 
@@ -374,5 +379,12 @@ public class GroupService {
 
 	private Group findGroup(Long groupId) {
 		return groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
+	}
+
+	private void validCreateAndUpdateGroup(String groupName) {
+		Boolean existGroupName = groupRepository.existsByGroupName(groupName);
+		if (existGroupName) {
+			throw new CustomException(ALREADY_EXIST_GROUP_NAME);
+		}
 	}
 }

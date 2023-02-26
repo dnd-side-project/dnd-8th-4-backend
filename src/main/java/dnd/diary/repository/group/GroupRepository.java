@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Long> {
+	Boolean existsByGroupName(String groupName);
 	List<Group> findByGroupNameContainingIgnoreCaseOrGroupNoteContainingIgnoreCase(String groupName, String groupNote);
 }
