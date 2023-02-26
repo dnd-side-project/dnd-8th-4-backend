@@ -28,4 +28,13 @@ public class UserSticker extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sticker_id")
     private Sticker sticker;
+
+    private UserSticker(User user, Sticker sticker) {
+        this.user = user;
+        this.sticker = sticker;
+    }
+
+    public static UserSticker toEntity(User user, Sticker sticker) {
+        return new UserSticker(user, sticker);
+    }
 }
