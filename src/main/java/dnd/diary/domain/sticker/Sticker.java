@@ -1,4 +1,4 @@
-package dnd.diary.domain.comment;
+package dnd.diary.domain.sticker;
 
 import com.sun.istack.NotNull;
 import lombok.AccessLevel;

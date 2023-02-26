@@ -31,4 +31,9 @@ public class StickerController {
     public CustomResponseEntity<List<StickerResponse>> getStickerList() {
         return CustomResponseEntity.success(stickerService.getSickerList());
     }
+
+    @GetMapping("/list/my")
+    public CustomResponseEntity<List<StickerResponse>> getMyStickerList() {
+        return CustomResponseEntity.success(stickerService.getMyStickerList());
+    }
 }

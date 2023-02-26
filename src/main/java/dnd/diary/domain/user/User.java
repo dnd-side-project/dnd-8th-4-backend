@@ -5,7 +5,7 @@ import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.comment.CommentLike;
-import dnd.diary.domain.comment.UserSticker;
+import dnd.diary.domain.sticker.UserSticker;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.document.Document;
@@ -13,7 +13,6 @@ import dnd.diary.domain.document.DocumentFolder;
 import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.Invite;
 import dnd.diary.domain.group.Notification;
-import dnd.diary.domain.mission.Mission;
 import dnd.diary.domain.mission.UserAssignMission;
 import lombok.*;
 

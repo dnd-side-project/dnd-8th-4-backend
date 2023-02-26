@@ -54,6 +54,7 @@ public class MissionService {
 
 	private final UserService userService;
 	private final ContentService contentService;
+	private final StickerService stickerService;
 
 	private final int MISSION_DISTANCE_LIMIT = 50;
 	private final int LEVEL_UP_DEGREE = 3;
@@ -191,13 +192,6 @@ public class MissionService {
 			}
 		}
 
-		// 미션 인증 레벨 업데이트
-		user.updateSubLevel();
-
-		if (user.getSubLevel() == LEVEL_UP_DEGREE) {
-			user.updateLevel();
-		}
-
 		return MissionCheckLocationResponse.builder()
 				.missionId(targetMission.getId())
 				.locationCheck(checkLocationMissionFlag)
@@ -260,6 +254,14 @@ public class MissionService {
 
 		// 유저 미션 게시글 인증 상태 업데이트
 		targetUserAssignMission.completeContentCheck();
+
+		// 미션 인증 레벨 업데이트
+		user.updateSubLevel();
+
+		if (user.getSubLevel() == LEVEL_UP_DEGREE) {
+			user.updateLevel();
+			stickerService.acquisitionSticker(user);
+		}
 
 		return MissionCheckContentResponse.builder()
 				.missionId(targetMission.getId())

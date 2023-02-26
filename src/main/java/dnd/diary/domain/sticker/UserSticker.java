@@ -1,4 +1,4 @@
-package dnd.diary.domain.comment;
+package dnd.diary.domain.sticker;
 
 import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.user.User;

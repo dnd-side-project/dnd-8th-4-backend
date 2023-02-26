@@ -1,6 +1,6 @@
 package dnd.diary.repository.mission;
 
-import dnd.diary.domain.comment.UserSticker;
+import dnd.diary.domain.sticker.UserSticker;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
