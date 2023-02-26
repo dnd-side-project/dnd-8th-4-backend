@@ -57,6 +57,11 @@ public class GroupController {
 		 return CustomResponseEntity.success(groupService.getGroupList());
 	}
 
+	@GetMapping("/list/my")
+	public CustomResponseEntity<List<GroupSampleResponse>> getGroupSimpleList() {
+		return CustomResponseEntity.success(groupService.getGroupSimpleList());
+	}
+
 	// 내가 속한 그룹 목록 내 검색
 	@GetMapping("/search")
 	public CustomResponseEntity<GroupListResponse> searchGroupList(

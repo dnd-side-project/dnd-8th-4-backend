@@ -213,6 +213,24 @@ public class GroupService {
 		return response;
 	}
 
+	// 내가 속한 그룹 목록 Simple 조회
+	public List<GroupSampleResponse> getGroupSimpleList() {
+		User user = findUser();
+		List<UserJoinGroup> userJoinGroupList = user.getUserJoinGroups();
+		List<GroupSampleResponse> groupSampleResponseList = new ArrayList<>();
+		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
+			Group group = userJoinGroup.getGroup();
+			groupSampleResponseList.add(
+					GroupSampleResponse.builder()
+							.groupId(group.getId())
+							.groupName(group.getGroupName())
+							.groupImageUrl(group.getGroupImageUrl())
+							.build()
+			);
+		}
+		return groupSampleResponseList;
+	}
+
 	public List<GroupStarListResponse> getGroupStarList() {
 		User user = findUser();
 		List<GroupStar> userGroupStarList = user.getGroupStars();
@@ -224,6 +242,7 @@ public class GroupService {
 					GroupStarListResponse.builder()
 						.groupId(groupStar.getGroup().getId())
 						.groupName(groupStar.getGroup().getGroupName())
+						.groupImageUrl(groupStar.getGroup().getGroupImageUrl())
 						.build()
 				);
 			}

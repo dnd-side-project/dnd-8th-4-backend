@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupStarListResponse {
-	private Long groupId;   // 그룹 ID
-	private String groupName;   // 그룹 이름
-	private String groupImageUrl;
+public class GroupSampleResponse {
+
+    private Long groupId;
+    private String groupImageUrl;
+    private String groupName;
 }
