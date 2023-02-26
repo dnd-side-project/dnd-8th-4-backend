@@ -1,4 +1,4 @@
-package dnd.diary.service.group;
+package dnd.diary.service.mission;
 
 import static dnd.diary.domain.mission.DateUtil.convertLocalDateTimeZone;
 import static dnd.diary.enumeration.Result.*;
@@ -193,7 +193,7 @@ public class MissionService {
 
 		// 미션 인증 레벨 업데이트
 		user.updateSubLevel();
-		//
+
 		if (user.getSubLevel() == LEVEL_UP_DEGREE) {
 			user.updateLevel();
 		}
