@@ -261,7 +261,7 @@ public class UserService {
                                 .nickName(request.getNickname())
                                 .phoneNumber(user.getPhoneNumber())
                                 .profileImageUrl(fileUrl)
-                                .level(user.getLevel())
+                                .mainLevel(user.getMainLevel())
                                 .subLevel(user.getSubLevel())
                                 .deleteAt(user.getDeleteAt())
                                 .build()
