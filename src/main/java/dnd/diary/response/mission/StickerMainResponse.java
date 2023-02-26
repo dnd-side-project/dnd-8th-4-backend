@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class StickerMainResponse {
 
     private CurrMissionInfo currMissionInfo;
-    private AcquisitionStickerInfo acquisitionStickerInfo;
+    private List<AcquisitionStickerInfo> acquisitionStickerInfo;
 
     @Getter
     @Builder

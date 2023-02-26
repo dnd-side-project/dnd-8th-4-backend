@@ -102,14 +102,31 @@ public class StickerService {
     public StickerMainResponse getSickerMain() {
         User user = findUser();
 
-        StickerMainResponse.CurrMissionInfo currMissionInfo = new StickerMainResponse.CurrMissionInfo();
-        StickerMainResponse.AcquisitionStickerInfo acquisitionStickerInfo = new StickerMainResponse.AcquisitionStickerInfo();
+        StickerMainResponse.CurrMissionInfo currMissionInfo = StickerMainResponse.CurrMissionInfo.builder()
+                .subLevel(user.getSubLevel())
+                .mainLevel(user.getMainLevel())
+                .remainToUpMainLevel(LEVEL_UP_DEGREE - user.getSubLevel())
+                .build();
 
+        List<StickerMainResponse.AcquisitionStickerInfo> acquisitionStickerInfoList = new ArrayList<>();
+
+        List<Sticker> stickerList = stickerRepository.findAll();
+        for (Sticker sticker : stickerList) {
+            StickerMainResponse.AcquisitionStickerInfo acquisitionStickerInfo = StickerMainResponse.AcquisitionStickerInfo.builder()
+                    .stickerId(sticker.getId())
+                    .stickerName(sticker.getStickerName())
+                    .stickerLevel(sticker.getStickerLevel())
+                    .stickerUrl(sticker.getStickerUrl())
+                    .isAcquisitionSticker(userStickerRepository.existsByUserIdAndStickerId(user.getId(), sticker.getId()))
+                    .build();
+
+            acquisitionStickerInfoList.add(acquisitionStickerInfo);
+        }
 
         return StickerMainResponse
                 .builder()
                 .currMissionInfo(currMissionInfo)
-                .acquisitionStickerInfo(acquisitionStickerInfo)
+                .acquisitionStickerInfo(acquisitionStickerInfoList)
                 .build();
     }
 
