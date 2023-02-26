@@ -185,6 +185,8 @@ public class UserService {
                 .phoneNumber(request.getPhoneNumber())
                 .profileImageUrl(request.getProfileImageUrl())
                 .authorities(Collections.singleton(authority))
+                .level(0L)
+                .subLevel(0L)
                 .build();
     }
 
