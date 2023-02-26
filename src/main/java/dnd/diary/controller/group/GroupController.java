@@ -27,7 +27,7 @@ public class GroupController {
 			@RequestPart GroupCreateRequest request
 	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
-	 	return CustomResponseEntity.success(groupService.createGroup(multipartFile, request));
+		 return CustomResponseEntity.success(groupService.createGroup(multipartFile, request));
 	 }
 
 	 @PatchMapping("/update")
