@@ -45,6 +45,11 @@ public class MissionController {
 		return CustomResponseEntity.success(missionService.getMissionList(missionStatus));
 	}
 
+	@GetMapping("list/group")
+	public CustomResponseEntity<List<MissionResponse>> getReadyAndActiveGroupMissionList(@RequestParam int groupId) {
+		return CustomResponseEntity.success(missionService.getReadyAndActiveGroupMissionList(groupId));
+	}
+
 	@GetMapping("list/main")
 	public CustomResponseEntity<List<MissionResponse>> getReadyAndActiveMissionList() {
 		return CustomResponseEntity.success(missionService.getReadyAndActiveMissionList());

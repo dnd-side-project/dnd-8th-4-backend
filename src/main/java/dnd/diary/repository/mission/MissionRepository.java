@@ -16,4 +16,5 @@ public interface MissionRepository extends JpaRepository<Mission, Long> {
             nativeQuery = true)
     List<Mission> findWithinMap(Double startX, Double endX, Double startY, Double endY);
 
+    List<Mission> findByGroupId(Long groupId);
 }
