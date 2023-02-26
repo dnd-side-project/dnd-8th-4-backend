@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -40,7 +39,6 @@ public class CommentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class pageCommentDto {
