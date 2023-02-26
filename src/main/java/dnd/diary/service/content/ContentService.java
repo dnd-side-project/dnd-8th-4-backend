@@ -148,12 +148,24 @@ public class ContentService {
         String redisKey = contentId.toString();
         String redisUserKey = getUser(userDetails).getNickName();
         String values = redisDao.getValues(redisKey);
+
         int views = Integer.parseInt(values);
 
         if (!redisDao.getValuesList(redisUserKey).contains(redisKey)) {
             redisDao.setValuesList(redisUserKey, redisKey);
             views = Integer.parseInt(values) + 1;
             redisDao.setValues(redisKey, String.valueOf(views));
+        }
+
+        List<String> bookmarkStatusList = redisDao.getValuesList("bookmark" + userDetails.getUsername());
+        boolean bookmarkAddStatus = bookmarkStatusList.contains(contentId.toString());
+
+        Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
+        Long emotionStatus;
+        if (byContentIdAndUserId == null) {
+            emotionStatus = -1L;
+        } else {
+            emotionStatus = byContentIdAndUserId.getEmotionStatus();
         }
 
         return CustomResponseEntity.success(
@@ -163,7 +175,10 @@ public class ContentService {
                         content.getContentImages()
                                 .stream()
                                 .map(ContentDto.ImageResponseDto::response)
-                                .toList()
+                                .toList(),
+                        bookmarkAddStatus,
+                        emotionStatus
+
                 )
         );
     }

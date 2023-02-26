@@ -171,6 +171,8 @@ public class ContentDto {
     public static class detailDto {
 
         private Long id;
+        private Long userId;
+        private Long groupId;
         private String userName;
         private String profileImageUrl;
         private String content;
@@ -178,12 +180,15 @@ public class ContentDto {
         private Double longitude;
         private String location;
         private long views;
+        private Boolean bookmarkAddStatus;
+        private Long emotionStatus;
         private String contentLink;
-        private Long userId;
-        private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
 
-        public static ContentDto.detailDto response(Content content, Integer views, List<ContentDto.ImageResponseDto> collect) {
+        public static ContentDto.detailDto response(
+                Content content, Integer views, List<ContentDto.ImageResponseDto> collect,
+                boolean bookmarkAddStatus, Long emotionStatus
+        ) {
             return detailDto.builder()
                     .id(content.getId())
                     .userName(content.getUser().getNickName())
@@ -197,6 +202,8 @@ public class ContentDto {
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
                     .collect(collect)
+                    .bookmarkAddStatus(bookmarkAddStatus)
+                    .emotionStatus(emotionStatus)
                     .build();
         }
     }
@@ -320,6 +327,7 @@ public class ContentDto {
     @Getter
     @Builder
     public static class ContentSearchDto {
+        private Long userId;
         private Long contentId;
         private Long groupId;
         private String content;
@@ -334,6 +342,7 @@ public class ContentDto {
                 List<ContentDto.ImageResponseDto> collect
         ) {
             return ContentSearchDto.builder()
+                    .userId(content.getUser().getId())
                     .contentId(content.getId())
                     .groupId(content.getId())
                     .content(content.getContent())
