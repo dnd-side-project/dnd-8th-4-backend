@@ -114,4 +114,13 @@ public class User extends BaseEntity {
     // 사용자 알림 목록 - 그룹 초대 + a
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private final List<Notification> notifications = new ArrayList<>();
+
+    public void updateLevel() {
+        this.level += 1;
+        this.subLevel = 0L;
+    }
+
+    public void updateSubLevel() {
+        this.subLevel += 1;
+    }
 }
