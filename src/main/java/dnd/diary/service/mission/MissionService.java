@@ -295,16 +295,35 @@ public class MissionService {
 			Mission mission = userAssignMission.getMission();
 			if (MissionStatus.ALL == findMissionStatus) {
 				MissionResponse missionResponse = toMissionResponse(mission);
+
+				MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, mission, userAssignMission);
+				missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
+
 				missionResponseList.add(missionResponse);
 			} else {
 				if (findMissionStatus == mission.getMissionStatus()) {
 					MissionResponse missionResponse = toMissionResponse(mission);
+
+					MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, mission, userAssignMission);
+					missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
+
 					missionResponseList.add(missionResponse);
 				}
 			}
 		}
 		missionResponseList.sort(Comparator.comparing(MissionResponse::getMissionDday));
 		return missionResponseList;
+	}
+
+	private MissionResponse.UserAssignMissionInfo getUserAssignMissionInfo(User user, Mission mission, UserAssignMission userAssignMission) {
+		return MissionResponse.UserAssignMissionInfo.builder()
+				.userId(user.getId())
+				.userNickname(user.getNickName())
+				.missionId(mission.getId())
+				.locationCheck(userAssignMission.getLocationCheck())
+				.contentCheck(userAssignMission.getContentCheck())
+				.isComplete(userAssignMission.getIsComplete())
+				.build();
 	}
 
 	// 그룹 메인 진입 페이지 내 [시작 전/진행 중] 미션 목록 조회
@@ -321,14 +340,7 @@ public class MissionService {
 				MissionResponse missionResponse = toMissionResponse(mission);
 
 				UserAssignMission userAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), mission.getId());
-				MissionResponse.UserAssignMissionInfo userAssignMissionInfo = MissionResponse.UserAssignMissionInfo.builder()
-						.userId(user.getId())
-						.userNickname(user.getNickName())
-						.missionId(mission.getId())
-						.locationCheck(userAssignMission.getLocationCheck())
-						.contentCheck(userAssignMission.getContentCheck())
-						.isComplete(userAssignMission.getIsComplete())
-						.build();
+				MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, mission, userAssignMission);
 
 				missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
 
@@ -336,6 +348,7 @@ public class MissionService {
 			}
 		}
 
+		missionResponseList.sort(Comparator.comparing(MissionResponse::getMissionDday));
 		return missionResponseList;
 	}
 
