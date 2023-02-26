@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StickerCreateResponse {
+public class StickerResponse {
+
     private Long stickerId;
     private String stickerName;
     private Long stickerLevel;
