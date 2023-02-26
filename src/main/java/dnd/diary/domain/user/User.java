@@ -5,7 +5,7 @@ import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.comment.CommentLike;
-import dnd.diary.domain.comment.UserSticker;
+import dnd.diary.domain.sticker.UserSticker;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.document.Document;
@@ -13,7 +13,6 @@ import dnd.diary.domain.document.DocumentFolder;
 import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.Invite;
 import dnd.diary.domain.group.Notification;
-import dnd.diary.domain.mission.Mission;
 import dnd.diary.domain.mission.UserAssignMission;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
@@ -59,7 +58,7 @@ public class User extends BaseEntity {
 
     private String profileImageUrl;
 
-    private Long level;   // 스티커 획득 기준인 레벨
+    private Long mainLevel;   // 스티커 획득 기준인 레벨
     private Long subLevel;   // 레벨 상승 기준 현재 위치(0 -> 1 -> 2 -> 3이 되면 레벨 + 1 / subLevel 0 으로)
     private LocalDateTime deleteAt;
 
@@ -136,7 +135,7 @@ public class User extends BaseEntity {
     private final List<Notification> notifications = new ArrayList<>();
 
     public void updateLevel() {
-        this.level += 1;
+        this.mainLevel += 1;
         this.subLevel = 0L;
     }
 

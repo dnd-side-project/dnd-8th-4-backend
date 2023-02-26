@@ -2,6 +2,7 @@ package dnd.diary.domain.comment;
 
 import com.sun.istack.NotNull;
 import dnd.diary.domain.BaseEntity;
+import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.content.Content;
 import lombok.*;
