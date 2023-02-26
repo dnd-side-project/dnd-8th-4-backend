@@ -16,4 +16,13 @@ public enum StickerLevel {
         this.code = code;
         this.desc = desc;
     }
+
+    public static boolean getSticker(int code) {
+        for (StickerLevel stickerLevel : StickerLevel.values()) {
+            if (stickerLevel.getCode() == code) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

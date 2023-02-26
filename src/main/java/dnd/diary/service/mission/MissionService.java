@@ -1,6 +1,7 @@
 package dnd.diary.service.mission;
 
 import static dnd.diary.domain.mission.DateUtil.convertLocalDateTimeZone;
+import static dnd.diary.domain.sticker.StickerLevel.getSticker;
 import static dnd.diary.enumeration.Result.*;
 
 import java.time.*;
@@ -260,7 +261,10 @@ public class MissionService {
 
 		if (user.getSubLevel() == LEVEL_UP_DEGREE) {
 			user.updateLevel();
-			stickerService.acquisitionSticker(user);
+			// 스티커를 획득할 수 있는 mainLevel 달성 시 획득 처리
+			if (getSticker(user.getMainLevel().intValue())) {
+				stickerService.acquisitionSticker(user);
+			}
 		}
 
 		return MissionCheckContentResponse.builder()
