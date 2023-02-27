@@ -56,7 +56,6 @@ public class UserDto {
     @Getter
     @Builder
     public static class UpdateDto {
-        @NotNull(message = "닉네임이 입력되지 않았습니다.")
         private String nickname;
         private String profileImageUrl;
 

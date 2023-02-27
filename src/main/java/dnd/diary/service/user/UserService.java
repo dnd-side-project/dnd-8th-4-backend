@@ -67,20 +67,12 @@ public class UserService {
             .build();
 
     @Transactional
-    public UserDto.RegisterDto register(UserDto.RegisterDto request, MultipartFile file) {
+    public UserDto.RegisterDto register(UserDto.RegisterDto request) {
         validateRegister(request);
-
-        String fileName = null;
-        String fileUrl = null;
-
-        if (file != null) {
-            fileName = saveImage(file);
-            fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
-        }
 
         return UserDto.RegisterDto.response(
                 userRepository.save(
-                        addUserFromRequest(request,fileUrl)
+                        addUserFromRequest(request)
                 ),
                 tokenProvider.createToken(
                         getAuthentication(request.getEmail(), request.getPassword())
@@ -235,7 +227,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto.UpdateDto userUpdateProfile(UserDetails userDetails, UserDto.UpdateDto request, MultipartFile file) {
+    public UserDto.UpdateDto userUpdateProfile(
+            UserDetails userDetails, String nickName, MultipartFile file
+    ) {
         User user = getUser(userDetails.getUsername());
         String fileName = null;
         String fileUrl = null;
@@ -252,7 +246,7 @@ public class UserService {
                                 .email(user.getEmail())
                                 .password(user.getPassword())
                                 .name(user.getName())
-                                .nickName(request.getNickname())
+                                .nickName(nickName)
                                 .phoneNumber(user.getPhoneNumber())
                                 .profileImageUrl(fileUrl)
                                 .mainLevel(user.getMainLevel())
@@ -264,7 +258,6 @@ public class UserService {
     }
 
     // method
-
     private User getUser(String email) {
         Optional<User> oneWithAuthoritiesByEmail = userRepository.
                 findOneWithAuthoritiesByEmail(email);
@@ -281,14 +274,14 @@ public class UserService {
         return authentication;
     }
 
-    private User addUserFromRequest(UserDto.RegisterDto request, String fileUrl) {
+    private User addUserFromRequest(UserDto.RegisterDto request) {
         return User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(request.getName())
                 .nickName(request.getNickName())
                 .phoneNumber(request.getPhoneNumber())
-                .profileImageUrl(fileUrl)
+                .profileImageUrl(null)
                 .authorities(Collections.singleton(authority))
                 .mainLevel(0L)
                 .subLevel(0L)

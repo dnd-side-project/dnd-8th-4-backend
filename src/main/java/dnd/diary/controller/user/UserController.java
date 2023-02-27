@@ -23,20 +23,19 @@ public class UserController {
     // 회원가입
     @PostMapping("auth")
     public CustomResponseEntity<UserDto.RegisterDto> register(
-            @Valid @RequestPart final UserDto.RegisterDto request,
-            @RequestPart(required = false) final MultipartFile file
+            @Valid @RequestBody final UserDto.RegisterDto request
     ) {
-        return CustomResponseEntity.success(userService.register(request,file));
+        return CustomResponseEntity.success(userService.register(request));
     }
 
     // 프로필 수정
     @PatchMapping("auth")
     public CustomResponseEntity<UserDto.UpdateDto> updateProfileUser(
             @AuthenticationPrincipal final UserDetails userDetails,
-            @Valid @RequestPart final UserDto.UpdateDto request,
+            @RequestParam final String nickName,
             @RequestPart(required = false) final MultipartFile file
     ) {
-        return CustomResponseEntity.success(userService.userUpdateProfile(userDetails,request,file));
+        return CustomResponseEntity.success(userService.userUpdateProfile(userDetails,nickName,file));
     }
 
     // 로그인
