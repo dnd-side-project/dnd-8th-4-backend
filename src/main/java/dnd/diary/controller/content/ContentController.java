@@ -25,7 +25,7 @@ public class ContentController {
             @RequestParam final Long groupId,
             @RequestParam final Integer page
     ) {
-        return contentService.groupListContent(userDetails, groupId, page);
+        return CustomResponseEntity.success(contentService.groupListContent(userDetails, groupId, page));
     }
 
     // 그룹 전체 피드 리스트 조회
@@ -35,7 +35,7 @@ public class ContentController {
             @RequestParam final List<Long> groupId,
             @RequestParam final Integer page
     ) {
-        return contentService.groupAllListContent(userDetails, groupId, page);
+        return CustomResponseEntity.success(contentService.groupAllListContent(userDetails, groupId, page));
     }
 
     // 피드 검색 조회
@@ -59,9 +59,10 @@ public class ContentController {
             @RequestParam(required = false) final Double longitude,
             @RequestParam(required = false) final String location
     ) throws ParseException {
-        return contentService.createContent(
+        return CustomResponseEntity.success(contentService.createContent(
                 userDetails, multipartFile, groupId,
-                content, latitude, longitude, location);
+                content, latitude, longitude, location)
+        );
     }
 
     // 피드 조회
@@ -70,7 +71,7 @@ public class ContentController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Long contentId
     ) {
-        return contentService.detailContent(userDetails, contentId);
+        return CustomResponseEntity.success(contentService.detailContent(userDetails, contentId));
     }
 
     // 피드 수정
@@ -85,9 +86,10 @@ public class ContentController {
             @RequestParam(required = false) final String location,
             @RequestParam(required = false) final List<String> deleteContentImageName
     ) {
-        return contentService.updateContent(
+        return CustomResponseEntity.success(contentService.updateContent(
                 userDetails, multipartFile, contentId,
-                content, latitude, longitude, location, deleteContentImageName);
+                content, latitude, longitude, location, deleteContentImageName)
+        );
     }
 
     // 피드 삭제
@@ -106,7 +108,7 @@ public class ContentController {
             @RequestParam final Double x,
             @RequestParam final Double y
     ) {
-        return contentService.listMyMap(userDetails, x, y);
+        return CustomResponseEntity.success(contentService.listMyMap(userDetails, x, y));
     }
 
     // 지도 피드 상세보기
@@ -114,6 +116,6 @@ public class ContentController {
     public CustomResponseEntity<List<ContentDto.mapListContentDetail>> myMapListDetail(
             @RequestParam final List<Long> contentId
     ) {
-        return contentService.listDetailMyMap(contentId);
+        return CustomResponseEntity.success(contentService.listDetailMyMap(contentId));
     }
 }

@@ -8,7 +8,6 @@ import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.content.Content;
-import dnd.diary.domain.content.ContentImage;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
@@ -128,14 +127,14 @@ public class UserService {
     }
 
     @Transactional
-    public CustomResponseEntity<Page<UserDto.BookmarkDto>> listMyBookmark(UserDetails userDetails, Integer page) {
+    public Page<UserDto.BookmarkDto> listMyBookmark(UserDetails userDetails, Integer page) {
 
         Page<Bookmark> bookmarkPage = bookmarkRepository.findByUserId(
                 getUser(userDetails.getUsername()).getId(),
                 PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        Page<UserDto.BookmarkDto> bookmarkDtoPage = bookmarkPage.map((Bookmark bookmark) -> UserDto.BookmarkDto.response(
+        return bookmarkPage.map((Bookmark bookmark) -> UserDto.BookmarkDto.response(
                         bookmark
                         , bookmark.getContent().getContentImages()
                                 .stream()
@@ -146,11 +145,10 @@ public class UserService {
                         )
                 )
         );
-        return CustomResponseEntity.success(bookmarkDtoPage);
     }
 
     @Transactional
-    public CustomResponseEntity<Page<UserDto.myCommentListDto>> listSearchMyComment(
+    public Page<UserDto.myCommentListDto> listSearchMyComment(
             UserDetails userDetails, Integer page
     ) {
         User user = getUser(userDetails.getUsername());
@@ -174,8 +172,7 @@ public class UserService {
                 contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        return CustomResponseEntity.success(
-                pageMyComment.map((Content content) ->
+        return pageMyComment.map((Content content) ->
                         UserDto.myCommentListDto.response(
                                 content,
                                 content.getContentImages()
@@ -184,12 +181,11 @@ public class UserService {
                                         .toList(),
                                 Integer.parseInt(redisDao.getValues(content.getId().toString()))
                         )
-                )
-        );
+                );
     }
 
     @Transactional
-    public CustomResponseEntity<Page<UserDto.myContentListDto>> listSearchMyContent(UserDetails userDetails, Integer page) {
+    public Page<UserDto.myContentListDto> listSearchMyContent(UserDetails userDetails, Integer page) {
         User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
                 .orElseThrow(
                         () -> new CustomException(Result.FAIL)
@@ -199,8 +195,7 @@ public class UserService {
                 user.getId(), PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        return CustomResponseEntity.success(
-                pageMyContent.map((Content content) ->
+        return pageMyContent.map((Content content) ->
                         UserDto.myContentListDto.response(
                                 content,
                                 content.getContentImages()
@@ -209,8 +204,7 @@ public class UserService {
                                         .toList(),
                                 Integer.parseInt(redisDao.getValues(content.getId().toString()))
                         )
-                )
-        );
+                );
     }
 
     @Transactional

@@ -36,12 +36,11 @@ public class CommentService {
     private final CommentLikeRepository commentLikeRepository;
 
     @Transactional
-    public CustomResponseEntity<CommentDto.AddCommentDto> commentAdd(
+    public CommentDto.AddCommentDto commentAdd(
             UserDetails userDetails, Long contentId, CommentDto.AddCommentDto request
     ) {
         validateCommentAdd(contentId);
-        return CustomResponseEntity.success(
-                CommentDto.AddCommentDto.response(
+        return CommentDto.AddCommentDto.response(
                         commentRepository.save(
                                 Comment.builder()
                                         .commentNote(request.getCommentNote())
@@ -50,18 +49,15 @@ public class CommentService {
                                         .sticker(null)
                                         .build()
                         )
-                )
-        );
+                );
     }
 
     @Transactional
-    public CustomResponseEntity<Page<CommentDto.pageCommentDto>> commentPage(
+    public Page<CommentDto.pageCommentDto> commentPage(
             UserDetails userDetails, Long contentId, Integer page
     ) {
         validateCommentPage(contentId);
-        return CustomResponseEntity.success(
-                getPageCommentDtos(userDetails, getPageComments(contentId, page))
-        );
+        return getPageCommentDtos(userDetails, getPageComments(contentId, page));
     }
 
     // method
@@ -107,12 +103,10 @@ public class CommentService {
         }
     }
 
-    public CustomResponseEntity<List<ContentDto.EmotionResponseDto>> emotionList(Long contentId) {
-        return CustomResponseEntity.success(
-                emotionRepository.findByContentId(contentId)
+    public List<ContentDto.EmotionResponseDto> emotionList(Long contentId) {
+        return emotionRepository.findByContentId(contentId)
                         .stream()
                         .map(ContentDto.EmotionResponseDto::response)
-                        .toList()
-        );
+                        .toList();
     }
 }
