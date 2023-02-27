@@ -1,6 +1,5 @@
 package dnd.diary.controller.user;
 
-import dnd.diary.dto.content.ContentDto;
 import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.response.CustomResponseEntity;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,14 +29,6 @@ public class UserController {
         return CustomResponseEntity.success(userService.register(request,file));
     }
 
-    // 이메일 중복 검사
-    @GetMapping("auth/check")
-    public CustomResponseEntity<Result> checkMatchEmail(
-            @RequestParam final String email
-    ) {
-        return userService.emailCheckMatch(email);
-    }
-
     // 프로필 수정
     @PatchMapping("auth")
     public CustomResponseEntity<UserDto.UpdateDto> updateProfileUser(
@@ -48,7 +38,6 @@ public class UserController {
     ) {
         return CustomResponseEntity.success(userService.userUpdateProfile(userDetails,request,file));
     }
-
 
     // 로그인
     @PostMapping("auth/login")
@@ -97,7 +86,7 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Integer page
     ) {
-        return userService.listMyBookmark(userDetails, page);
+        return CustomResponseEntity.success(userService.listMyBookmark(userDetails, page));
     }
 
     // 작성한 글 조회
@@ -106,15 +95,23 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Integer page
     ) {
-        return userService.listSearchMyContent(userDetails, page);
+        return CustomResponseEntity.success(userService.listSearchMyContent(userDetails, page));
     }
-
+    
     // 작성한 댓글 조회
     @GetMapping("auth/my/comment")
     public CustomResponseEntity<Page<UserDto.myCommentListDto>> searchMyCommentList(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Integer page
     ) {
-        return userService.listSearchMyComment(userDetails, page);
+        return CustomResponseEntity.success(userService.listSearchMyComment(userDetails, page));
+    }
+
+    // 이메일 중복 검사
+    @GetMapping("auth/check")
+    public CustomResponseEntity<Result> checkMatchEmail(
+            @RequestParam final String email
+    ) {
+        return userService.emailCheckMatch(email);
     }
 }
