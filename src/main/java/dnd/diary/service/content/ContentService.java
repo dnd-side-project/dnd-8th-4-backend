@@ -43,8 +43,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,7 +62,7 @@ public class ContentService {
     private String bucket;
 
     @Transactional
-    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupListContent(
+    public Page<ContentDto.groupListPagePostsDto> groupListContent(
             UserDetails userDetails, Long groupId, Integer page
     ) {
         validateGroupListContent(groupId);
@@ -72,13 +70,11 @@ public class ContentService {
         Page<Content> contents = contentRepository.findByGroupId(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-        return CustomResponseEntity.success(
-                getGroupListPagePostsDtos(userDetails, contents)
-        );
+        return getGroupListPagePostsDtos(userDetails, contents);
     }
 
     @Transactional
-    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> groupAllListContent(
+    public Page<ContentDto.groupListPagePostsDto> groupAllListContent(
             UserDetails userDetails, List<Long> groupId, Integer page
     ) {
         validateGroupAllListContent(groupId);
@@ -86,13 +82,11 @@ public class ContentService {
         Page<Content> contents = contentRepository.findByGroupIdIn(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-        return CustomResponseEntity.success(
-                getGroupListPagePostsDtos(userDetails, contents)
-        );
+        return getGroupListPagePostsDtos(userDetails, contents);
     }
 
     @Transactional
-    public CustomResponseEntity<ContentDto.CreateDto> createContent(
+    public ContentDto.CreateDto createContent(
             UserDetails userDetails, List<MultipartFile> multipartFile, Long groupId,
             String contentNote, Double latitude, Double longitude, String location
     ) throws ParseException {
@@ -123,28 +117,24 @@ public class ContentService {
         redisDao.setValues(redisKey, "0");
 
         if (multipartFile == null) {
-            return CustomResponseEntity.success(
-                    ContentDto.CreateDto.response(
-                            content,
-                            null
-                    )
+            return ContentDto.CreateDto.response(
+                    content,
+                    null
             );
         } else {
             uploadFiles(multipartFile, content);
-            return CustomResponseEntity.success(
-                    ContentDto.CreateDto.response(
-                            content,
-                            contentImageRepository.findByContentId(content.getId())
-                                    .stream()
-                                    .map(ContentDto.ImageResponseDto::response)
-                                    .toList()
-                    )
+            return ContentDto.CreateDto.response(
+                    content,
+                    contentImageRepository.findByContentId(content.getId())
+                            .stream()
+                            .map(ContentDto.ImageResponseDto::response)
+                            .toList()
             );
         }
     }
 
     @Transactional
-    public CustomResponseEntity<ContentDto.detailDto> detailContent(UserDetails userDetails, Long contentId) {
+    public ContentDto.detailDto detailContent(UserDetails userDetails, Long contentId) {
         Content content = getContent(contentId);
         String redisKey = contentId.toString();
         String redisUserKey = getUser(userDetails).getNickName();
@@ -169,8 +159,7 @@ public class ContentService {
             emotionStatus = byContentIdAndUserId.getEmotionStatus();
         }
 
-        return CustomResponseEntity.success(
-                ContentDto.detailDto.response(
+        return ContentDto.detailDto.response(
                         content,
                         views,
                         content.getContentImages()
@@ -179,13 +168,11 @@ public class ContentService {
                                 .toList(),
                         bookmarkAddStatus,
                         emotionStatus
-
-                )
-        );
+                );
     }
 
     @Transactional
-    public CustomResponseEntity<ContentDto.UpdateDto> updateContent(
+    public ContentDto.UpdateDto updateContent(
             UserDetails userDetails, List<MultipartFile> multipartFile, Long contentId,
             String contentNote, Double latitude, Double longitude, String location,
             List<String> deleteContentImageName
@@ -196,8 +183,7 @@ public class ContentService {
         deleteContentImage(multipartFile, deleteContentImageName, content);
         String redisKey = content.getId().toString();
 
-        return CustomResponseEntity.success(
-                ContentDto.UpdateDto.response(
+        return ContentDto.UpdateDto.response(
                         contentRepository.save(
                                 Content.builder()
                                         .id(content.getId())
@@ -217,8 +203,7 @@ public class ContentService {
                                 .map(ContentDto.ImageResponseDto::response)
                                 .toList(),
                         Integer.parseInt(redisDao.getValues(redisKey))
-                )
-        );
+                );
     }
 
     @Transactional
@@ -232,7 +217,7 @@ public class ContentService {
     }
 
     @Transactional
-    public CustomResponseEntity<List<ContentDto.mapListContent>> listMyMap(UserDetails userDetails, Double x, Double y) {
+    public List<ContentDto.mapListContent> listMyMap(UserDetails userDetails, Double x, Double y) {
         Location northEast = GeometryUtil.calculate(x, y, 2.0, Direction.NORTHEAST.getBearing());
         Location southWest = GeometryUtil.calculate(x, y, 2.0, Direction.SOUTHWEST.getBearing());
 
@@ -267,22 +252,20 @@ public class ContentService {
 
         List<Content> contents = query.getResultList();
 
-        return CustomResponseEntity.success(contents.stream().map((Content content) ->
+        return contents.stream().map((Content content) ->
                         ContentDto.mapListContent.response(content,
                                 content.getContentImages()
                                         .stream()
                                         .map(ContentDto.ImageResponseDto::response)
                                         .toList()
                         )
-                ).toList()
-        );
+                ).toList();
     }
 
     @Transactional
-    public CustomResponseEntity<List<ContentDto.mapListContentDetail>> listDetailMyMap(List<Long> contentId) {
+    public List<ContentDto.mapListContentDetail> listDetailMyMap(List<Long> contentId) {
         List<Content> contentList = contentRepository.findByIdIn(contentId);
-        return CustomResponseEntity.success(
-                contentList.stream().map((Content content) ->
+        return contentList.stream().map((Content content) ->
                         ContentDto.mapListContentDetail.response(
                                 content,
                                 content.getContentImages()
@@ -290,8 +273,7 @@ public class ContentService {
                                         .map(ContentDto.ImageResponseDto::response)
                                         .toList()
                         )
-                ).toList()
-        );
+                ).toList();
     }
 
     @Transactional
