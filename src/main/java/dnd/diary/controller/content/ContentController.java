@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -45,19 +44,24 @@ public class ContentController {
             @RequestParam final List<Long> groupId,
             @RequestParam final String word,
             @RequestParam final Integer page
-    ){
-        return contentService.contentSearch(groupId,word,page);
+    ) {
+        return contentService.contentSearch(groupId, word, page);
     }
 
     // 피드 작성
     @PostMapping("content")
     public CustomResponseEntity<ContentDto.CreateDto> contentCreate(
-            @AuthenticationPrincipal final UserDetails user,
-            @RequestParam final Long groupId,
+            @AuthenticationPrincipal final UserDetails userDetails,
             @RequestPart(required = false) final List<MultipartFile> multipartFile,
-            @Valid @RequestPart final ContentDto.CreateDto request
+            @RequestParam final Long groupId,
+            @RequestParam final String content,
+            @RequestParam(required = false) final Double latitude,
+            @RequestParam(required = false) final Double longitude,
+            @RequestParam(required = false) final String location
     ) throws ParseException {
-        return contentService.createContent(user, groupId, multipartFile, request);
+        return contentService.createContent(
+                userDetails, multipartFile, groupId,
+                content, latitude, longitude, location);
     }
 
     // 피드 조회
@@ -73,11 +77,17 @@ public class ContentController {
     @PatchMapping("content")
     public CustomResponseEntity<ContentDto.UpdateDto> contentUpdate(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam final Long contentId,
             @RequestPart(required = false) final List<MultipartFile> multipartFile,
-            @Valid @RequestPart final ContentDto.UpdateDto request
+            @RequestParam final Long contentId,
+            @RequestParam final String content,
+            @RequestParam(required = false) final Double latitude,
+            @RequestParam(required = false) final Double longitude,
+            @RequestParam(required = false) final String location,
+            @RequestParam(required = false) final List<String> deleteContentImageName
     ) {
-        return contentService.updateContent(userDetails, contentId, multipartFile, request);
+        return contentService.updateContent(
+                userDetails, multipartFile, contentId,
+                content, latitude, longitude, location, deleteContentImageName);
     }
 
     // 피드 삭제
@@ -103,7 +113,7 @@ public class ContentController {
     @GetMapping("content/map/detail")
     public CustomResponseEntity<List<ContentDto.mapListContentDetail>> myMapListDetail(
             @RequestParam final List<Long> contentId
-    ){
+    ) {
         return contentService.listDetailMyMap(contentId);
     }
 }

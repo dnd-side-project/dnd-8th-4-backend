@@ -93,23 +93,24 @@ public class ContentService {
 
     @Transactional
     public CustomResponseEntity<ContentDto.CreateDto> createContent(
-            UserDetails userDetails, Long groupId, List<MultipartFile> multipartFile, ContentDto.CreateDto request
+            UserDetails userDetails, List<MultipartFile> multipartFile, Long groupId,
+            String contentNote, Double latitude, Double longitude, String location
     ) throws ParseException {
         Group group = getGroup(groupId);
         Point point = null;
 
-        if (request.getLatitude() != null && request.getLongitude() != null) {
-            String pointWKT = String.format("POINT(%s %s)", request.getLatitude(), request.getLongitude());
+        if (latitude != null && longitude != null) {
+            String pointWKT = String.format("POINT(%s %s)", latitude, longitude);
             point = (Point) new WKTReader().read(pointWKT);
         }
 
         Content content = contentRepository.save(
                 Content.builder()
-                        .content(request.getContent())
-                        .latitude(request.getLatitude())
-                        .longitude(request.getLongitude())
+                        .content(contentNote)
+                        .latitude(latitude)
+                        .longitude(longitude)
                         .point(point)
-                        .location(request.getLocation())
+                        .location(location)
                         .views(0L)
                         .contentLink("test")
                         .user(getUser(userDetails))
@@ -185,12 +186,14 @@ public class ContentService {
 
     @Transactional
     public CustomResponseEntity<ContentDto.UpdateDto> updateContent(
-            UserDetails userDetails, Long contentId, List<MultipartFile> multipartFile, ContentDto.UpdateDto request
+            UserDetails userDetails, List<MultipartFile> multipartFile, Long contentId,
+            String contentNote, Double latitude, Double longitude, String location,
+            List<String> deleteContentImageName
     ) {
         validateUpdateContent(contentId);
 
         Content content = existsContentAndUser(contentId, getUser(userDetails).getId());
-        deleteContentImage(multipartFile, request, content);
+        deleteContentImage(multipartFile, deleteContentImageName, content);
         String redisKey = content.getId().toString();
 
         return CustomResponseEntity.success(
@@ -198,11 +201,11 @@ public class ContentService {
                         contentRepository.save(
                                 Content.builder()
                                         .id(content.getId())
-                                        .content(request.getContent())
-                                        .latitude(request.getLatitude())
-                                        .longitude(request.getLongitude())
+                                        .content(contentNote)
+                                        .latitude(latitude)
+                                        .longitude(longitude)
                                         .point(content.getPoint())
-                                        .location(request.getLocation())
+                                        .location(location)
                                         .views(content.getViews())
                                         .contentLink(content.getContentLink())
                                         .user(content.getUser())
@@ -421,13 +424,11 @@ public class ContentService {
         );
     }
 
-    private void deleteContentImage(List<MultipartFile> multipartFile, ContentDto.UpdateDto request, Content content) {
-        if (request.getDeleteContentImageName() != null) {
-            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
-                    deleteFile(deleteImageNameDto.getImageName())
-            );
-            request.getDeleteContentImageName().forEach(deleteImageNameDto ->
-                    contentImageRepository.delete(contentImageRepository.findByImageName(deleteImageNameDto.getImageName())
+    private void deleteContentImage(List<MultipartFile> multipartFile, List<String> deleteContentImageName, Content content) {
+        if (deleteContentImageName != null) {
+            deleteContentImageName.forEach(this::deleteFile);
+            deleteContentImageName.forEach(imageName ->
+                    contentImageRepository.delete(contentImageRepository.findByImageName(imageName)
                             .orElseThrow(
                                     () -> new CustomException(Result.FAIL)
                             )

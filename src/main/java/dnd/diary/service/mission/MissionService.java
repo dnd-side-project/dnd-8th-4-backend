@@ -250,7 +250,8 @@ public class MissionService {
 				.build();
 
 		contentService.createContent(
-				userDetails, targetMission.getGroup().getId(), multipartFile, createDto
+				userDetails, multipartFile, targetMission.getGroup().getId(), request.getContent(),
+				targetMission.getLatitude(), targetMission.getLongitude(), targetMission.getMissionLocationName()
 		);
 
 		// 유저 미션 게시글 인증 상태 업데이트
