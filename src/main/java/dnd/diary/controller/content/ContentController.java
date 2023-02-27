@@ -75,10 +75,10 @@ public class ContentController {
     }
 
     // 피드 수정
-    @PatchMapping("content")
+    @PutMapping("content")
     public CustomResponseEntity<ContentDto.UpdateDto> contentUpdate(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestPart(required = false) final List<MultipartFile> multipartFile,
+            @RequestParam(required = false) final List<MultipartFile> multipartFile,
             @RequestParam final Long contentId,
             @RequestParam final String content,
             @RequestParam(required = false) final Double latitude,
