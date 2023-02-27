@@ -52,11 +52,10 @@ public class EmotionService {
 
     // method
     private User getUser(UserDetails userDetails) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+        return userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
                 .orElseThrow(
                         () -> new CustomException(Result.FAIL)
                 );
-        return user;
     }
 
     private Content getContent(Long contentId) {

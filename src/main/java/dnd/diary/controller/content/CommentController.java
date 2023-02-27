@@ -25,7 +25,7 @@ public class CommentController {
             @PathVariable(name = "contentId") final Long contentId,
             @Valid @RequestBody final CommentDto.AddCommentDto request
     ) {
-        return commentService.commentAdd(userDetails, contentId, request);
+        return CustomResponseEntity.success(commentService.commentAdd(userDetails, contentId, request));
     }
 
     // 피드 댓글 조회
@@ -35,7 +35,7 @@ public class CommentController {
             @PathVariable(name = "contentId") final Long contentId,
             @RequestParam final Integer page
     ) {
-        return commentService.commentPage(userDetails, contentId, page);
+        return CustomResponseEntity.success(commentService.commentPage(userDetails, contentId, page));
     }
 
     // 피드 감정 리스트 조회
@@ -43,6 +43,6 @@ public class CommentController {
     public CustomResponseEntity<List<ContentDto.EmotionResponseDto>> listEmotion(
             @PathVariable(name = "contentId") final Long contentId
     ){
-        return commentService.emotionList(contentId);
+        return CustomResponseEntity.success(commentService.emotionList(contentId));
     }
 }
