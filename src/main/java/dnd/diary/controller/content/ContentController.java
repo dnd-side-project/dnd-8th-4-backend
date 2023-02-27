@@ -78,7 +78,7 @@ public class ContentController {
     @PutMapping("content")
     public CustomResponseEntity<ContentDto.UpdateDto> contentUpdate(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam(required = false) final List<MultipartFile> multipartFile,
+            @RequestPart(required = false) final List<MultipartFile> multipartFile,
             @RequestParam final Long contentId,
             @RequestParam final String content,
             @RequestParam(required = false) final Double latitude,
