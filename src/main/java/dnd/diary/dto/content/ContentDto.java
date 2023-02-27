@@ -173,6 +173,7 @@ public class ContentDto {
         private Long id;
         private Long userId;
         private Long groupId;
+        private String groupName;
         private String userName;
         private String profileImageUrl;
         private String content;
@@ -191,6 +192,7 @@ public class ContentDto {
         ) {
             return detailDto.builder()
                     .id(content.getId())
+                    .groupName(content.getGroup().getGroupName())
                     .userName(content.getUser().getNickName())
                     .profileImageUrl(content.getUser().getProfileImageUrl())
                     .content(content.getContent())
