@@ -111,9 +111,9 @@ public class ContentService {
                         .group(group)
                         .build()
         );
-        String redisKey = content.getId().toString();
-
         group.updateRecentModifiedAt();
+
+        String redisKey = content.getId().toString();
         redisDao.setValues(redisKey, "0");
 
         if (multipartFile == null) {
@@ -125,10 +125,7 @@ public class ContentService {
             uploadFiles(multipartFile, content);
             return ContentDto.CreateDto.response(
                     content,
-                    contentImageRepository.findByContentId(content.getId())
-                            .stream()
-                            .map(ContentDto.ImageResponseDto::response)
-                            .toList()
+                    getContentImageResponse(content.getId())
             );
         }
     }
@@ -136,10 +133,10 @@ public class ContentService {
     @Transactional
     public ContentDto.detailDto detailContent(UserDetails userDetails, Long contentId) {
         Content content = getContent(contentId);
+
         String redisKey = contentId.toString();
         String redisUserKey = getUser(userDetails).getNickName();
         String values = redisDao.getValues(redisKey);
-
         int views = Integer.parseInt(values);
 
         if (!redisDao.getValuesList(redisUserKey).contains(redisKey)) {
@@ -160,50 +157,53 @@ public class ContentService {
         }
 
         return ContentDto.detailDto.response(
-                        content,
-                        views,
-                        content.getContentImages()
-                                .stream()
-                                .map(ContentDto.ImageResponseDto::response)
-                                .toList(),
-                        bookmarkAddStatus,
-                        emotionStatus
-                );
+                content,
+                views,
+                getContentImageResponse(contentId),
+                bookmarkAddStatus,
+                emotionStatus
+        );
     }
 
     @Transactional
     public ContentDto.UpdateDto updateContent(
             UserDetails userDetails, List<MultipartFile> multipartFile, Long contentId,
-            String contentNote, Double latitude, Double longitude, String location,
-            List<String> deleteContentImageName
+            String contentNote, Double latitude, Double longitude, String location
     ) {
         validateUpdateContent(contentId);
 
         Content content = existsContentAndUser(contentId, getUser(userDetails).getId());
+
+        Query query = em.createNativeQuery(
+                "" +
+                        "SELECT c.image_name \n" +
+                        "FROM content_image AS c \n" +
+                        "WHERE content_id = ?"
+        ).setParameter(1,contentId);
+
+        List<String> deleteContentImageName = query.getResultList();
+
         deleteContentImage(multipartFile, deleteContentImageName, content);
         String redisKey = content.getId().toString();
 
         return ContentDto.UpdateDto.response(
-                        contentRepository.save(
-                                Content.builder()
-                                        .id(content.getId())
-                                        .content(contentNote)
-                                        .latitude(latitude)
-                                        .longitude(longitude)
-                                        .point(content.getPoint())
-                                        .location(location)
-                                        .views(content.getViews())
-                                        .contentLink(content.getContentLink())
-                                        .user(content.getUser())
-                                        .group(content.getGroup())
-                                        .build()
-                        ),
-                        contentImageRepository.findByContentId(content.getId())
-                                .stream()
-                                .map(ContentDto.ImageResponseDto::response)
-                                .toList(),
-                        Integer.parseInt(redisDao.getValues(redisKey))
-                );
+                contentRepository.save(
+                        Content.builder()
+                                .id(content.getId())
+                                .content(contentNote)
+                                .latitude(latitude)
+                                .longitude(longitude)
+                                .point(content.getPoint())
+                                .location(location)
+                                .views(content.getViews())
+                                .contentLink(content.getContentLink())
+                                .user(content.getUser())
+                                .group(content.getGroup())
+                                .build()
+                ),
+                getContentImageResponse(content.getId()),
+                Integer.parseInt(redisDao.getValues(redisKey))
+        );
     }
 
     @Transactional
@@ -253,27 +253,21 @@ public class ContentService {
         List<Content> contents = query.getResultList();
 
         return contents.stream().map((Content content) ->
-                        ContentDto.mapListContent.response(content,
-                                content.getContentImages()
-                                        .stream()
-                                        .map(ContentDto.ImageResponseDto::response)
-                                        .toList()
-                        )
-                ).toList();
+                ContentDto.mapListContent.response(content,
+                        getContentImageResponse(content.getId())
+                )
+        ).toList();
     }
 
     @Transactional
     public List<ContentDto.mapListContentDetail> listDetailMyMap(List<Long> contentId) {
         List<Content> contentList = contentRepository.findByIdIn(contentId);
         return contentList.stream().map((Content content) ->
-                        ContentDto.mapListContentDetail.response(
-                                content,
-                                content.getContentImages()
-                                        .stream()
-                                        .map(ContentDto.ImageResponseDto::response)
-                                        .toList()
-                        )
-                ).toList();
+                ContentDto.mapListContentDetail.response(
+                        content,
+                        getContentImageResponse(content.getId())
+                )
+        ).toList();
     }
 
     @Transactional
@@ -288,16 +282,20 @@ public class ContentService {
         return CustomResponseEntity.success(
                 contentPage.map((Content content) -> ContentDto.ContentSearchDto.response(
                                 content,
-                                content.getContentImages()
-                                        .stream()
-                                        .map(ContentDto.ImageResponseDto::response)
-                                        .toList()
+                                getContentImageResponse(content.getId())
                         )
                 )
         );
     }
 
+
     // method
+    private List<ContentDto.ImageResponseDto> getContentImageResponse(Long contentId) {
+        return contentImageRepository.findByContentId(contentId)
+                .stream()
+                .map(ContentDto.ImageResponseDto::response)
+                .toList();
+    }
 
     private void uploadFiles(List<MultipartFile> multipartFile, Content content) {
         multipartFile.forEach(file -> {
