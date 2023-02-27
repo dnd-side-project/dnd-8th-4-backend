@@ -168,12 +168,21 @@ public class ContentService {
     @Transactional
     public ContentDto.UpdateDto updateContent(
             UserDetails userDetails, List<MultipartFile> multipartFile, Long contentId,
-            String contentNote, Double latitude, Double longitude, String location,
-            List<String> deleteContentImageName
+            String contentNote, Double latitude, Double longitude, String location
     ) {
         validateUpdateContent(contentId);
 
         Content content = existsContentAndUser(contentId, getUser(userDetails).getId());
+
+        Query query = em.createNativeQuery(
+                "" +
+                        "SELECT c.image_name \n" +
+                        "FROM content_image AS c \n" +
+                        "WHERE content_id = ?"
+        ).setParameter(1,contentId);
+
+        List<String> deleteContentImageName = query.getResultList();
+
         deleteContentImage(multipartFile, deleteContentImageName, content);
         String redisKey = content.getId().toString();
 

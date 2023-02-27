@@ -83,12 +83,11 @@ public class ContentController {
             @RequestParam final String content,
             @RequestParam(required = false) final Double latitude,
             @RequestParam(required = false) final Double longitude,
-            @RequestParam(required = false) final String location,
-            @RequestParam(required = false) final List<String> deleteContentImageName
+            @RequestParam(required = false) final String location
     ) {
         return CustomResponseEntity.success(contentService.updateContent(
                 userDetails, multipartFile, contentId,
-                content, latitude, longitude, location, deleteContentImageName)
+                content, latitude, longitude, location)
         );
     }
 
