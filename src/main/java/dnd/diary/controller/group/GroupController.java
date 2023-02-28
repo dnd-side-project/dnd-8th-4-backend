@@ -25,7 +25,7 @@ public class GroupController {
 	 public CustomResponseEntity<GroupCreateResponse> createGroup(
 	 		@RequestPart(value = "image", required = false) MultipartFile multipartFile,
 		 	@RequestParam String groupName,
-	 		@RequestParam String groupNote
+	 		@RequestParam(required = false)  String groupNote
 	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(groupName, groupNote);
 		 return CustomResponseEntity.success(groupService.createGroup(multipartFile, groupName, groupNote));
@@ -36,7 +36,7 @@ public class GroupController {
 			@RequestPart(value = "image", required = false) MultipartFile multipartFile,
 		 	@RequestParam Long groupId,
 		 	@RequestParam String groupName,
-		 	@RequestParam String groupNote
+		 	@RequestParam(required = false) String groupNote
 	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(groupName, groupNote);
 		 return CustomResponseEntity.success(groupService.updateGroup(multipartFile, groupId, groupName, groupNote));
