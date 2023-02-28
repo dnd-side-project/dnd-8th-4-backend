@@ -18,7 +18,7 @@ public class StickerResponse {
     private Long stickerGroupLevel;
     private String stickerGroupThumbnailUrl;
 
-    private List<StickerInfo> stickerInfo;   // 레벨별 스티커 개별 정보
+    private List<StickerInfo> stickerInfoList;   // 레벨별 스티커 개별 정보
 
     @Getter
     @Builder
