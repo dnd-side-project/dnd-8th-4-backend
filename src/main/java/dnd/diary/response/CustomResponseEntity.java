@@ -80,6 +80,13 @@ public class CustomResponseEntity<T> {
 				.build();
 	}
 
+	public static <T> CustomResponseEntity<T> fail() {
+		return CustomResponseEntity.<T>builder()
+			.code(Result.FAIL.getCode())
+			.message(Result.FAIL.getMessage())
+			.build();
+	}
+
 	public static <T> CustomResponseEntity<T> fail(Result result) {
 		return CustomResponseEntity.<T>builder()
 			.code(result.getCode())
