@@ -63,7 +63,7 @@ public class GroupService {
 			imageUrl = s3Service.uploadImage(multipartFile);
 		} else {   // null 일 경우 기본 이미지 세팅
 			int sampleGroupImageCount = groupImageRepository.findAll().size();
-			int randomIdx = getRandomNumber(0, sampleGroupImageCount - 1);
+			int randomIdx = getRandomNumber(1, sampleGroupImageCount);
 			GroupImage sampleGroupImage = groupImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP_IMAGE));
 			imageUrl = sampleGroupImage.getGroupImageUrl();
 		}

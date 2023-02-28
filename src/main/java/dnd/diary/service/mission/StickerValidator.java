@@ -14,7 +14,7 @@ public class StickerValidator {
 
     private final StickerRepository stickerRepository;
 
-    public void existStickerName(String stickerName) {
+    public void existStickerThumbnailName(String stickerName) {
         Boolean existStickerName = stickerRepository.existsByStickerName(stickerName);
         if (existStickerName) {
             throw new CustomException(ALREADY_EXIST_STICKER_NAME);

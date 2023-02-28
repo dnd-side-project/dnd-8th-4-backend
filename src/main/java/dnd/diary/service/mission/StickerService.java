@@ -43,10 +43,10 @@ public class StickerService {
 
     // [관리자] 스티커 등록
     @Transactional
-    public StickerResponse createSticker(StickerCreateRequest request, MultipartFile multipartFile) {
+    public StickerResponse createStickerThumbnail(StickerCreateRequest request, MultipartFile multipartFile) {
 
         // 이미 존재하는 스티커 이름인지 확인
-        stickerValidator.existStickerName(request.getStickerName());
+        stickerValidator.existStickerThumbnailName(request.getStickerName());
         // 이미 존재하는 스티커 레벨인지 확인
         stickerValidator.existStickerLevel(request.getStickerLevel());
 
