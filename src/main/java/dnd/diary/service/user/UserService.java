@@ -1,5 +1,7 @@
 package dnd.diary.service.user;
 
+import static dnd.diary.enumeration.Result.*;
+
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -8,14 +10,17 @@ import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.content.Content;
+import dnd.diary.domain.group.GroupImage;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
+import dnd.diary.domain.user.UserImage;
 import dnd.diary.dto.content.ContentDto;
 import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.BookmarkRepository;
 import dnd.diary.repository.content.ContentRepository;
+import dnd.diary.repository.user.UserImageRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.user.UserSearchResponse;
@@ -55,6 +60,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ContentRepository contentRepository;
+    private final UserImageRepository userImageRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager em;
     private final AmazonS3Client amazonS3Client;
@@ -276,7 +282,14 @@ public class UserService {
 
     private User addUserFromRequest(UserDto.RegisterDto request) {
 
-        // TODO 사용자 기본 프로필 추가
+        // 사용자 기본 프로필 추가
+        String imageUrl = "";
+        if (request.getProfileImageUrl() == null) {
+            int sampleGroupImageCount = userImageRepository.findAll().size();
+            int randomIdx = getRandomNumber(0, sampleGroupImageCount - 1);
+            UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            imageUrl = sampleUserImage.getUserImageUrl();
+        }
 
         return User.builder()
                 .email(request.getEmail())
@@ -284,7 +297,7 @@ public class UserService {
                 .name(request.getName())
                 .nickName(request.getNickName())
                 .phoneNumber(request.getPhoneNumber())
-                .profileImageUrl(null)
+                .profileImageUrl(imageUrl)
                 .authorities(Collections.singleton(authority))
                 .mainLevel(0L)
                 .subLevel(0L)
@@ -376,5 +389,9 @@ public class UserService {
 
     private String createFileName(String fileName) {
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
+    }
+
+    private int getRandomNumber(int min, int max) {
+        return (int) ((Math.random() * (max - min)) + min);
     }
 }
