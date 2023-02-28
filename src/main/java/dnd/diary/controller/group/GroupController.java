@@ -24,19 +24,22 @@ public class GroupController {
 	 @PostMapping("/create")
 	 public CustomResponseEntity<GroupCreateResponse> createGroup(
 	 		@RequestPart(value = "image", required = false) MultipartFile multipartFile,
-			@RequestPart GroupCreateRequest request
+		 	@RequestParam String groupName,
+	 		@RequestParam String groupNote
 	 ) {
-		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
-		 return CustomResponseEntity.success(groupService.createGroup(multipartFile, request));
+		 groupValidator.checkGroupCreateAndUpdate(groupName, groupNote);
+		 return CustomResponseEntity.success(groupService.createGroup(multipartFile, groupName, groupNote));
 	 }
 
 	 @PatchMapping("/update")
 	public CustomResponseEntity<GroupUpdateResponse> updateGroup(
 			@RequestPart(value = "image", required = false) MultipartFile multipartFile,
-			@RequestPart GroupUpdateRequest request
+		 	@RequestParam Long groupId,
+		 	@RequestParam String groupName,
+		 	@RequestParam String groupNote
 	 ) {
-		 groupValidator.checkGroupCreateAndUpdate(request.getGroupName(), request.getGroupNote());
-		 return CustomResponseEntity.success(groupService.updateGroup(multipartFile, request));
+		 groupValidator.checkGroupCreateAndUpdate(groupName, groupNote);
+		 return CustomResponseEntity.success(groupService.updateGroup(multipartFile, groupId, groupName, groupNote));
 	 }
 
 	 @DeleteMapping("/delete")

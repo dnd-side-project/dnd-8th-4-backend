@@ -51,19 +51,20 @@ public class GroupService {
 	private final int MAX_GROUP_MEMBER_COUNT = 50;
 
 	@Transactional
-	public GroupCreateResponse createGroup(MultipartFile multipartFile, GroupCreateRequest request) {
+	public GroupCreateResponse createGroup(MultipartFile multipartFile, String groupName, String groupNote) {
 		User hostUser = findUser();
 
 		// 그룹 이미지 처리
 		String imageUrl = "";
+		// null 일 경우 기본 이미지 세팅
 		if (multipartFile != null) {
 			imageUrl = s3Service.uploadImage(multipartFile);
 		}
 
 		// 그룹 이름 중복 체크
-		validCreateAndUpdateGroup(request.getGroupName());
+		validCreateAndUpdateGroup(groupName);
 
-		Group group = Group.toEntity(request.getGroupName(), request.getGroupNote(), imageUrl, hostUser);
+		Group group = Group.toEntity(groupName, groupNote, imageUrl, hostUser);
 		groupRepository.save(group);
 
 		// 그룹 생성자 가입 처리 추가
@@ -87,9 +88,9 @@ public class GroupService {
 	}
 
 	@Transactional
-	public GroupUpdateResponse updateGroup(MultipartFile multipartFile, GroupUpdateRequest request) {
+	public GroupUpdateResponse updateGroup(MultipartFile multipartFile, Long groupId, String groupName, String groupNote) {
 		User user = findUser();
-		Group group = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
+		Group group = groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
 
 		// 그룹 호스트 유저만 수정 가능
 		if (!group.getGroupCreateUser().getId().equals(user.getId())) {
@@ -102,9 +103,9 @@ public class GroupService {
 			imageUrl = s3Service.uploadImage(multipartFile);
 		}
 
-		validCreateAndUpdateGroup(request.getGroupName());
+		validCreateAndUpdateGroup(groupName);
 
-		group.update(request.getGroupName(), request.getGroupNote(), imageUrl);
+		group.update(groupName, groupNote, imageUrl);
 
 		return GroupUpdateResponse.builder()
 			.groupId(group.getId())
