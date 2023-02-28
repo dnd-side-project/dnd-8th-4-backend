@@ -21,6 +21,7 @@ import dnd.diary.repository.content.ContentImageRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.group.GroupRepository;
+import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,7 @@ public class ContentService {
     private final GroupRepository groupRepository;
     private final ContentImageRepository contentImageRepository;
     private final EmotionRepository emotionRepository;
+    private final UserJoinGroupRepository userJoinGroupRepository;
     private final AmazonS3Client amazonS3Client;
     private final EntityManager em;
     @Value("${cloud.aws.s3.bucket}")
@@ -220,33 +222,26 @@ public class ContentService {
         Location southWest = GeometryUtil.calculate(x, y, 2.0, Direction.SOUTHWEST.getBearing());
 
         String pointFormat = String.format(
-                "'LINESTRING(%f %f, %f %f)')",
-                northEast.getLatitude(), northEast.getLongitude(),
-                southWest.getLatitude(), southWest.getLongitude()
+                "'LINESTRING(%f %f, %f %f)'",
+                northEast.getLatitude(), northEast.getLongitude(), southWest.getLatitude(), southWest.getLongitude()
         );
-        List<?> list = em.createNativeQuery(
-                        "" +
-                                "SELECT c.group_id \n" +
-                                "FROM user_join_group AS c \n" +
-                                "WHERE user_id = ?"
-                )
-                .setParameter(1, getUser(userDetails).getId())
-                .getResultList();
+
+        List<Long> groupIdList = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
 
         String join = String.join(
-                ",", list.stream().map(Object::toString).toList()
+                ",", groupIdList.stream().map(Object::toString).toList()
         );
 
         Query query = em.createNativeQuery(
                 "" +
                         "SELECT * \n" +
                         "FROM content AS c \n" +
-                        "WHERE c.group_id IN (" +
-                        join +
-                        ") AND " +
-                        "MBRContains(ST_LINESTRINGFROMTEXT(" + pointFormat + ", c.point)"
+                        "WHERE c.group_id IN (" + join + ") " +
+                        "AND " +
+                        "MBRContains(ST_LINESTRINGFROMTEXT(" + pointFormat + "), c.point)"
                 , Content.class
         ).setMaxResults(10);
+
 
         List<Content> contents = query.getResultList();
 
