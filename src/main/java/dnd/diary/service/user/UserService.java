@@ -127,19 +127,20 @@ public class UserService {
     @Transactional
     public Page<UserDto.BookmarkDto> listMyBookmark(UserDetails userDetails, Integer page) {
 
-        Page<Bookmark> bookmarkPage = bookmarkRepository.findByUserId(
-                getUser(userDetails.getUsername()).getId(),
-                PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
+        List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userDetails.getUsername()).getId());
+        Page<Content> bookmarkPage = contentRepository.findByIdIn(
+                contentIdList, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        return bookmarkPage.map((Bookmark bookmark) -> UserDto.BookmarkDto.response(
-                        bookmark
-                        , bookmark.getContent().getContentImages()
+        return bookmarkPage.map((Content content) -> UserDto.BookmarkDto.response(
+                        content
+                        , content.getContentImages()
                                 .stream()
                                 .map(ContentDto.ImageResponseDto::response)
                                 .toList()
                         , Integer.parseInt(
-                                redisDao.getValues(bookmark.getContent().getId().toString())
+                                redisDao.getValues(content.getId().toString())
                         )
                 )
         );
