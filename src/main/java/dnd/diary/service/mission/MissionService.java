@@ -414,10 +414,21 @@ public class MissionService {
 		return missionResponseList;
 	}
 
-	// 완료한 미션 목록 조회 -> 스티커 쪽
+	// 완료한 미션 목록 조회
 	public List<MissionResponse> getCompleteMissionList() {
-		List<MissionResponse> missionResponseList = new ArrayList<>();
-		return missionResponseList;
+		User user = findUser();
+		List<MissionResponse> completeMissionResponseList = new ArrayList<>();
+
+		List<UserAssignMission> userAssignMissionList = user.getUserAssignMissions();
+
+		for (UserAssignMission userAssignMission : userAssignMissionList) {
+			if (userAssignMission.getIsComplete()) {
+				MissionResponse missionResponse = toMissionResponse(userAssignMission.getMission());
+				completeMissionResponseList.add(missionResponse);
+			}
+		}
+
+		return completeMissionResponseList;
 	}
 
 	private User findUser() {

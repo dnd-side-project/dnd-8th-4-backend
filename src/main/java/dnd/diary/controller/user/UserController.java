@@ -1,9 +1,13 @@
 package dnd.diary.controller.user;
 
+import java.util.List;
+
 import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.mission.MissionResponse;
 import dnd.diary.response.user.UserSearchResponse;
+import dnd.diary.service.mission.MissionService;
 import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +23,7 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final MissionService missionService;
 
     // 회원가입
     @PostMapping("auth")
@@ -112,5 +117,11 @@ public class UserController {
             @RequestParam final String email
     ) {
         return userService.emailCheckMatch(email);
+    }
+
+    // 완료한 미션 조회
+    @GetMapping("auth/my/mission/complete")
+    public CustomResponseEntity<List<MissionResponse>> getCompleteMissionList() {
+        return CustomResponseEntity.success(missionService.getCompleteMissionList());
     }
 }
