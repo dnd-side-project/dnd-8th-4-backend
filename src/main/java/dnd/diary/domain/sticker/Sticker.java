@@ -1,43 +1,43 @@
 package dnd.diary.domain.sticker;
 
-import com.sun.istack.NotNull;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class Sticker {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sticker_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "sticker_id")
+	private Long id;
 
-    @NotNull
-    private String stickerName;
+	private String stickerImageUrl;
 
-    @NotNull
-    private Long stickerLevel;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sticker_group_id")
+	private StickerGroup stickerGroup;
 
-    @NotNull
-    private String stickerUrl;
+	@Builder
+	private Sticker(String stickerImageUrl, StickerGroup stickerGroup) {
+		this.stickerImageUrl = stickerImageUrl;
 
-    @OneToMany(mappedBy = "sticker")
-    private List<UserSticker> userStickers = new ArrayList<>();
+		stickerGroup.getStickers().add(this);
+	}
 
-    private Sticker(String stickerName, Long stickerLevel, String stickerUrl) {
-        this.stickerName = stickerName;
-        this.stickerLevel = stickerLevel;
-        this.stickerUrl = stickerUrl;
-    }
-
-    public static Sticker toEntity(String stickerName, Long stickerLevel, String stickerUrl) {
-        return new Sticker(stickerName, stickerLevel, stickerUrl);
-    }
+	public static Sticker toEntity(String stickerImageUrl, StickerGroup stickerGroup) {
+		return new Sticker(stickerImageUrl, stickerGroup);
+	}
 }

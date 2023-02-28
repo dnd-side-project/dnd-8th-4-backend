@@ -31,10 +31,10 @@ public class StickerMainResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AcquisitionStickerInfo {
-        private Long stickerId;
-        private String stickerName;
-        private Long stickerLevel;
-        private String stickerUrl;
-        private Boolean isAcquisitionSticker;   // 조회 유저가 해당 스티커를 획득했는지 여부
+        private Long stickerGroupId;
+        private String stickerGroupName;
+        private Long stickerGroupLevel;
+        private String stickerGroupThumbnailUrl;
+        private Boolean isAcquisitionStickerGroup;   // 조회 유저가 해당 스티커를 획득했는지 여부
     }
 }

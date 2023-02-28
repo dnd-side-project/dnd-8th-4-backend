@@ -1,7 +1,7 @@
 package dnd.diary.service.mission;
 
 import dnd.diary.exception.CustomException;
-import dnd.diary.repository.mission.StickerRepository;
+import dnd.diary.repository.mission.StickerGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,17 +12,17 @@ import static dnd.diary.enumeration.Result.ALREADY_EXIST_STICKER_NAME;
 @RequiredArgsConstructor
 public class StickerValidator {
 
-    private final StickerRepository stickerRepository;
+    private final StickerGroupRepository stickerGroupRepository;
 
     public void existStickerThumbnailName(String stickerName) {
-        Boolean existStickerName = stickerRepository.existsByStickerName(stickerName);
+        Boolean existStickerName = stickerGroupRepository.existsByStickerGroupName(stickerName);
         if (existStickerName) {
             throw new CustomException(ALREADY_EXIST_STICKER_NAME);
         }
     }
 
     public void existStickerLevel (Long stickerLevel) {
-        Boolean existStickerLevel = stickerRepository.existsByStickerLevel(stickerLevel);
+        Boolean existStickerLevel = stickerGroupRepository.existsByStickerGroupLevel(stickerLevel);
         if (existStickerLevel) {
             throw new CustomException(ALREADY_EXIST_STICKER_LEVEL);
         }

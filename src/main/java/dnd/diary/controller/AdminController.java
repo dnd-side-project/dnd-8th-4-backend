@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import dnd.diary.dto.mission.StickerCreateRequest;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.mission.StickerGroupResponse;
 import dnd.diary.response.mission.StickerResponse;
 import dnd.diary.service.AdminService;
 import dnd.diary.service.mission.StickerService;
@@ -50,18 +51,22 @@ public class AdminController {
 		}
 	}
 
-	// [관리자] 스티커 썸네일 등록 - 한 번에 한 개 등록 가능
-	@PostMapping("/sticker")
-	public CustomResponseEntity<StickerResponse> createStickerThumbnail(
+	// [관리자] 스티커 그룹 썸네일 등록 - 한 번에 한 개 등록 가능
+	@PostMapping("/sticker/group")
+	public CustomResponseEntity<StickerGroupResponse> createStickerThumbnail(
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile,
 		@RequestPart StickerCreateRequest request
 	) {
-		return CustomResponseEntity.success(stickerService.createStickerThumbnail(request, multipartFile));
+		return CustomResponseEntity.success(adminService.createStickerGroup(request, multipartFile));
 	}
 
-	// [관리자] 획득 가능한 스티커 목록 조회
-	@GetMapping("/sticker/list")
-	public CustomResponseEntity<List<StickerResponse>> getStickerList() {
-		return CustomResponseEntity.success(stickerService.getSickerList());
+	// [관리자] 획득 가능한 스티커 그룹 목록 조회
+	@GetMapping("/sticker/group/list")
+	public CustomResponseEntity<List<StickerGroupResponse>> getStickerList() {
+		return CustomResponseEntity.success(adminService.getSickerGroupList());
 	}
+
+	// TODO [관리자] 스티커 그룹 별 개별 스티커 등록
+
+	// TODO [관리자] 획득 가능한 스티커 그룹 별 전체 스티커 목록 조회
 }
