@@ -115,8 +115,6 @@ public class GroupService {
 			imageUrl = sampleGroupImage.getGroupImageUrl();
 		}
 
-		validCreateAndUpdateGroup(groupName);
-
 		group.update(groupName, groupNote, imageUrl);
 
 		return GroupUpdateResponse.builder()
