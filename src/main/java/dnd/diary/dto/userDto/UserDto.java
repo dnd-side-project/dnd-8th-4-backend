@@ -130,7 +130,6 @@ public class UserDto {
     @Getter
     @Builder
     public static class BookmarkDto {
-        private Long id;
         private Long contentId;
         private Long userId;
         private Long groupId;
@@ -143,20 +142,19 @@ public class UserDto {
         List<ContentDto.ImageResponseDto> Images;
 
      public static UserDto.BookmarkDto response(
-             Bookmark bookmark,
+             Content content,
              List<ContentDto.ImageResponseDto> images,
              Integer views
      ){
          return BookmarkDto.builder()
-                 .id(bookmark.getId())
-                 .contentId(bookmark.getContent().getId())
-                 .userId(bookmark.getContent().getUser().getId())
-                 .groupId(bookmark.getContent().getGroup().getId())
-                 .groupName(bookmark.getContent().getGroup().getGroupName())
-                 .content(bookmark.getContent().getContent())
-                 .createAt(bookmark.getContent().getCreatedAt())
+                 .contentId(content.getId())
+                 .userId(content.getUser().getId())
+                 .groupId(content.getGroup().getId())
+                 .groupName(content.getGroup().getGroupName())
+                 .content(content.getContent())
+                 .createAt(content.getCreatedAt())
                  .views(views)
-                 .comments(bookmark.getContent().getComments().size())
+                 .comments(content.getComments().size())
                  .imageSize(images.size())
                  .Images(images)
                  .build();
