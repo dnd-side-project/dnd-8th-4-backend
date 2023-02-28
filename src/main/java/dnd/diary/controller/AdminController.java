@@ -56,7 +56,7 @@ public class AdminController {
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile,
 		@RequestPart StickerCreateRequest request
 	) {
-		return CustomResponseEntity.success(stickerService.createSticker(request, multipartFile));
+		return CustomResponseEntity.success(stickerService.createStickerThumbnail(request, multipartFile));
 	}
 
 	// [관리자] 획득 가능한 스티커 목록 조회
