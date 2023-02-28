@@ -286,7 +286,7 @@ public class UserService {
         String imageUrl = "";
         if (request.getProfileImageUrl() == null) {
             int sampleGroupImageCount = userImageRepository.findAll().size();
-            int randomIdx = getRandomNumber(0, sampleGroupImageCount - 1);
+            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
             UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
             imageUrl = sampleUserImage.getUserImageUrl();
         }

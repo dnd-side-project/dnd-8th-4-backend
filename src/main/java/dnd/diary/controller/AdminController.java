@@ -50,9 +50,9 @@ public class AdminController {
 		}
 	}
 
-	// [관리자] 스티커 등록 - 한 번에 한 개 등록 가능
+	// [관리자] 스티커 썸네일 등록 - 한 번에 한 개 등록 가능
 	@PostMapping("/sticker")
-	public CustomResponseEntity<StickerResponse> createSticker(
+	public CustomResponseEntity<StickerResponse> createStickerThumbnail(
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile,
 		@RequestPart StickerCreateRequest request
 	) {
