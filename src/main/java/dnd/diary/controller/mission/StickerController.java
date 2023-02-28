@@ -18,13 +18,13 @@ public class StickerController {
 
     private final StickerService stickerService;
 
-    // [관리자] 스티커 등록
+    // [관리자] 스티커 썸네일 등록
     @PostMapping
-    public CustomResponseEntity<StickerResponse> createSticker(
+    public CustomResponseEntity<StickerResponse> createStickerThumbnail(
             @RequestPart(value = "image", required = false) MultipartFile multipartFile,
             @RequestPart StickerCreateRequest request
     ) {
-        return CustomResponseEntity.success(stickerService.createSticker(request, multipartFile));
+        return CustomResponseEntity.success(stickerService.createStickerThumbnail(request, multipartFile));
     }
 
     // [관리자] 획득 가능한 스티커 목록 조회
