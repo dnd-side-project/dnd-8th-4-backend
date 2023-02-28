@@ -29,6 +29,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -82,7 +83,8 @@ public class ContentService {
         Page<Content> contents = contentRepository.findByGroupIdIn(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-        return getGroupListPagePostsDtos(userDetails, contents);
+        Page<ContentDto.groupListPagePostsDto> groupListPagePostsDtos = getGroupListPagePostsDtos(userDetails, contents);
+        return groupListPagePostsDtos;
     }
 
     @Transactional
@@ -90,6 +92,7 @@ public class ContentService {
             UserDetails userDetails, List<MultipartFile> multipartFile, Long groupId,
             String contentNote, Double latitude, Double longitude, String location
     ) throws ParseException {
+
         Group group = getGroup(groupId);
         Point point = null;
 
@@ -131,6 +134,7 @@ public class ContentService {
     }
 
     @Transactional
+    @Cacheable(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
     public ContentDto.detailDto detailContent(UserDetails userDetails, Long contentId) {
         Content content = getContent(contentId);
 
