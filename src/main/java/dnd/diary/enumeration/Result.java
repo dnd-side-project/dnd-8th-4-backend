@@ -51,6 +51,7 @@ public enum Result {
 	ALREADY_EXIST_STICKER_NAME(2600, "이미 존재하는 스티커 이름"),
 	ALREADY_EXIST_STICKER_LEVEL(2601, "이미 존재하는 스티커 획득 레벨"),
 	ALREADY_ACQUISITION_STICKER(2602, "이미 보유한 스티커"),
+	NOT_FOUND_STICKER_GROUP(2603, "존재하지 않는 스티커 그룹"),
 
 	// 피드 관련
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),

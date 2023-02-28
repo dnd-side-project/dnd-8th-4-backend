@@ -1,5 +1,7 @@
 package dnd.diary.service;
 
+import static dnd.diary.enumeration.Result.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,15 +10,19 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import dnd.diary.domain.group.GroupImage;
+import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.sticker.StickerGroup;
 import dnd.diary.domain.user.UserImage;
 import dnd.diary.dto.mission.StickerCreateRequest;
+import dnd.diary.dto.mission.StickerGroupCreateRequest;
+import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupImageRepository;
 import dnd.diary.repository.mission.StickerGroupRepository;
 import dnd.diary.repository.mission.StickerRepository;
 import dnd.diary.repository.mission.UserStickerGroupRepository;
 import dnd.diary.repository.user.UserImageRepository;
 import dnd.diary.response.mission.StickerGroupResponse;
+import dnd.diary.response.mission.StickerResponse;
 import dnd.diary.service.mission.StickerValidator;
 import dnd.diary.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
@@ -53,7 +59,7 @@ public class AdminService {
 
 	// [관리자] 스티커 그룹 등록
 	@Transactional
-	public StickerGroupResponse createStickerGroup(StickerCreateRequest request, MultipartFile multipartFile) {
+	public StickerGroupResponse createStickerGroup(StickerGroupCreateRequest request, MultipartFile multipartFile) {
 
 		// 이미 존재하는 스티커 이름인지 확인
 		stickerValidator.existStickerThumbnailName(request.getStickerGroupName());
@@ -77,6 +83,34 @@ public class AdminService {
 	}
 
 	// TODO [관리자] 스티커 그룹 별 개별 스티커 등록
+	@Transactional
+	public StickerResponse createSticker(StickerCreateRequest request, List<MultipartFile> multipartFiles) {
+
+		// 존재하는 스티커 그룹인지 확인
+		StickerGroup targetStickerGroup = stickerGroupRepository.findById(request.getStickerGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_STICKER_GROUP));
+
+		List<String> stickerImageUrlList = s3Service.uploadImageList(multipartFiles);
+		List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
+		for (String stickerImageUrl : stickerImageUrlList) {
+			Sticker sticker = Sticker.toEntity(stickerImageUrl, targetStickerGroup);
+			stickerRepository.save(sticker);
+
+			stickerInfoList.add(
+				StickerResponse.StickerInfo.builder()
+					.stickerId(sticker.getId())
+					.stickerImageUrl(sticker.getStickerImageUrl())
+					.build()
+			);
+		}
+
+		return StickerResponse.builder()
+			.stickerGroupId(targetStickerGroup.getId())
+			.stickerGroupName(targetStickerGroup.getStickerGroupName())
+			.stickerGroupLevel(targetStickerGroup.getStickerGroupLevel())
+			.stickerGroupThumbnailUrl(targetStickerGroup.getStickerGroupThumbnailUrl())
+			.stickerInfoList(stickerInfoList)
+			.build();
+	}
 
 
 	// [관리자] 획득 가능한 스티커 그룹 목록 조회
