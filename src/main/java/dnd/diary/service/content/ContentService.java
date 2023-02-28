@@ -177,21 +177,13 @@ public class ContentService {
             String contentNote, Double latitude, Double longitude, String location
     ) {
         validateUpdateContent(contentId);
-
-        Content content = existsContentAndUser(contentId, getUser(userDetails).getId());
-
-        Query query = em.createNativeQuery(
-                "" +
-                        "SELECT c.image_name \n" +
-                        "FROM content_image AS c \n" +
-                        "WHERE content_id = ?"
-        ).setParameter(1,contentId);
-
-        List<String> deleteContentImageName = query.getResultList();
-
-        deleteContentImage(multipartFile, deleteContentImageName, content);
+        Content content = existsContentAndUser(
+                contentId, getUser(userDetails).getId()
+        );
+        deleteAndSaveContentImage(
+                multipartFile, contentImageRepository.findImageNameList(contentId), content
+        );
         String redisKey = content.getId().toString();
-
         return ContentDto.UpdateDto.response(
                 contentRepository.save(
                         Content.builder()
@@ -410,7 +402,7 @@ public class ContentService {
         );
     }
 
-    private void deleteContentImage(List<MultipartFile> multipartFile, List<String> deleteContentImageName, Content content) {
+    private void deleteAndSaveContentImage(List<MultipartFile> multipartFile, List<String> deleteContentImageName, Content content) {
         if (deleteContentImageName != null) {
             deleteContentImageName.forEach(this::deleteFile);
             deleteContentImageName.forEach(imageName ->

@@ -14,6 +14,5 @@ import java.util.List;
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     @Query(value = "select b.content_id from bookmark b where b.user_id = :uid", nativeQuery = true)
     List<Long> findContentIdList(@Param("uid") Long userId);
-    Page<Bookmark> findByUserId(Long userId, Pageable pageable);
     Bookmark findByUserIdAndContentId(Long userId, Long contentId);
 }
