@@ -1,5 +1,6 @@
 package dnd.diary.service.mission;
 
+import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.sticker.StickerGroup;
 import dnd.diary.domain.sticker.UserStickerGroup;
 import dnd.diary.domain.user.User;
@@ -92,8 +93,8 @@ public class StickerService {
                 .build();
     }
 
-    // 댓글 작성 시 사용 가능한, 유저가 보유한 스티커 그룹 조회
-    public List<StickerResponse> getMyStickerList() {
+    // 유저가 보유한 스티커 그룹 조회
+    public List<StickerResponse> getMyStickerGroupList() {
         User user = findUser();
         List<StickerResponse> myStickerList = new ArrayList<>();
         List<UserStickerGroup> userStickerGroupList = user.getUserStickerGroups();
@@ -112,11 +113,63 @@ public class StickerService {
         return myStickerList;
     }
 
-    // TODO 스티커 그룹 별 전체 스티커 조회
+    // 유저가 보유한 스티커 그룹 별 전체 스티커 조회
+    public StickerResponse getMyStickerListByGroup(Long stickerGroupId) {
+        User user = findUser();
 
+        UserStickerGroup userStickerGroup = userStickerGroupRepository.findByUserIdAndStickerGroupId(user.getId(), stickerGroupId);
+        StickerGroup targetStickerGroup = userStickerGroup.getStickerGroup();
 
-    // TODO 댓글 작성 시 사용 가능한, 유저가 보유한 스티커 그룹 내 전체 스티커 조회
+        List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
+        for (Sticker sticker : targetStickerGroup.getStickers()) {
+            stickerInfoList.add(
+                StickerResponse.StickerInfo.builder()
+                    .stickerId(sticker.getId())
+                    .stickerImageUrl(sticker.getStickerImageUrl())
+                    .build()
+            );
+        }
+        return StickerResponse.builder()
+            .stickerGroupId(targetStickerGroup.getId())
+            .stickerGroupName(targetStickerGroup.getStickerGroupName())
+            .stickerGroupLevel(targetStickerGroup.getStickerGroupLevel())
+            .stickerGroupThumbnailUrl(targetStickerGroup.getStickerGroupThumbnailUrl())
+            .stickerInfoList(stickerInfoList)
+            .build();
+    }
 
+    // 유저가 보유한 스티커 그룹 별 개별 스티커 목록 전체 조회
+    public List<StickerResponse> getMyStickerList() {
+
+        User user = findUser();
+
+        List<StickerResponse> stickerResponses = new ArrayList<>();
+
+        List<UserStickerGroup> userStickerGroupList = user.getUserStickerGroups();
+        for (UserStickerGroup userStickerGroup : userStickerGroupList) {
+            StickerGroup targetStickerGroup = userStickerGroup.getStickerGroup();
+            List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
+            for (Sticker sticker : targetStickerGroup.getStickers()) {
+                stickerInfoList.add(
+                    StickerResponse.StickerInfo.builder()
+                        .stickerId(sticker.getId())
+                        .stickerImageUrl(sticker.getStickerImageUrl())
+                        .build()
+                );
+            }
+
+            stickerResponses.add(
+                StickerResponse.builder()
+                    .stickerGroupId(targetStickerGroup.getId())
+                    .stickerGroupName(targetStickerGroup.getStickerGroupName())
+                    .stickerGroupLevel(targetStickerGroup.getStickerGroupLevel())
+                    .stickerGroupThumbnailUrl(targetStickerGroup.getStickerGroupThumbnailUrl())
+                    .stickerInfoList(stickerInfoList)
+                    .build()
+            );
+        }
+        return stickerResponses;
+    }
 
     private User findUser() {
         UserDto.InfoDto userInfo = userService.findMyListUser();
