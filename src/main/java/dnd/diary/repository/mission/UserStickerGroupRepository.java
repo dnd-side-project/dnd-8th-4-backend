@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserStickerGroupRepository extends JpaRepository<UserStickerGroup, Long> {
     Boolean existsByUserIdAndStickerGroupId(Long userId, Long stickerGroupId);
+
+    UserStickerGroup findByUserIdAndStickerGroupId(Long userId, Long stickerGroupId);
 }
