@@ -17,6 +17,7 @@ public enum Result {
 	DUPLICATION_USER(2201, "이미 존재하는 사용자"),
 	DUPLICATION_NICKNAME(2202, "이미 존재하는 닉네임"),
 	NOT_MATCHED_ID_OR_PASSWORD(2203,"아이디 또는 비밀번호를 잘못 입력하였습니다."),
+	NOT_FOUND_USER_IMAGE(2204, "사용자 기본 이미지가 존재하지 않음"),
 
 	// 그룹 관련
 	NOT_FOUND_GROUP(2101, "존재하지 않는 그룹"),
@@ -31,6 +32,7 @@ public enum Result {
 	HIGH_MAX_GROUP_MEMBER_COUNT(2110, "그룹 최대 인원 초과"),
 	ALREADY_EXIST_IN_GROUP(2111, "이미 그룹에 가입된 사용자"),
 	ALREADY_EXIST_GROUP_NAME(2112, "이미 존재하는 그룹 이름"),
+	NOT_FOUND_GROUP_IMAGE(2113, "그룹 기본 이미지가 존재하지 않음"),
 
 	// 알림 관련
 	NOT_FOUND_NOTIFICATION(2400, "존재하지 않는 알림"),

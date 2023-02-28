@@ -17,8 +17,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@SQLDelete(sql = "UPDATE group_image SET deleted = true WHERE group_image_id = ?")
-@Where(clause = "deleted = false")
 public class GroupImage {
 
 	@Id

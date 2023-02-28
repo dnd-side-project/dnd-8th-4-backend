@@ -3,6 +3,7 @@ package dnd.diary.service.group;
 import static dnd.diary.enumeration.Result.*;
 
 import dnd.diary.domain.group.Group;
+import dnd.diary.domain.group.GroupImage;
 import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.GroupStarStatus;
 import dnd.diary.domain.group.Invite;
@@ -14,6 +15,7 @@ import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.dto.group.GroupCreateRequest;
 import dnd.diary.dto.group.GroupUpdateRequest;
 import dnd.diary.exception.CustomException;
+import dnd.diary.repository.group.GroupImageRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.group.GroupStarRepository;
 import dnd.diary.repository.group.InviteRepository;
@@ -44,6 +46,7 @@ public class GroupService {
 	private final GroupStarRepository groupStarRepository;
 	private final InviteRepository inviteRepository;
 	private final NotificationRepository notificationRepository;
+	private final GroupImageRepository groupImageRepository;
 
 	private final UserService userService;
 	private final S3Service s3Service;
@@ -56,9 +59,13 @@ public class GroupService {
 
 		// 그룹 이미지 처리
 		String imageUrl = "";
-		// null 일 경우 기본 이미지 세팅
 		if (multipartFile != null) {
 			imageUrl = s3Service.uploadImage(multipartFile);
+		} else {   // null 일 경우 기본 이미지 세팅
+			int sampleGroupImageCount = groupImageRepository.findAll().size();
+			int randomIdx = getRandomNumber(0, sampleGroupImageCount - 1);
+			GroupImage sampleGroupImage = groupImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP_IMAGE));
+			imageUrl = sampleGroupImage.getGroupImageUrl();
 		}
 
 		// 그룹 이름 중복 체크
@@ -98,9 +105,14 @@ public class GroupService {
 		}
 
 		String imageUrl = "";
-		// TODO 그룹 이미지 추가 - 기존에 저장된 그룹 이미지와 동일한 경우 체크 제외
+		// 그룹 이미지 추가 - 기존에 저장된 그룹 이미지와 동일한 경우 체크 제외
 		if (multipartFile != null) {
 			imageUrl = s3Service.uploadImage(multipartFile);
+		} else {
+			int sampleGroupImageCount = groupImageRepository.findAll().size();
+			int randomIdx = getRandomNumber(0, sampleGroupImageCount - 1);
+			GroupImage sampleGroupImage = groupImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP_IMAGE));
+			imageUrl = sampleGroupImage.getGroupImageUrl();
 		}
 
 		validCreateAndUpdateGroup(groupName);
@@ -408,5 +420,9 @@ public class GroupService {
 		if (existGroupName) {
 			throw new CustomException(ALREADY_EXIST_GROUP_NAME);
 		}
+	}
+
+	private int getRandomNumber(int min, int max) {
+		return (int) ((Math.random() * (max - min)) + min);
 	}
 }
