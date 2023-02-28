@@ -5,6 +5,6 @@ import lombok.Getter;
 @Getter
 public class StickerCreateRequest {
 
-    private String stickerName;
-    private Long stickerLevel;
+    private String stickerGroupName;
+    private Long stickerGroupLevel;
 }

@@ -5,7 +5,7 @@ import dnd.diary.domain.BaseEntity;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.comment.CommentLike;
-import dnd.diary.domain.sticker.UserSticker;
+import dnd.diary.domain.sticker.UserStickerGroup;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.document.Document;
@@ -117,7 +117,7 @@ public class User extends BaseEntity {
     // 사용자가 가진 댓글 스티커
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
-    private final List<UserSticker> userStickers = new ArrayList<>();
+    private final List<UserStickerGroup> userStickerGroups = new ArrayList<>();
 
     // 사용자가 남긴 댓글 좋아요
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

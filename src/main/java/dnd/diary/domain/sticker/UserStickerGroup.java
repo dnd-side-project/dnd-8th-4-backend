@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 /**
- * 사용자가 보유한 스티커 목록
+ * 사용자가 보유한 스티커 목록 - StickerGroup 으로 부터 Sticker 목록 조회
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class UserSticker extends BaseEntity {
+public class UserStickerGroup extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,15 +26,15 @@ public class UserSticker extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sticker_id")
-    private Sticker sticker;
+    @JoinColumn(name = "sticker_group_id")
+    private StickerGroup stickerGroup;
 
-    private UserSticker(User user, Sticker sticker) {
+    private UserStickerGroup(User user, StickerGroup stickerGroup) {
         this.user = user;
-        this.sticker = sticker;
+        this.stickerGroup = stickerGroup;
     }
 
-    public static UserSticker toEntity(User user, Sticker sticker) {
-        return new UserSticker(user, sticker);
+    public static UserStickerGroup toEntity(User user, StickerGroup stickerGroup) {
+        return new UserStickerGroup(user, stickerGroup);
     }
 }

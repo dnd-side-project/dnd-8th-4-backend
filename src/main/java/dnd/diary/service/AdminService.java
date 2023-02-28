@@ -1,14 +1,23 @@
 package dnd.diary.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import dnd.diary.domain.group.GroupImage;
+import dnd.diary.domain.sticker.StickerGroup;
 import dnd.diary.domain.user.UserImage;
+import dnd.diary.dto.mission.StickerCreateRequest;
 import dnd.diary.repository.group.GroupImageRepository;
+import dnd.diary.repository.mission.StickerGroupRepository;
+import dnd.diary.repository.mission.StickerRepository;
+import dnd.diary.repository.mission.UserStickerGroupRepository;
 import dnd.diary.repository.user.UserImageRepository;
+import dnd.diary.response.mission.StickerGroupResponse;
+import dnd.diary.service.mission.StickerValidator;
 import dnd.diary.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +27,10 @@ public class AdminService {
 
 	private final UserImageRepository userImageRepository;
 	private final GroupImageRepository groupImageRepository;
-
+	private final StickerGroupRepository stickerGroupRepository;
+	private final StickerRepository stickerRepository;
+	private final UserStickerGroupRepository userStickerGroupRepository;
+	private final StickerValidator stickerValidator;
 	private final S3Service s3Service;
 
 	// 사용자 기본 프로필 등록
@@ -38,4 +50,51 @@ public class AdminService {
 			groupImageRepository.save(groupImage);
 		}
 	}
+
+	// [관리자] 스티커 그룹 등록
+	@Transactional
+	public StickerGroupResponse createStickerGroup(StickerCreateRequest request, MultipartFile multipartFile) {
+
+		// 이미 존재하는 스티커 이름인지 확인
+		stickerValidator.existStickerThumbnailName(request.getStickerGroupName());
+		// 이미 존재하는 스티커 레벨인지 확인
+		stickerValidator.existStickerLevel(request.getStickerGroupLevel());
+
+		String stickerUrl = "";
+		if (multipartFile != null) {
+			stickerUrl = s3Service.uploadImage(multipartFile);
+		}
+
+		StickerGroup sticker = StickerGroup.toEntity(request.getStickerGroupName(), request.getStickerGroupLevel(), stickerUrl);
+		stickerGroupRepository.save(sticker);
+
+		return StickerGroupResponse.builder()
+			.stickerGroupId(sticker.getId())
+			.stickerGroupName(sticker.getStickerGroupName())
+			.stickerGroupLevel(sticker.getStickerGroupLevel())
+			.stickerGroupThumbnailUrl(sticker.getStickerGroupThumbnailUrl())
+			.build();
+	}
+
+	// TODO [관리자] 스티커 그룹 별 개별 스티커 등록
+
+
+	// [관리자] 획득 가능한 스티커 그룹 목록 조회
+	public List<StickerGroupResponse> getSickerGroupList() {
+		List<StickerGroupResponse> stickerListResponses = new ArrayList<>();
+		List<StickerGroup> stickerGroupList = stickerGroupRepository.findAll();
+		stickerGroupList.forEach(
+			stickerGroup -> stickerListResponses.add(
+				StickerGroupResponse.builder()
+					.stickerGroupId(stickerGroup.getId())
+					.stickerGroupName(stickerGroup.getStickerGroupName())
+					.stickerGroupLevel(stickerGroup.getStickerGroupLevel())
+					.stickerGroupThumbnailUrl(stickerGroup.getStickerGroupThumbnailUrl())
+					.build()
+			)
+		);
+		return stickerListResponses;
+	}
+
+	// TODO [관리자] 획득 가능한 스티커 그룹 별 전체 스티커 목록 조회
 }
