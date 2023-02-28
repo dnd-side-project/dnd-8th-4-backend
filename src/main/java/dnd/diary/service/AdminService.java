@@ -82,7 +82,7 @@ public class AdminService {
 			.build();
 	}
 
-	// TODO [관리자] 스티커 그룹 별 개별 스티커 등록
+	// [관리자] 스티커 그룹 별 개별 스티커 등록
 	@Transactional
 	public StickerResponse createSticker(StickerCreateRequest request, List<MultipartFile> multipartFiles) {
 
@@ -130,5 +130,34 @@ public class AdminService {
 		return stickerListResponses;
 	}
 
-	// TODO [관리자] 획득 가능한 스티커 그룹 별 전체 스티커 목록 조회
+	// [관리자] 획득 가능한 스티커 그룹 별 전체 스티커 목록 조회
+	public List<StickerResponse> getStickerList() {
+		List<StickerResponse> stickerResponses = new ArrayList<>();
+		List<StickerGroup> stickerGroupList = stickerGroupRepository.findAll();
+		for (StickerGroup stickerGroup : stickerGroupList) {
+			List<Sticker> stickers = stickerGroup.getStickers();
+
+			List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
+			for (Sticker sticker : stickers) {
+				stickerInfoList.add(
+					StickerResponse.StickerInfo.builder()
+						.stickerId(sticker.getId())
+						.stickerImageUrl(sticker.getStickerImageUrl())
+						.build()
+				);
+			}
+
+			stickerResponses.add(
+				StickerResponse.builder()
+					.stickerGroupId(stickerGroup.getId())
+					.stickerGroupName(stickerGroup.getStickerGroupName())
+					.stickerGroupLevel(stickerGroup.getStickerGroupLevel())
+					.stickerGroupThumbnailUrl(stickerGroup.getStickerGroupThumbnailUrl())
+					.stickerInfoList(stickerInfoList)
+					.build()
+			);
+		}
+
+		return stickerResponses;
+	}
 }

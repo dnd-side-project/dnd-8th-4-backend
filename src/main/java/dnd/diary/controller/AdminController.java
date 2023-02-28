@@ -63,15 +63,19 @@ public class AdminController {
 
 	// [관리자] 획득 가능한 스티커 그룹 목록 조회
 	@GetMapping("/sticker/group/list")
-	public CustomResponseEntity<List<StickerGroupResponse>> getStickerList() {
+	public CustomResponseEntity<List<StickerGroupResponse>> getStickerGroupList() {
 		return CustomResponseEntity.success(adminService.getSickerGroupList());
 	}
 
-	// TODO [관리자] 스티커 그룹 별 개별 스티커 등록
+	// [관리자] 스티커 그룹 별 개별 스티커 등록
 	@PostMapping("/sticker")
 	public CustomResponseEntity<StickerResponse> createSticker(StickerCreateRequest request, List<MultipartFile> multipartFiles) {
 		return CustomResponseEntity.success(adminService.createSticker(request, multipartFiles));
 	}
 
-	// TODO [관리자] 획득 가능한 스티커 그룹 별 전체 스티커 목록 조회
+	// [관리자] 획득 가능한 스티커 그룹 별 전체 스티커 목록 조회
+	@GetMapping("/sticker/list")
+	public CustomResponseEntity<List<StickerResponse>> getStickerList() {
+		return CustomResponseEntity.success(adminService.getStickerList());
+	}
 }
