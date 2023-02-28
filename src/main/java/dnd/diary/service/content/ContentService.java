@@ -29,6 +29,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -170,6 +171,7 @@ public class ContentService {
     }
 
     @Transactional
+    @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
     public ContentDto.UpdateDto updateContent(
             UserDetails userDetails, List<MultipartFile> multipartFile, Long contentId,
             String contentNote, Double latitude, Double longitude, String location
