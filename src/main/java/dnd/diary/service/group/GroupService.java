@@ -98,7 +98,7 @@ public class GroupService {
 		}
 
 		String imageUrl = "";
-		// 그룹 이미지 추가 - 기존에 저장된 그룹 이미지와 동일한 경우 체크 제외
+		// TODO 그룹 이미지 추가 - 기존에 저장된 그룹 이미지와 동일한 경우 체크 제외
 		if (multipartFile != null) {
 			imageUrl = s3Service.uploadImage(multipartFile);
 		}

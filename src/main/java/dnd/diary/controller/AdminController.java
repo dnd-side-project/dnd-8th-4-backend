@@ -24,13 +24,33 @@ public class AdminController {
 	private final StickerService stickerService;
 	private final AdminService adminService;
 
-	// 사용자 기본 프로필 등록
+	// 사용자 기본 프로필 등록 - 여러 개 한 번에 등록 가능
+	@PostMapping("/user/profile")
+	public CustomResponseEntity<Void> createUserProfileImage(
+		@RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles
+	) {
+		try {
+			adminService.createUserProfileImage(multipartFiles);
+			return CustomResponseEntity.success();
+		} catch (Exception e) {
+			return CustomResponseEntity.fail();
+		}
+	}
 
+	// 그룹 기본 이미지 등록 - 여러 개 한 번에 등록 가능
+	@PostMapping("/group/profile")
+	public CustomResponseEntity<Void> createGroupProfileImage(
+		@RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles
+		) {
+		try {
+			adminService.createGroupProfileImage(multipartFiles);
+			return CustomResponseEntity.success();
+		} catch (Exception e) {
+			return CustomResponseEntity.fail();
+		}
+	}
 
-	// 그룹 기본 이미지 등록
-
-
-	// [관리자] 스티커 등록
+	// [관리자] 스티커 등록 - 한 번에 한 개 등록 가능
 	@PostMapping("/sticker")
 	public CustomResponseEntity<StickerResponse> createSticker(
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile,

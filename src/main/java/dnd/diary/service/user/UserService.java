@@ -275,6 +275,9 @@ public class UserService {
     }
 
     private User addUserFromRequest(UserDto.RegisterDto request) {
+
+        // TODO 사용자 기본 프로필 추가
+
         return User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))

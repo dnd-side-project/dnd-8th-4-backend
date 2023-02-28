@@ -10,6 +10,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,4 +27,13 @@ public class UserImage {
 	private Long id;
 
 	private String userImageUrl;
+
+	@Builder
+	private UserImage(String userImageUrl) {
+		this.userImageUrl = userImageUrl;
+	}
+
+	public static UserImage toEntity(String userImageUrl) {
+		return new UserImage(userImageUrl);
+	}
 }

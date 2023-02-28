@@ -10,6 +10,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,4 +28,12 @@ public class GroupImage {
 
 	private String groupImageUrl;
 
+	@Builder
+	private GroupImage(String groupImageUrl) {
+		this.groupImageUrl = groupImageUrl;
+	}
+
+	public static GroupImage toEntity(String groupImageUrl) {
+		return new GroupImage(groupImageUrl);
+	}
 }
