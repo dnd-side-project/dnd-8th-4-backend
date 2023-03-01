@@ -20,6 +20,7 @@ public class MissionCreateRequest {
 	private LocalDate missionEndDate;   // 미션 종료일
 
 	private String missionLocationName;   // 미션 위치 이름
+	private String missionLocationAddress;   // 미션 위치 주소
 	private Double latitude;   // 미션 위치 위도
 	private Double longitude;   // 미션 위치 경도
 

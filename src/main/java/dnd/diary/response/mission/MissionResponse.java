@@ -17,6 +17,9 @@ public class MissionResponse {
 	private String missionNote;   // 미션 내용
 
 	private Long createUserId;   // 미션 생성자 ID
+	private String createUserName;   // 미션 생성자 이름
+	private String createUserProfileImageUrl;   // 미션 생성자 프로필
+
 	private Long groupId;   // 미션이 생성된 그룹 ID
 	private String groupName;   // 미션이 생성된 그룹 이름
 	private String groupImageUrl;   // 미션이 생성된 그룹 이미지
@@ -29,6 +32,7 @@ public class MissionResponse {
 	private MissionStatus missionStatus;   // 미션 기간에 따른 상태
 
 	private String missionLocationName;   // 미션 위치 이름
+	private String missionLocationAddress;   // 미션 위치 주소
 	private Double latitude;   // 미션 위치 위도
 	private Double longitude;   // 미션 위치 경도
 
