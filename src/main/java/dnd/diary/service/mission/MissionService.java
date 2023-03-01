@@ -140,7 +140,7 @@ public class MissionService {
 
 			.existPeriod(request.getExistPeriod())
 			.missionStartDate(
-					String.valueOf(mission.getMissionStartDate()).substring(0, 10)
+					mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionStartDate()).substring(0, 10) : String.valueOf(mission.getMissionStartDate())
 			)
 			.missionEndDate(mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionEndDate()).substring(0, 10) : "ing")
 			.missionStatus(missionStatus)
@@ -418,7 +418,7 @@ public class MissionService {
 
 			.existPeriod(mission.getExistPeriod())
 			.missionStartDate(
-					String.valueOf(mission.getMissionStartDate()).substring(0, 10)
+					mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionStartDate()).substring(0, 10) : String.valueOf(mission.getMissionStartDate())
 			)
 			.missionEndDate(
 					mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionEndDate()).substring(0, 10) : "ing"
