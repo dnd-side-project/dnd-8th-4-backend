@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class MissionCheckLocationResponse {
 
     private Long missionId;
+    private Integer distance;
     private Boolean locationCheck;
     private Boolean contentCheck;
     private Boolean isComplete;
