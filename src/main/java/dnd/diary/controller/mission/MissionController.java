@@ -67,6 +67,11 @@ public class MissionController {
 		return CustomResponseEntity.success(missionService.getMissionListByMap(request));
 	}
 
+	@GetMapping("/map")
+	public CustomResponseEntity<MissionResponse> getMissionByMap(@RequestParam Long missionId) {
+		return CustomResponseEntity.success(missionService.getMission(missionId));
+	}
+
 	@PostMapping("/check/location")
 	public CustomResponseEntity<MissionCheckLocationResponse> checkMissionLocation(
 			@RequestBody MissionCheckLocationRequest request) {
