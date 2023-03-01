@@ -79,7 +79,8 @@ public class MissionService {
 			missionStatus = MissionStatus.ACTIVE;
 			mission = Mission.toEntity(
 					user, group, request.getMissionName(), request.getMissionNote()
-					, request.getExistPeriod(), null, null
+					, request.getExistPeriod()
+					, convertLocalDateTimeZone(LocalDate.now().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")), null
 					, request.getMissionLocationName(), request.getMissionLocationAddress()
 					, request.getLatitude(), request.getLongitude()
 					, request.getMissionColor(), missionStatus, point);
