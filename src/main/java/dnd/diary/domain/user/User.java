@@ -139,10 +139,6 @@ public class User extends BaseEntity {
         this.subLevel = 0.0;
     }
 
-//    public void updateSubLevel() {
-//        this.subLevel += 1;
-//    }
-
     public void updateSubLevel() {
         this.subLevel += 0.5;
     }
