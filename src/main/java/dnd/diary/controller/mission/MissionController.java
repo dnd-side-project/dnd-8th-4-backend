@@ -45,12 +45,13 @@ public class MissionController {
 		return CustomResponseEntity.success(missionService.getMissionList(missionStatus));
 	}
 
-	@GetMapping("list/group")
+	// 그룹 메인 진입 페이지 내 [시작 전/진행 중] 미션 목록 조회
+	@GetMapping("/list/group")
 	public CustomResponseEntity<List<MissionResponse>> getReadyAndActiveGroupMissionList(@RequestParam int groupId) {
 		return CustomResponseEntity.success(missionService.getReadyAndActiveGroupMissionList(groupId));
 	}
 
-	@GetMapping("list/main")
+	@GetMapping("/list/main")
 	public CustomResponseEntity<List<MissionResponse>> getReadyAndActiveMissionList() {
 		return CustomResponseEntity.success(missionService.getReadyAndActiveMissionList());
 	}

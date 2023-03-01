@@ -362,7 +362,7 @@ public class MissionService {
 				.build();
 	}
 
-	// 그룹 메인 진입 페이지 내 [시작 전/진행 중] 미션 목록 조회
+	// 그룹 메인 진입 페이지 내 [시작 전/진행 중] 미션 목록 조회 - 최대 4개
 	public List<MissionResponse> getReadyAndActiveGroupMissionList(int groupId) {
 
 		User user = findUser();
@@ -385,7 +385,7 @@ public class MissionService {
 		}
 
 		missionResponseList.sort(Comparator.comparing(MissionResponse::getMissionDday));
-		return missionResponseList;
+		return missionResponseList.subList(0, 4);
 	}
 
 	// 시작 전인 미션 + 진행 중인 미션 전체
