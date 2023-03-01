@@ -117,10 +117,10 @@ public class StickerService {
         User user = findUser();
 
         UserStickerGroup userStickerGroup = userStickerGroupRepository.findByUserIdAndStickerGroupId(user.getId(), stickerGroupId);
-        StickerGroup targetStickerGroup = userStickerGroup.getStickerGroup();
-        if (targetStickerGroup == null) {
+        if (userStickerGroup == null) {
             throw new CustomException(HAVE_NOT_STICKER);
         }
+        StickerGroup targetStickerGroup = userStickerGroup.getStickerGroup();
 
         List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
         for (Sticker sticker : targetStickerGroup.getStickers()) {
