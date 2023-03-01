@@ -67,7 +67,7 @@ public class StickerService {
                 .subLevel(user.getSubLevel())
                 .mainLevel(user.getMainLevel())
                 .progressBarRange(
-                        user.getSubLevel() != 0 ? (long) (100 * (Math.ceil(user.getSubLevel()) / 3)) : 0
+                        user.getSubLevel().intValue() != 0 ? (long) (100 * (Math.ceil(user.getSubLevel()) / 3)) : 0
                 )
                 .build();
 

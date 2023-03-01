@@ -295,7 +295,7 @@ public class MissionService {
 		// 미션 인증 레벨 업데이트
 		user.updateSubLevel();
 
-		if (user.getSubLevel() == LEVEL_UP_DEGREE) {
+		if (user.getSubLevel().intValue() == LEVEL_UP_DEGREE) {
 			user.updateLevel();
 			// 스티커를 획득할 수 있는 mainLevel 달성 시 획득 처리
 			if (getSticker(user.getMainLevel().intValue())) {
