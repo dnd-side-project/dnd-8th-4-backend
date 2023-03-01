@@ -2,14 +2,9 @@ package dnd.diary.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import dnd.diary.dto.mission.StickerCreateRequest;
 import dnd.diary.dto.mission.StickerGroupCreateRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.StickerGroupResponse;
@@ -56,7 +51,7 @@ public class AdminController {
 	@PostMapping("/sticker/group")
 	public CustomResponseEntity<StickerGroupResponse> createStickerThumbnail(
 		@RequestPart(value = "image", required = false) MultipartFile multipartFile,
-		@RequestPart StickerGroupCreateRequest request
+		@RequestPart(value = "request") StickerGroupCreateRequest request
 	) {
 		return CustomResponseEntity.success(adminService.createStickerGroup(request, multipartFile));
 	}
@@ -69,8 +64,11 @@ public class AdminController {
 
 	// [관리자] 스티커 그룹 별 개별 스티커 등록
 	@PostMapping("/sticker")
-	public CustomResponseEntity<StickerResponse> createSticker(StickerCreateRequest request, List<MultipartFile> multipartFiles) {
-		return CustomResponseEntity.success(adminService.createSticker(request, multipartFiles));
+	public CustomResponseEntity<StickerResponse> createSticker(
+			@RequestParam Long stickerGroupId,
+			@RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles
+	) {
+		return CustomResponseEntity.success(adminService.createSticker(stickerGroupId, multipartFiles));
 	}
 
 	// [관리자] 획득 가능한 스티커 그룹 별 전체 스티커 목록 조회
