@@ -33,6 +33,7 @@ public class Sticker {
 	@Builder
 	private Sticker(String stickerImageUrl, StickerGroup stickerGroup) {
 		this.stickerImageUrl = stickerImageUrl;
+		this.stickerGroup = stickerGroup;
 
 		stickerGroup.getStickers().add(this);
 	}
