@@ -54,6 +54,8 @@ public class Mission extends BaseEntity {
     @NotNull
     private String missionLocationName;
 
+    private String missionLocationAddress;
+
     @NotNull
     private Double latitude;
 
@@ -82,7 +84,8 @@ public class Mission extends BaseEntity {
 
     @Builder
     private Mission(User user, Group group, String missionName, String missionNote, Boolean existPeriod
-        , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, Double latitude, Double longitude
+        , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, String missionLocationAddress
+        , Double latitude, Double longitude
         , Integer missionColor, MissionStatus missionStatus, Point point) {
 
         this.missionCreateUser = user;
@@ -94,6 +97,7 @@ public class Mission extends BaseEntity {
         this.missionStartDate = missionStartDate != null ? convertLocalDateTimeZone(missionStartDate, ZoneId.of("Asia/Seoul"), ZoneOffset.UTC) : null;
         this.missionEndDate = missionEndDate != null ? convertLocalDateTimeZone(missionEndDate, ZoneId.of("Asia/Seoul"), ZoneOffset.UTC) : null;
         this.missionLocationName = missionLocationName;
+        this.missionLocationAddress = missionLocationAddress;
         this.latitude = latitude;
         this.longitude = longitude;
         this.missionColor = missionColor;
@@ -104,11 +108,12 @@ public class Mission extends BaseEntity {
     }
 
     public static Mission toEntity(User user, Group group, String missionName, String missionNote, Boolean existPeriod
-        , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, Double latitude, Double longitude
+        , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, String missionLocationAddress
+         , Double latitude, Double longitude
         , Integer missionColor, MissionStatus missionStatus, Point point ) {
         return new Mission(user, group, missionName, missionNote
             ,existPeriod, missionStartDate, missionEndDate
-            , missionLocationName, latitude, longitude, missionColor, missionStatus, point);
+            , missionLocationName, missionLocationAddress, latitude, longitude, missionColor, missionStatus, point);
     }
 
     @PreRemove

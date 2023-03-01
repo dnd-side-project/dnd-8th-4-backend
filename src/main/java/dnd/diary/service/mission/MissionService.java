@@ -79,7 +79,8 @@ public class MissionService {
 			mission = Mission.toEntity(
 					user, group, request.getMissionName(), request.getMissionNote()
 					, request.getExistPeriod(), null, null
-					, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
+					, request.getMissionLocationName(), request.getMissionLocationAddress()
+					, request.getLatitude(), request.getLongitude()
 					, request.getMissionColor(), missionStatus, point);
 		} else {
 			LocalDateTime today = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
@@ -96,7 +97,8 @@ public class MissionService {
 					, request.getExistPeriod()
 					, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
 					, convertLocalDateTimeZone(request.getMissionEndDate().atTime(23, 59, 59), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
-					, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
+					, request.getMissionLocationName(), request.getMissionLocationAddress()
+					, request.getLatitude(), request.getLongitude()
 					, request.getMissionColor(), missionStatus, point);
 
 		}
@@ -123,6 +125,9 @@ public class MissionService {
 			.missionName(mission.getMissionName())
 			.missionNote(mission.getMissionNote())
 			.createUserId(user.getId())
+			.createUserName(user.getName())
+			.createUserProfileImageUrl(user.getProfileImageUrl())
+
 			.groupId(group.getId())
 			.groupName(group.getGroupName())
 			.groupImageUrl(group.getGroupImageUrl())
@@ -391,7 +396,11 @@ public class MissionService {
 			.missionId(mission.getId())
 			.missionName(mission.getMissionName())
 			.missionNote(mission.getMissionNote())
+
 			.createUserId(mission.getMissionCreateUser().getId())
+			.createUserName(mission.getMissionCreateUser().getName())
+			.createUserProfileImageUrl(mission.getMissionCreateUser().getProfileImageUrl())
+
 			.groupId(mission.getGroup().getId())
 			.groupName(mission.getGroup().getGroupName())
 			.groupImageUrl(mission.getGroup().getGroupImageUrl())
@@ -402,6 +411,7 @@ public class MissionService {
 			.missionStatus(mission.getMissionStatus())
 
 			.missionLocationName(mission.getMissionLocationName())
+			.missionLocationAddress(mission.getMissionLocationAddress())
 			.latitude(mission.getLatitude())
 			.longitude(mission.getLongitude())
 
