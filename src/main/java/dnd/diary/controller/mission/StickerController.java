@@ -25,7 +25,7 @@ public class StickerController {
     // 유저가 보유한 스티커 그룹 별 전체 스티커 조회
     @GetMapping("/list/my")
     public CustomResponseEntity<StickerResponse> getMyStickerGroupList(
-        @RequestPart Long stickerGroupId
+        @RequestParam Long stickerGroupId
     ) {
         return CustomResponseEntity.success(stickerService.getMyStickerListByGroup(stickerGroupId));
     }
