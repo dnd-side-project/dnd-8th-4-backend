@@ -385,7 +385,13 @@ public class MissionService {
 		}
 
 		missionResponseList.sort(Comparator.comparing(MissionResponse::getMissionDday));
-		return missionResponseList.subList(0, 4);
+		List<MissionResponse> maxFourMissionResponseList = new ArrayList<>();
+		for (int i = 0; i < 4; i++) {
+			if (i < missionResponseList.size()) {
+				maxFourMissionResponseList.add(missionResponseList.get(i));
+			}
+		}
+		return maxFourMissionResponseList;
 	}
 
 	// 시작 전인 미션 + 진행 중인 미션 전체
