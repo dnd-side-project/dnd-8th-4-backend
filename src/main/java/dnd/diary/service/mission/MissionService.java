@@ -59,6 +59,7 @@ public class MissionService {
 
 	private final int MISSION_DISTANCE_LIMIT = 50;
 	private final int LEVEL_UP_DEGREE = 3;
+	private final Long MISSION_DEFAULT_D_DAY = 365L;
 
 	// 미션 생성
 	@Transactional
@@ -111,7 +112,7 @@ public class MissionService {
 
 		Long missionDday;
 		if (!request.getExistPeriod()) {
-			missionDday = null;
+			missionDday = MISSION_DEFAULT_D_DAY;
 		} else {
 			Period diff = Period.between(LocalDate.now(), request.getMissionEndDate());
 			missionDday = Long.valueOf(diff.getDays());
@@ -398,7 +399,7 @@ public class MissionService {
 			.longitude(mission.getLongitude())
 
 			.missionDday(
-					mission.getMissionEndDate() != null ? (long) Period.between(LocalDate.now(ZoneId.of("Asia/Seoul")), mission.getMissionEndDate().toLocalDate()).getDays() : null
+					mission.getMissionEndDate() != null ? (long) Period.between(LocalDate.now(ZoneId.of("Asia/Seoul")), mission.getMissionEndDate().toLocalDate()).getDays() : MISSION_DEFAULT_D_DAY
 			)
 			.missionColor(mission.getMissionColor())
 			.build();
