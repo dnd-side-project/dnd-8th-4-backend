@@ -91,8 +91,8 @@ public class Mission extends BaseEntity {
         this.missionNote = missionNote;
         // UTC 로 변환 후 저장
         this.existPeriod = existPeriod;
-        this.missionStartDate = convertLocalDateTimeZone(missionStartDate, ZoneId.of("Asia/Seoul"), ZoneOffset.UTC);
-        this.missionEndDate = convertLocalDateTimeZone(missionEndDate, ZoneId.of("Asia/Seoul"), ZoneOffset.UTC);
+        this.missionStartDate = missionStartDate != null ? convertLocalDateTimeZone(missionStartDate, ZoneId.of("Asia/Seoul"), ZoneOffset.UTC) : null;
+        this.missionEndDate = missionEndDate != null ? convertLocalDateTimeZone(missionEndDate, ZoneId.of("Asia/Seoul"), ZoneOffset.UTC) : null;
         this.missionLocationName = missionLocationName;
         this.latitude = latitude;
         this.longitude = longitude;
