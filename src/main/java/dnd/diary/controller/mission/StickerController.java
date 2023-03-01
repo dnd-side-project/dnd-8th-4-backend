@@ -31,11 +31,10 @@ public class StickerController {
     }
 
     // 유저가 보유한 스티커 그룹 별 개별 스티커 목록 전체 조회
-    @GetMapping
+    @GetMapping("/list/my/all")
     public CustomResponseEntity<List<StickerResponse>> getMyStickerList() {
         return CustomResponseEntity.success(stickerService.getMyStickerList());
     }
-
 
     // 미션 > 스티커 메인 화면 조회
     @GetMapping("/main")
