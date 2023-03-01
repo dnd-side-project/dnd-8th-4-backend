@@ -26,9 +26,9 @@ public class MissionResponse {
 
 	private Boolean existPeriod;
 	@JsonFormat(pattern = "yyyy.MM.dd")
-	private LocalDateTime missionStartDate;   // 미션 시작일
+	private String missionStartDate;   // 미션 시작일
 	@JsonFormat(pattern = "yyyy.MM.dd")
-	private LocalDateTime missionEndDate;   // 미션 종료일
+	private String missionEndDate;   // 미션 종료일
 	private MissionStatus missionStatus;   // 미션 기간에 따른 상태
 
 	private String missionLocationName;   // 미션 위치 이름

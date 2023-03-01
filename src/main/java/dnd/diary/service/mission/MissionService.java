@@ -84,6 +84,7 @@ public class MissionService {
 					, request.getMissionLocationName(), request.getMissionLocationAddress()
 					, request.getLatitude(), request.getLongitude()
 					, request.getMissionColor(), missionStatus, point);
+
 		} else {
 			LocalDateTime today = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 			// 미션 시작일 < 오늘 -> 미션 진행중 상태
@@ -105,6 +106,7 @@ public class MissionService {
 
 		}
 		missionRepository.save(mission);
+		log.info("mission startDate : {}", mission.getMissionStartDate());
 
 		// 그룹에 속한 구성원 모두에게 미션 할당
 		List<UserJoinGroup> userJoinGroupList = group.getUserJoinGroups();
@@ -137,8 +139,10 @@ public class MissionService {
 			.groupImageUrl(group.getGroupImageUrl())
 
 			.existPeriod(request.getExistPeriod())
-			.missionStartDate(mission.getMissionStartDate())
-			.missionEndDate(mission.getMissionEndDate())
+			.missionStartDate(
+					String.valueOf(mission.getMissionStartDate()).substring(0, 10)
+			)
+			.missionEndDate(mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionEndDate()).substring(0, 10) : "ing")
 			.missionStatus(missionStatus)
 
 			.missionLocationName(mission.getMissionLocationName())
@@ -413,8 +417,12 @@ public class MissionService {
 			.groupImageUrl(mission.getGroup().getGroupImageUrl())
 
 			.existPeriod(mission.getExistPeriod())
-			.missionStartDate(mission.getMissionStartDate())
-			.missionEndDate(mission.getMissionEndDate())
+			.missionStartDate(
+					String.valueOf(mission.getMissionStartDate()).substring(0, 10)
+			)
+			.missionEndDate(
+					mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionEndDate()).substring(0, 10) : "ing"
+			)
 			.missionStatus(mission.getMissionStatus())
 
 			.missionLocationName(mission.getMissionLocationName())
