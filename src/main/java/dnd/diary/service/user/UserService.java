@@ -300,8 +300,8 @@ public class UserService {
                 .phoneNumber(request.getPhoneNumber())
                 .profileImageUrl(imageUrl)
                 .authorities(Collections.singleton(authority))
-                .mainLevel(0L)
-                .subLevel(0L)
+                .mainLevel(1L)
+                .subLevel(0.0)
                 .build();
     }
 

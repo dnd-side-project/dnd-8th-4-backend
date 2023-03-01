@@ -59,8 +59,8 @@ public class MissionService {
 
 //	private final int MISSION_DISTANCE_LIMIT = 50;
 	private final int MISSION_DISTANCE_LIMIT = 200;
-//	private final int LEVEL_UP_DEGREE = 3;
-	private final int LEVEL_UP_DEGREE = 2;
+	private final int LEVEL_UP_DEGREE = 3;
+//	private final int LEVEL_UP_DEGREE = 2;
 	private final Long MISSION_DEFAULT_D_DAY = 365L;
 
 	// 미션 생성
@@ -215,10 +215,12 @@ public class MissionService {
 		for (UserAssignMission userAssignMission : targetMission.getUserAssignMissions()) {
 			if (user.getId().equals(userAssignMission.getUser().getId())) {
 				checkUserAssignMission = userAssignMission;
+
 				if (checkDistance.intValue() <= MISSION_DISTANCE_LIMIT) {
 					checkLocationMissionFlag = true;
+					checkUserAssignMission.completeLocationCheck();
+					user.updateSubLevel();
 				}
-				checkUserAssignMission.completeLocationCheck();
 				break;
 			}
 		}
@@ -235,16 +237,18 @@ public class MissionService {
 	private static double distance(double lat1, double lon1, double lat2, double lon2){
 		double theta = lon1 - lon2;
 		double dist = Math.sin(deg2rad(lat1))* Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1))*Math.cos(deg2rad(lat2))*Math.cos(deg2rad(theta));
+
 		dist = Math.acos(dist);
 		dist = rad2deg(dist);
-		dist = dist * 60*1.1515*1609.344;
+
+		dist = dist * 60 * 1.1515 * 1609.344;
 
 		return dist;  // 단위 m
 	}
 
 	// 10진수를 radian 으로 변환
 	private static double deg2rad(double deg){
-		return (deg * Math.PI/180.0);
+		return (deg * Math.PI / 180.0);
 	}
 	// radian 을 10진수로 변환
 	private static double rad2deg(double rad){
