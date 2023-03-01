@@ -58,7 +58,8 @@ public class MissionService {
 	private final StickerService stickerService;
 
 	private final int MISSION_DISTANCE_LIMIT = 50;
-	private final int LEVEL_UP_DEGREE = 3;
+//	private final int LEVEL_UP_DEGREE = 3;
+	private final int LEVEL_UP_DEGREE = 2;
 	private final Long MISSION_DEFAULT_D_DAY = 365L;
 
 	// 미션 생성
