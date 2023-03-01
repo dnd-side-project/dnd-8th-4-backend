@@ -120,6 +120,8 @@ public class MissionService {
 			missionDday = Long.valueOf(diff.getDays());
 		}
 
+		UserAssignMission userAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), mission.getId());
+
 		return MissionResponse.builder()
 			.missionId(mission.getId())
 			.missionName(mission.getMissionName())
@@ -138,11 +140,14 @@ public class MissionService {
 			.missionStatus(missionStatus)
 
 			.missionLocationName(mission.getMissionLocationName())
+			.missionLocationAddress(mission.getMissionLocationAddress())
 			.latitude(mission.getLatitude())
 			.longitude(mission.getLongitude())
 
 			.missionDday(missionDday)
 			.missionColor(mission.getMissionColor())
+
+			.userAssignMissionInfo(getUserAssignMissionInfo(user, mission, userAssignMission))
 
 			.build();
 	}
