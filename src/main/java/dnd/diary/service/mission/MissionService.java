@@ -67,9 +67,19 @@ public class MissionService {
 		Group group = findGroup(request.getGroupId());
 
 		MissionStatus missionStatus = MissionStatus.READY;
+
+		Mission mission = null;
+		String pointWKT = String.format("POINT(%s %s)", request.getLatitude(), request.getLongitude());
+		Point point = (Point) new WKTReader().read(pointWKT);
+
 		// 미션 기간을 설정하지 않은 경우 - 항상 ACTIVE
 		if (!request.getExistPeriod()) {
 			missionStatus = MissionStatus.ACTIVE;
+			mission = Mission.toEntity(
+					user, group, request.getMissionName(), request.getMissionNote()
+					, request.getExistPeriod(), null, null
+					, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
+					, request.getMissionColor(), missionStatus, point);
 		} else {
 			LocalDateTime today = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
 			// 미션 시작일 < 오늘 -> 미션 진행중 상태
@@ -80,18 +90,15 @@ public class MissionService {
 			if (today.isAfter(convertLocalDateTimeZone(request.getMissionEndDate().atStartOfDay().plusDays(1).minusHours(9), ZoneOffset.UTC, ZoneId.of("Asia/Seoul")))) {
 				missionStatus = MissionStatus.FINISH;
 			}
-		}
+			// 서버 기준 시간 + 9 -> 00:00 / 23:59 로
+			mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
+					, request.getExistPeriod()
+					, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
+					, convertLocalDateTimeZone(request.getMissionEndDate().atTime(23, 59, 59), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
+					, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
+					, request.getMissionColor(), missionStatus, point);
 
-		// 서버 기준 시간 + 9 -> 00:00 / 23:59 로
-		String pointWKT = String.format("POINT(%s %s)", request.getLatitude(), request.getLongitude());
-		Point point = (Point) new WKTReader().read(pointWKT);
-		Mission mission = Mission.toEntity(user, group, request.getMissionName(), request.getMissionNote()
-			, request.getExistPeriod()
-			, convertLocalDateTimeZone(request.getMissionStartDate().atStartOfDay(), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
-			, convertLocalDateTimeZone(request.getMissionEndDate().atTime(23, 59, 59), ZoneOffset.UTC, ZoneId.of("Asia/Seoul"))
-			, request.getMissionLocationName(), request.getLatitude(), request.getLongitude()
-			, request.getMissionColor(), missionStatus, point);
-		
+		}
 		missionRepository.save(mission);
 
 		// 그룹에 속한 구성원 모두에게 미션 할당
