@@ -23,7 +23,8 @@ public class StickerMainResponse {
     public static class CurrMissionInfo {
         private Long subLevel;
         private Long mainLevel;
-        private Long remainToUpMainLevel;   // main 레벨 상승까지 남은 subLevel
+        private Long progressBarRange;
+//        private Long remainToUpMainLevel;   // main 레벨 상승까지 남은 subLevel
     }
 
     @Getter
