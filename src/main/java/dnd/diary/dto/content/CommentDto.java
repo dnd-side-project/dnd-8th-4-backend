@@ -20,7 +20,6 @@ public class CommentDto {
     public static class AddCommentDto {
 
         private Long id;
-        @NotNull(message = "댓글 내용이 작성되지 않았습니다.")
         private String commentNote;
         private Long userId;
         private Long contentId;
