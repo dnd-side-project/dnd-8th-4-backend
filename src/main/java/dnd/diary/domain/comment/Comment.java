@@ -23,7 +23,6 @@ public class Comment extends BaseEntity {
     @Column(name = "comment_id")
     private Long id;
 
-    @NotNull
     private String commentNote;
 
     // 댓글을 작성한 유저
