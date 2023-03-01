@@ -5,6 +5,7 @@ import static dnd.diary.enumeration.Result.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,7 +14,6 @@ import dnd.diary.domain.group.GroupImage;
 import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.sticker.StickerGroup;
 import dnd.diary.domain.user.UserImage;
-import dnd.diary.dto.mission.StickerCreateRequest;
 import dnd.diary.dto.mission.StickerGroupCreateRequest;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupImageRepository;
@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminService {
 
 	private final UserImageRepository userImageRepository;
@@ -84,10 +85,9 @@ public class AdminService {
 
 	// [관리자] 스티커 그룹 별 개별 스티커 등록
 	@Transactional
-	public StickerResponse createSticker(StickerCreateRequest request, List<MultipartFile> multipartFiles) {
-
+	public StickerResponse createSticker(Long stickerGroupId, List<MultipartFile> multipartFiles) {
 		// 존재하는 스티커 그룹인지 확인
-		StickerGroup targetStickerGroup = stickerGroupRepository.findById(request.getStickerGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_STICKER_GROUP));
+		StickerGroup targetStickerGroup = stickerGroupRepository.findById(stickerGroupId).orElseThrow(() -> new CustomException(NOT_FOUND_STICKER_GROUP));
 
 		List<String> stickerImageUrlList = s3Service.uploadImageList(multipartFiles);
 		List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
