@@ -398,7 +398,7 @@ public class MissionService {
 			.longitude(mission.getLongitude())
 
 			.missionDday(
-				Period.between(LocalDate.now(ZoneId.of("Asia/Seoul")), mission.getMissionEndDate().toLocalDate()).getDays()
+					mission.getMissionEndDate() != null ? (long) Period.between(LocalDate.now(ZoneId.of("Asia/Seoul")), mission.getMissionEndDate().toLocalDate()).getDays() : null
 			)
 			.missionColor(mission.getMissionColor())
 			.build();

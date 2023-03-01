@@ -32,7 +32,7 @@ public class MissionResponse {
 	private Double latitude;   // 미션 위치 위도
 	private Double longitude;   // 미션 위치 경도
 
-	private long missionDday;   // 미션 종료까지 남은 일수
+	private Long missionDday;   // 미션 종료까지 남은 일수
 	private Integer missionColor;
 
 	// 조회 유저의 해당 미션에 대한 달성 현황
