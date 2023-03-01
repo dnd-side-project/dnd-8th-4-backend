@@ -3,6 +3,7 @@ package dnd.diary.service.content;
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.Emotion;
+import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.CommentDto;
 import dnd.diary.dto.content.ContentDto;
@@ -12,6 +13,7 @@ import dnd.diary.repository.content.CommentLikeRepository;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
+import dnd.diary.repository.mission.StickerRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ import java.util.List;
 @Slf4j
 public class CommentService {
     private final UserRepository userRepository;
+    private final StickerRepository stickerRepository;
     private final CommentRepository commentRepository;
     private final ContentRepository contentRepository;
     private final EmotionRepository emotionRepository;
@@ -40,13 +43,23 @@ public class CommentService {
             UserDetails userDetails, Long contentId, CommentDto.AddCommentDto request
     ) {
         validateCommentAdd(contentId);
+
+        Sticker sticker = null;
+
+        if(request.getStickerId() != null){
+            sticker = stickerRepository.findById(request.getStickerId())
+                    .orElseThrow(
+                            () -> new CustomException(Result.FAIL)
+                    );
+        }
+
         return CommentDto.AddCommentDto.response(
                         commentRepository.save(
                                 Comment.builder()
                                         .commentNote(request.getCommentNote())
                                         .user(getUser(userDetails))
                                         .content(getContent(contentId))
-                                        .sticker(null)
+                                        .sticker(sticker)
                                         .build()
                         )
                 );

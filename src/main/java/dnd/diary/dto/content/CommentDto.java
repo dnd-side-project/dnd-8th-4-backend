@@ -14,7 +14,6 @@ public class CommentDto {
 
     @AllArgsConstructor
     @NoArgsConstructor
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     @Getter
     @Builder
     public static class AddCommentDto {
@@ -26,12 +25,46 @@ public class CommentDto {
         private Long stickerId;
 
         public static CommentDto.AddCommentDto response(Comment comment) {
-            return AddCommentDto.builder()
+            if (comment.getSticker() == null) {
+                return AddCommentDto.builder()
+                        .id(comment.getId())
+                        .commentNote(comment.getCommentNote())
+                        .userId(comment.getUser().getId())
+                        .contentId(comment.getContent().getId())
+                        .stickerId(null)
+                        .build();
+            } else {
+                return AddCommentDto.builder()
+                        .id(comment.getId())
+                        .commentNote(comment.getCommentNote())
+                        .userId(comment.getUser().getId())
+                        .contentId(comment.getContent().getId())
+                        .stickerId(comment.getSticker().getId())
+                        .build();
+            }
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Getter
+    @Builder
+    public static class AddStickerDto {
+
+        private Long id;
+        private String commentNote;
+        private Long userId;
+        private Long contentId;
+        private Long stickerId;
+
+        public static CommentDto.AddStickerDto response(Comment comment) {
+            return AddStickerDto.builder()
                     .id(comment.getId())
                     .commentNote(comment.getCommentNote())
                     .userId(comment.getUser().getId())
                     .contentId(comment.getContent().getId())
-                    .stickerId(null)
+                    .stickerId(comment.getSticker().getId())
                     .build();
         }
     }
@@ -43,6 +76,7 @@ public class CommentDto {
     public static class pageCommentDto {
 
         private Long id;
+        private String stickerImageUrl;
         private String commentNote;
         private String profileImageUrl;
         private String username;
@@ -50,14 +84,28 @@ public class CommentDto {
         private Boolean likesExists;
 
         public static CommentDto.pageCommentDto response(Comment comment, Boolean likesExists) {
-            return pageCommentDto.builder()
-                    .id(comment.getId())
-                    .commentNote(comment.getCommentNote())
-                    .profileImageUrl(comment.getUser().getProfileImageUrl())
-                    .username(comment.getUser().getNickName())
-                    .createdAt(comment.getCreatedAt())
-                    .likesExists(likesExists)
-                    .build();
+            if (comment.getSticker() == null){
+                return pageCommentDto.builder()
+                        .id(comment.getId())
+                        .commentNote(comment.getCommentNote())
+                        .stickerImageUrl(null)
+                        .profileImageUrl(comment.getUser().getProfileImageUrl())
+                        .username(comment.getUser().getNickName())
+                        .createdAt(comment.getCreatedAt())
+                        .likesExists(likesExists)
+                        .build();
+            }
+            else {
+                return pageCommentDto.builder()
+                        .id(comment.getId())
+                        .commentNote(comment.getCommentNote())
+                        .stickerImageUrl(comment.getSticker().getStickerImageUrl())
+                        .profileImageUrl(comment.getUser().getProfileImageUrl())
+                        .username(comment.getUser().getNickName())
+                        .createdAt(comment.getCreatedAt())
+                        .likesExists(likesExists)
+                        .build();
+            }
         }
     }
 }
