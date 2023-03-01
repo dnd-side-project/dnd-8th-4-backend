@@ -57,7 +57,8 @@ public class MissionService {
 	private final ContentService contentService;
 	private final StickerService stickerService;
 
-	private final int MISSION_DISTANCE_LIMIT = 50;
+//	private final int MISSION_DISTANCE_LIMIT = 50;
+	private final int MISSION_DISTANCE_LIMIT = 200;
 //	private final int LEVEL_UP_DEGREE = 3;
 	private final int LEVEL_UP_DEGREE = 2;
 	private final Long MISSION_DEFAULT_D_DAY = 365L;
@@ -224,6 +225,7 @@ public class MissionService {
 
 		return MissionCheckLocationResponse.builder()
 				.missionId(targetMission.getId())
+				.distance(checkDistance.intValue())
 				.locationCheck(checkLocationMissionFlag)
 				.contentCheck(checkUserAssignMission.getContentCheck())
 				.isComplete(checkUserAssignMission.getIsComplete())
