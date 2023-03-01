@@ -66,7 +66,7 @@ public class StickerService {
         StickerMainResponse.CurrMissionInfo currMissionInfo = StickerMainResponse.CurrMissionInfo.builder()
                 .subLevel(user.getSubLevel())
                 .mainLevel(user.getMainLevel())
-                .progressBarRange(user.getSubLevel() != 0 ? 100 / user.getSubLevel() : 100)
+                .progressBarRange(user.getSubLevel() != 0 ? 100 / user.getSubLevel() : 0)
 //                .remainToUpMainLevel(LEVEL_UP_DEGREE - user.getSubLevel())
                 .build();
 
