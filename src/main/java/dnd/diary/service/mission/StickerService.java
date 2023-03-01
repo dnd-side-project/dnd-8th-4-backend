@@ -22,8 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dnd.diary.enumeration.Result.ALREADY_ACQUISITION_STICKER;
-import static dnd.diary.enumeration.Result.NOT_FOUND_USER;
+import static dnd.diary.enumeration.Result.*;
 
 @Service
 @Slf4j
@@ -119,6 +118,9 @@ public class StickerService {
 
         UserStickerGroup userStickerGroup = userStickerGroupRepository.findByUserIdAndStickerGroupId(user.getId(), stickerGroupId);
         StickerGroup targetStickerGroup = userStickerGroup.getStickerGroup();
+        if (targetStickerGroup == null) {
+            throw new CustomException(HAVE_NOT_STICKER);
+        }
 
         List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
         for (Sticker sticker : targetStickerGroup.getStickers()) {
