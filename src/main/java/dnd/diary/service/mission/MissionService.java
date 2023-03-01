@@ -108,9 +108,14 @@ public class MissionService {
 			UserAssignMission userAssignMission = UserAssignMission.toEntity(groupUser, mission);
 			userAssignMissionRepository.save(userAssignMission);
 		}
-		
-		Period diff = Period.between(LocalDate.now(), request.getMissionEndDate());
-		long missionDday = diff.getDays();
+
+		Long missionDday;
+		if (!request.getExistPeriod()) {
+			missionDday = null;
+		} else {
+			Period diff = Period.between(LocalDate.now(), request.getMissionEndDate());
+			missionDday = Long.valueOf(diff.getDays());
+		}
 
 		return MissionResponse.builder()
 			.missionId(mission.getId())
