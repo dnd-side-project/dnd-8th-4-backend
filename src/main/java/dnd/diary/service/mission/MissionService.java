@@ -376,7 +376,14 @@ public class MissionService {
 	public MissionResponse getMission(Long missionId) {
 		User user = findUser();
 		Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
-		return toMissionResponse(mission);
+		UserAssignMission userAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), missionId);
+
+		MissionResponse missionResponse = toMissionResponse(mission);
+		MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, mission, userAssignMission);
+
+		missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
+
+		return missionResponse;
 	}
 
 	private MissionResponse toMissionResponse(Mission mission) {
