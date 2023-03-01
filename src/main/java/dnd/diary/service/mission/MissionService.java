@@ -140,9 +140,9 @@ public class MissionService {
 
 			.existPeriod(request.getExistPeriod())
 			.missionStartDate(
-					mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionStartDate()).substring(0, 10) : String.valueOf(mission.getMissionStartDate())
+					mission.getMissionStartDate() != null ? String.valueOf(mission.getMissionStartDate()).substring(0, 10).replace("-", ".") : String.valueOf(mission.getMissionStartDate())
 			)
-			.missionEndDate(mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionEndDate()).substring(0, 10) : "ing")
+			.missionEndDate(mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionEndDate()).substring(0, 10).replace("-", ".") : "ing")
 			.missionStatus(missionStatus)
 
 			.missionLocationName(mission.getMissionLocationName())
@@ -418,13 +418,11 @@ public class MissionService {
 
 			.existPeriod(mission.getExistPeriod())
 			.missionStartDate(
-					mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionStartDate()).substring(0, 10) : String.valueOf(mission.getMissionStartDate())
+					mission.getMissionStartDate() != null ? String.valueOf(mission.getMissionStartDate()).substring(0, 10).replace("-", ".") : String.valueOf(mission.getMissionStartDate())
 			)
-			.missionEndDate(
-					mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionEndDate()).substring(0, 10) : "ing"
-			)
-			.missionStatus(mission.getMissionStatus())
+			.missionEndDate(mission.getMissionEndDate() != null ? String.valueOf(mission.getMissionEndDate()).substring(0, 10).replace("-", ".") : "ing")
 
+			.missionStatus(mission.getMissionStatus())
 			.missionLocationName(mission.getMissionLocationName())
 			.missionLocationAddress(mission.getMissionLocationAddress())
 			.latitude(mission.getLatitude())
