@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ContentDto {
 
@@ -151,7 +152,7 @@ public class ContentDto {
         private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
 
-        public static ContentDto.CreateDto response(Content content, List<ContentDto.ImageResponseDto> collect) {
+        public static ContentDto.CreateDto response(Content content) {
             return CreateDto.builder()
                     .id(content.getId())
                     .userName(content.getUser().getNickName())
@@ -164,7 +165,10 @@ public class ContentDto {
                     .contentLink(content.getContentLink())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
-                    .collect(collect)
+                    .collect(content.getContentImages()
+                            .stream()
+                            .map(ContentDto.ImageResponseDto::response)
+                            .collect(Collectors.toList()))
                     .build();
         }
     }
@@ -237,7 +241,7 @@ public class ContentDto {
         List<ContentDto.ImageResponseDto> collect;
         private List<deleteImageNameDto> deleteContentImageName;
 
-        public static ContentDto.UpdateDto response(Content content, List<ContentDto.ImageResponseDto> collect, Integer views) {
+        public static ContentDto.UpdateDto response(Content content, Integer views) {
             return UpdateDto.builder()
                     .id(content.getId())
                     .userName(content.getUser().getNickName())
@@ -250,7 +254,11 @@ public class ContentDto {
                     .contentLink(content.getContentLink())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
-                    .collect(collect)
+                    .collect(content.getContentImages()
+                            .stream()
+                            .map(ContentDto.ImageResponseDto::response)
+                            .collect(Collectors.toList())
+                    )
                     .build();
         }
     }

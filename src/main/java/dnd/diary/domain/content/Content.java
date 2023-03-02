@@ -93,4 +93,16 @@ public class Content extends BaseEntity {
     @Builder.Default
     private List<ContentJoinDocumentFolder> contentJoinDocumentFolders = new ArrayList<>();
 
+    public void updateContentImages(List<ContentImage> contentImages){
+        this.contentImages = contentImages;
+    }
+
+    public void updateContent(String content, Double latitude, Double longitude, String location, List<ContentImage> contentImages){
+        this.contentImages = contentImages;
+        this.content = content;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.location = location;
+    }
+
 }
