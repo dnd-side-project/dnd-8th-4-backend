@@ -301,6 +301,7 @@ public class MissionService {
 		Boolean isGetNewSticker = false;
 		Long currMainLevel = user.getMainLevel();
 		Long stickerGroupId = null;
+		String stickerGroupName = null;
 
 		if (user.getSubLevel().intValue() == LEVEL_UP_DEGREE) {
 			user.updateLevel();
@@ -312,6 +313,7 @@ public class MissionService {
 				// mainLevel 에 해당하는 스티커 그룹의 ID
 				StickerGroup stickerGroup = stickerGroupRepository.findByStickerGroupLevel(user.getMainLevel());
 				stickerGroupId = stickerGroup.getId();
+				stickerGroupName = stickerGroup.getStickerGroupName();
 			}
 		}
 
@@ -324,6 +326,7 @@ public class MissionService {
 				.isGetNewSticker(isGetNewSticker)   // true 일 경우에만 getNewStickerGroupId 가 null 이 아닌 값
 				.currMainLevel(currMainLevel)
 				.getNewStickerGroupId(stickerGroupId)
+				.getNewStickerGroupName(stickerGroupName)
 				.build();
 	}
 
