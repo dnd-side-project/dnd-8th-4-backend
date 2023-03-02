@@ -348,6 +348,9 @@ public class MissionService {
 
 		for (UserAssignMission userAssignMission : userAssignMissionList) {
 			Mission mission = userAssignMission.getMission();
+
+			if (userAssignMission.getIsComplete()) continue;
+
 			if (MissionStatus.ALL == findMissionStatus) {
 				MissionResponse missionResponse = toMissionResponse(mission);
 
@@ -398,10 +401,12 @@ public class MissionService {
 				if (userAssignMission == null) {
 					throw new CustomException(INVALID_USER_MISSION);
 				}
-				MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, mission, userAssignMission);
-				missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
+				if (!userAssignMission.getIsComplete()) {   // 사용자가 완료한 미션은 제외
+					MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, mission, userAssignMission);
+					missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
 
-				missionResponseList.add(missionResponse);
+					missionResponseList.add(missionResponse);
+				}
 			}
 		}
 
