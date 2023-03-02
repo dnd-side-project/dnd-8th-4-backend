@@ -392,8 +392,10 @@ public class MissionService {
 				MissionResponse missionResponse = toMissionResponse(mission);
 
 				UserAssignMission userAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), mission.getId());
+				if (userAssignMission == null) {
+					throw new CustomException(INVALID_USER_MISSION);
+				}
 				MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, mission, userAssignMission);
-
 				missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
 
 				missionResponseList.add(missionResponse);
@@ -421,10 +423,11 @@ public class MissionService {
 		User user = findUser();
 		Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
 		UserAssignMission userAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), missionId);
-
+		if (userAssignMission == null) {
+			throw new CustomException(INVALID_USER_MISSION);
+		}
 		MissionResponse missionResponse = toMissionResponse(mission);
 		MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, mission, userAssignMission);
-
 		missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
 
 		return missionResponse;
