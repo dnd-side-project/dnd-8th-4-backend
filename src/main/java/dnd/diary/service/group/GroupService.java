@@ -8,6 +8,7 @@ import dnd.diary.domain.group.GroupStar;
 import dnd.diary.domain.group.GroupStarStatus;
 import dnd.diary.domain.group.Invite;
 import dnd.diary.domain.group.Notification;
+import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.group.GroupInviteRequest;
@@ -338,7 +339,7 @@ public class GroupService {
 			invitedUserInfoList.add(new GroupInviteResponse.InvitedUserInfo(invitedUser));
 
 			Invite invite = Invite.toEntity(inviteGroup, invitedUser);
-			Notification notification = Notification.toEntity(invite, invitedUser);
+			Notification notification = Notification.toEntity(invite, invitedUser, NotificationType.INVITE);
 
 			inviteRepository.save(invite);
 			log.info("초대 ID : {}", invite.getId());
