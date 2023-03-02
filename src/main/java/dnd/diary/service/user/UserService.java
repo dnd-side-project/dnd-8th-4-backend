@@ -269,6 +269,7 @@ public class UserService {
                                 .mainLevel(user.getMainLevel())
                                 .subLevel(user.getSubLevel())
                                 .deleteAt(user.getDeleteAt())
+                                .authorities(Collections.singleton(authority))
                                 .build()
                 )
         );
