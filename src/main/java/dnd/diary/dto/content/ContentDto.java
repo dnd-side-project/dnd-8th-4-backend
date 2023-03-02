@@ -303,9 +303,9 @@ public class ContentDto {
         private String content;
         private String groupImage;
         private String groupName;
-        private LocalDateTime createAt;
-        private Integer contentImageListSize;
-        List<ContentDto.ImageResponseDto> contentImageList;
+        private String createAt;
+        private Integer contentImageSize;
+        private String contentImageUrl;
 
         public static ContentDto.mapListContentDetail response(
                 Content content, List<ContentDto.ImageResponseDto> collect
@@ -317,9 +317,9 @@ public class ContentDto {
                     .content(content.getContent())
                     .groupImage(content.getGroup().getGroupImageUrl())
                     .groupName(content.getGroup().getGroupName())
-                    .createAt(content.getCreatedAt())
-                    .contentImageListSize(collect.size())
-                    .contentImageList(collect)
+                    .createAt(content.getCreatedAt().toString().substring(2,10).replace("-","."))
+                    .contentImageSize(collect.size())
+                    .contentImageUrl(collect.get(0).imageUrl)
                     .build();
         }
     }
