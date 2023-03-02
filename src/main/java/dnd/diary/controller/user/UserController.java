@@ -37,7 +37,7 @@ public class UserController {
     @PatchMapping("auth")
     public CustomResponseEntity<UserDto.UpdateDto> updateProfileUser(
             @AuthenticationPrincipal final UserDetails userDetails,
-            @RequestParam final String nickName,
+            @RequestParam(required = false) final String nickName,
             @RequestPart(required = false) final MultipartFile file
     ) {
         return CustomResponseEntity.success(userService.userUpdateProfile(userDetails,nickName,file));

@@ -252,7 +252,7 @@ public class UserService {
         }
 
         String beforeNickname = user.getNickName();
-        if (nickName == null) {
+        if (nickName == null || "".equals(nickName)) {
             nickName = beforeNickname;
         }
 
