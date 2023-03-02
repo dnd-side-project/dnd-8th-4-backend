@@ -142,4 +142,9 @@ public class User extends BaseEntity {
     public void updateSubLevel() {
         this.subLevel += 0.5;
     }
+
+    public void updateUserProfile(String nickName, String profileImageUrl){
+        this.nickName = nickName;
+        this.profileImageUrl = profileImageUrl;
+    }
 }

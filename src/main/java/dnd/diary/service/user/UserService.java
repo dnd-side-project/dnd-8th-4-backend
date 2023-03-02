@@ -256,23 +256,9 @@ public class UserService {
             nickName = beforeNickname;
         }
 
-        return UserDto.UpdateDto.response(
-                userRepository.save(
-                        User.builder()
-                                .id(user.getId())
-                                .email(user.getEmail())
-                                .password(user.getPassword())
-                                .name(user.getName())
-                                .nickName(nickName)
-                                .phoneNumber(user.getPhoneNumber())
-                                .profileImageUrl(fileUrl)
-                                .mainLevel(user.getMainLevel())
-                                .subLevel(user.getSubLevel())
-                                .deleteAt(user.getDeleteAt())
-                                .authorities(Collections.singleton(authority))
-                                .build()
-                )
-        );
+        user.updateUserProfile(nickName,fileUrl);
+
+        return UserDto.UpdateDto.response(user);
     }
 
     // method
