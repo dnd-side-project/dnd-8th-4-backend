@@ -277,23 +277,40 @@ public class ContentDto {
     @Builder
     public static class mapListContent {
         private Long id;
+        private String location;
         private Double latitude;
         private Double longitude;
         private Long userId;
         private Long groupId;
-        List<ContentDto.ImageResponseDto> collect;
+        private Long counts;
+        private String contentImageUrl;
 
         public static ContentDto.mapListContent response(
-                Content content, List<ContentDto.ImageResponseDto> collect
+                Content content, List<ContentDto.ImageResponseDto> collect, Long counts
         ) {
-            return mapListContent.builder()
-                    .id(content.getId())
-                    .latitude(content.getLatitude())
-                    .longitude(content.getLongitude())
-                    .userId(content.getUser().getId())
-                    .groupId(content.getGroup().getId())
-                    .collect(collect)
-                    .build();
+            if (collect.size() != 0){
+                return mapListContent.builder()
+                        .id(content.getId())
+                        .location(content.getLocation())
+                        .latitude(content.getLatitude())
+                        .longitude(content.getLongitude())
+                        .userId(content.getUser().getId())
+                        .groupId(content.getGroup().getId())
+                        .counts(counts)
+                        .contentImageUrl(collect.get(0).imageUrl)
+                        .build();
+            } else {
+                return mapListContent.builder()
+                        .id(content.getId())
+                        .location(content.getLocation())
+                        .latitude(content.getLatitude())
+                        .longitude(content.getLongitude())
+                        .userId(content.getUser().getId())
+                        .groupId(content.getGroup().getId())
+                        .counts(counts)
+                        .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/%EC%BF%B5%EC%95%BC.png")
+                        .build();
+            }
         }
     }
 
