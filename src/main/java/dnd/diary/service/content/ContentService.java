@@ -74,7 +74,22 @@ public class ContentService {
         Page<Content> contents = contentRepository.findByGroupId(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-        return getGroupListPagePostsDtos(userDetails, contents);
+        return contents.map(
+                (Content content) -> {
+                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
+                    Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
+                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + userDetails.getUsername())
+                            .contains(content.getId().toString());
+                    String views = redisDao.getValues(content.getId().toString());
+
+                    return ContentDto.groupListPagePostsDto.response(
+                            content,
+                            emotionStatus,
+                            views,
+                            myBookmarkStatus
+                    );
+                }
+        );
     }
 
     @Transactional
@@ -86,8 +101,23 @@ public class ContentService {
         Page<Content> contents = contentRepository.findByGroupIdIn(
                 groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-        Page<ContentDto.groupListPagePostsDto> groupListPagePostsDtos = getGroupListPagePostsDtos(userDetails, contents);
-        return groupListPagePostsDtos;
+
+        return contents.map(
+                (Content content) -> {
+                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
+                    Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
+                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + userDetails.getUsername())
+                            .contains(content.getId().toString());
+                    String views = redisDao.getValues(content.getId().toString());
+
+                    return ContentDto.groupListPagePostsDto.response(
+                            content,
+                            emotionStatus,
+                            views,
+                            myBookmarkStatus
+                    );
+                }
+        );
     }
 
     @Transactional
@@ -362,39 +392,6 @@ public class ContentService {
                         () -> new CustomException(Result.NOT_FOUND_CONTENT)
                 );
         return content;
-    }
-
-    private Page<ContentDto.groupListPagePostsDto> getGroupListPagePostsDtos(UserDetails userDetails, Page<Content> contents) {
-        return contents.map(
-                (Content content) -> {
-                    Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
-                    Long emotionStatus;
-
-                    List<String> valuesList = redisDao.getValuesList("bookmark" + userDetails.getUsername());
-                    if (byContentIdAndUserId == null) {
-                        emotionStatus = -1L;
-                    } else {
-                        emotionStatus = byContentIdAndUserId.getEmotionStatus();
-                    }
-                    String redisKey = content.getId().toString();
-                    return ContentDto.groupListPagePostsDto.response(
-                            content,
-                            content.getContentImages()
-                                    .stream()
-                                    .map(ContentDto.ImageResponseDto::response)
-                                    .toList(),
-                            (long) content.getComments().size(),
-                            (long) content.getEmotions().size(),
-                            content.getEmotions()
-                                    .stream().limit(2)
-                                    .map(ContentDto.EmotionResponseGroupListDto::response)
-                                    .toList(),
-                            emotionStatus,
-                            Integer.parseInt(redisDao.getValues(redisKey)),
-                            valuesList.contains(content.getId().toString())
-                    );
-                }
-        );
     }
 
     private void deleteAndSaveContentImage(List<MultipartFile> multipartFile, List<String> deleteContentImageName, Content content) {
