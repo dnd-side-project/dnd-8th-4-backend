@@ -10,12 +10,14 @@ import java.util.Comparator;
 import java.util.List;
 
 import dnd.diary.domain.mission.UserAssignMission;
+import dnd.diary.domain.sticker.StickerGroup;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.content.ContentDto;
 import dnd.diary.dto.mission.MissionCheckContentRequest;
 import dnd.diary.dto.mission.MissionCheckLocationRequest;
 import dnd.diary.dto.mission.MissionListByMapRequest;
 import dnd.diary.enumeration.Result;
+import dnd.diary.repository.mission.StickerGroupRepository;
 import dnd.diary.response.mission.MissionCheckContentResponse;
 import dnd.diary.response.mission.MissionCheckLocationResponse;
 import dnd.diary.service.content.ContentService;
@@ -52,6 +54,7 @@ public class MissionService {
 	private final GroupRepository groupRepository;
 	private final UserRepository userRepository;
 	private final UserAssignMissionRepository userAssignMissionRepository;
+	private final StickerGroupRepository stickerGroupRepository;
 
 	private final UserService userService;
 	private final ContentService contentService;
@@ -257,16 +260,16 @@ public class MissionService {
 
 	// 미션 게시물 인증
 	@Transactional
-	public MissionCheckContentResponse checkMissionContent(UserDetails userDetails, List<MultipartFile> multipartFile, MissionCheckContentRequest request) throws ParseException {
+	public MissionCheckContentResponse checkMissionContent(UserDetails userDetails, List<MultipartFile> multipartFile, Long missionId, String content) throws ParseException {
 
 		User user = getUser(userDetails);
-		Mission targetMission = missionRepository.findById(request.getMissionId()).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
+		Mission targetMission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
 
 		// 미션 진행 기간인지 확인
 		if (targetMission.getMissionStatus() != MissionStatus.ACTIVE) {
 			throw new CustomException(INVALID_MISSION_PERIOD);
 		}
-		UserAssignMission targetUserAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), request.getMissionId());
+		UserAssignMission targetUserAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), missionId);
 		// 위치 인증이 우선 진행된 미션인지 확인
 		if (!targetUserAssignMission.getLocationCheck()) {
 			throw new CustomException(NOT_CHECK_MISSION_LOCATION);
@@ -277,7 +280,7 @@ public class MissionService {
 		}
 
 		ContentDto.CreateDto createDto = ContentDto.CreateDto.builder()
-				.content(request.getContent())
+				.content(content)
 				.latitude(targetMission.getLatitude())
 				.longitude(targetMission.getLongitude())
 				.location(targetMission.getMissionLocationName())
@@ -285,7 +288,7 @@ public class MissionService {
 				.build();
 
 		contentService.createContent(
-				userDetails, multipartFile, targetMission.getGroup().getId(), request.getContent(),
+				userDetails, multipartFile, targetMission.getGroup().getId(), content,
 				targetMission.getLatitude(), targetMission.getLongitude(), targetMission.getMissionLocationName()
 		);
 
@@ -295,11 +298,20 @@ public class MissionService {
 		// 미션 인증 레벨 업데이트
 		user.updateSubLevel();
 
+		Boolean isGetNewSticker = false;
+		Long currMainLevel = user.getMainLevel();
+		Long stickerGroupId = null;
+
 		if (user.getSubLevel().intValue() == LEVEL_UP_DEGREE) {
 			user.updateLevel();
 			// 스티커를 획득할 수 있는 mainLevel 달성 시 획득 처리
 			if (getSticker(user.getMainLevel().intValue())) {
 				stickerService.acquisitionSticker(user);
+				isGetNewSticker = true;
+				currMainLevel = user.getMainLevel();
+				// mainLevel 에 해당하는 스티커 그룹의 ID
+				StickerGroup stickerGroup = stickerGroupRepository.findByStickerGroupLevel(user.getMainLevel());
+				stickerGroupId = stickerGroup.getId();
 			}
 		}
 
@@ -308,6 +320,10 @@ public class MissionService {
 				.locationCheck(targetUserAssignMission.getLocationCheck())
 				.contentCheck(targetUserAssignMission.getContentCheck())
 				.isComplete(targetUserAssignMission.getIsComplete())
+
+				.isGetNewSticker(isGetNewSticker)   // true 일 경우에만 getNewStickerGroupId 가 null 이 아닌 값
+				.currMainLevel(currMainLevel)
+				.getNewStickerGroupId(stickerGroupId)
 				.build();
 	}
 
@@ -479,10 +495,13 @@ public class MissionService {
 		for (UserAssignMission userAssignMission : userAssignMissionList) {
 			if (userAssignMission.getIsComplete()) {
 				MissionResponse missionResponse = toMissionResponse(userAssignMission.getMission());
+
+				MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, userAssignMission.getMission(), userAssignMission);
+				missionResponse.setUserAssignMissionInfo(userAssignMissionInfo);
+
 				completeMissionResponseList.add(missionResponse);
 			}
 		}
-
 		return completeMissionResponseList;
 	}
 
