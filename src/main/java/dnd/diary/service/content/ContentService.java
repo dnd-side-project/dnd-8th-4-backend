@@ -279,7 +279,7 @@ public class ContentService {
                 ContentDto.mapListContent.response(
                         content,
                         getContentImageResponse(content.getId()),
-                        contentRepository.countByLocation(content.getLocation())
+                        contentRepository.countByLocationAndGroupIdIn(content.getLocation(),groupIdList)
                 )
         ).toList();
     }
