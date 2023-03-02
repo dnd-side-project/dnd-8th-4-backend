@@ -16,4 +16,8 @@ public class MissionCheckContentResponse {
     private Boolean contentCheck;
     private Boolean isComplete;
 
+    private Boolean isGetNewSticker;   // 새로운 스티커를 달성했는지 여부
+    private Long currMainLevel;   // 현재의 업그레이드 된 main 레벨
+    private Long getNewStickerGroupId;   // 그때의 새로운 스티커 그룹 ID
+
 }
