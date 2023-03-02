@@ -335,7 +335,7 @@ public class ContentDto {
             if (collect.size() != 0){
                 return mapListContentDetail.builder()
                         .contentId(content.getId())
-                        .groupId(content.getId())
+                        .groupId(content.getGroup().getId())
                         .location(content.getLocation())
                         .content(content.getContent())
                         .groupImage(content.getGroup().getGroupImageUrl())
