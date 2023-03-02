@@ -244,6 +244,16 @@ public class UserService {
         if (file != null) {
             fileName = saveImage(file);
             fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
+        } else {
+            int sampleGroupImageCount = userImageRepository.findAll().size();
+            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
+            UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            fileUrl  = sampleUserImage.getUserImageUrl();
+        }
+
+        String beforeNickname = user.getNickName();
+        if (nickName == null) {
+            nickName = beforeNickname;
         }
 
         return UserDto.UpdateDto.response(
