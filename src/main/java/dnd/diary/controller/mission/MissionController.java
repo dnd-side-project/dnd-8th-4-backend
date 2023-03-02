@@ -82,10 +82,10 @@ public class MissionController {
 	@PostMapping("/check/content")
 	public CustomResponseEntity<MissionCheckContentResponse> checkMissionContent(
 			@AuthenticationPrincipal final UserDetails user,
-			@RequestPart(required = false) final List<MultipartFile> multipartFile,
+			@RequestPart(required = false) final List<MultipartFile> multipartFiles,
 			@RequestParam final Long missionId,
 			@RequestParam final String content
 	) throws ParseException {
-		return CustomResponseEntity.success(missionService.checkMissionContent(user, multipartFile, missionId, content));
+		return CustomResponseEntity.success(missionService.checkMissionContent(user, multipartFiles, missionId, content));
 	}
 }
