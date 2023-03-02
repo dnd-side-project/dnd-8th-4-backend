@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ContentDto {
@@ -314,17 +315,31 @@ public class ContentDto {
         public static ContentDto.mapListContentDetail response(
                 Content content, List<ContentDto.ImageResponseDto> collect
         ) {
-            return mapListContentDetail.builder()
-                    .contentId(content.getId())
-                    .groupId(content.getId())
-                    .location(content.getLocation())
-                    .content(content.getContent())
-                    .groupImage(content.getGroup().getGroupImageUrl())
-                    .groupName(content.getGroup().getGroupName())
-                    .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
-                    .contentImageSize(collect.size())
-                    .contentImageUrl(collect.get(0).imageUrl)
-                    .build();
+            if (collect.size() != 0){
+                return mapListContentDetail.builder()
+                        .contentId(content.getId())
+                        .groupId(content.getId())
+                        .location(content.getLocation())
+                        .content(content.getContent())
+                        .groupImage(content.getGroup().getGroupImageUrl())
+                        .groupName(content.getGroup().getGroupName())
+                        .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
+                        .contentImageSize(collect.size())
+                        .contentImageUrl(collect.get(0).imageUrl)
+                        .build();
+            } else {
+                return mapListContentDetail.builder()
+                        .contentId(content.getId())
+                        .groupId(content.getId())
+                        .location(content.getLocation())
+                        .content(content.getContent())
+                        .groupImage(content.getGroup().getGroupImageUrl())
+                        .groupName(content.getGroup().getGroupName())
+                        .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
+                        .contentImageSize(0)
+                        .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/%EC%BF%B5%EC%95%BC.png")
+                        .build();
+            }
         }
     }
 
