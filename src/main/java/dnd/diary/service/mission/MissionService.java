@@ -12,8 +12,6 @@ import java.util.List;
 import dnd.diary.domain.mission.UserAssignMission;
 import dnd.diary.domain.sticker.StickerGroup;
 import dnd.diary.domain.user.UserJoinGroup;
-import dnd.diary.dto.content.ContentDto;
-import dnd.diary.dto.mission.MissionCheckContentRequest;
 import dnd.diary.dto.mission.MissionCheckLocationRequest;
 import dnd.diary.dto.mission.MissionListByMapRequest;
 import dnd.diary.enumeration.Result;
@@ -63,7 +61,6 @@ public class MissionService {
 //	private final int MISSION_DISTANCE_LIMIT = 50;
 	private final int MISSION_DISTANCE_LIMIT = 200;
 	private final int LEVEL_UP_DEGREE = 3;
-//	private final int LEVEL_UP_DEGREE = 2;
 	private final Long MISSION_DEFAULT_D_DAY = 365L;
 
 	// 미션 생성
@@ -260,7 +257,7 @@ public class MissionService {
 
 	// 미션 게시물 인증
 	@Transactional
-	public MissionCheckContentResponse checkMissionContent(UserDetails userDetails, List<MultipartFile> multipartFile, Long missionId, String content) throws ParseException {
+	public MissionCheckContentResponse checkMissionContent(UserDetails userDetails, List<MultipartFile> multipartFiles, Long missionId, String content) throws ParseException {
 
 		User user = getUser(userDetails);
 		Mission targetMission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
@@ -279,16 +276,8 @@ public class MissionService {
 			throw new CustomException(ALREADY_COMPLETE_MISSION);
 		}
 
-		ContentDto.CreateDto createDto = ContentDto.CreateDto.builder()
-				.content(content)
-				.latitude(targetMission.getLatitude())
-				.longitude(targetMission.getLongitude())
-				.location(targetMission.getMissionLocationName())
-				.groupId(targetMission.getGroup().getId())
-				.build();
-
 		contentService.createContent(
-				userDetails, multipartFile, targetMission.getGroup().getId(), content,
+				userDetails, multipartFiles, targetMission.getGroup().getId(), content,
 				targetMission.getLatitude(), targetMission.getLongitude(), targetMission.getMissionLocationName()
 		);
 
