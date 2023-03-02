@@ -42,9 +42,7 @@ public class ContentDto {
         List<EmotionResponseGroupListDto> emotionResponseDtos;
 
         public static ContentDto.groupListPagePostsDto response(
-                Content content, List<ImageResponseDto> imageResponseDtos,
-                Long comments, Long emotions, List<EmotionResponseGroupListDto> emotionResponseGroupListDto,
-                Long emotionStatus, Integer views, Boolean bookmarkAddStatus
+                Content content, Long emotionStatus, String views, Boolean bookmarkAddStatus
         ) {
             return groupListPagePostsDto.builder()
                     .id(content.getId())
@@ -58,14 +56,20 @@ public class ContentDto {
                     .longitude(content.getLongitude())
                     .location(content.getLocation())
                     .createAt(content.getCreatedAt())
-                    .views(views)
+                    .views(Long.parseLong(views))
                     .contentLink(content.getContentLink())
-                    .comments(comments)
-                    .emotions(emotions)
+                    .comments((long) content.getComments().size())
+                    .emotions((long) content.getEmotions().size())
                     .emotionStatus(emotionStatus)
                     .bookmarkAddStatus(bookmarkAddStatus)
-                    .Images(imageResponseDtos)
-                    .emotionResponseDtos(emotionResponseGroupListDto)
+                    .Images(content.getContentImages()
+                            .stream()
+                            .map(ContentDto.ImageResponseDto::response)
+                            .toList())
+                    .emotionResponseDtos(content.getEmotions()
+                            .stream().limit(2)
+                            .map(ContentDto.EmotionResponseGroupListDto::response)
+                            .toList())
                     .build();
         }
     }
@@ -317,7 +321,7 @@ public class ContentDto {
                     .content(content.getContent())
                     .groupImage(content.getGroup().getGroupImageUrl())
                     .groupName(content.getGroup().getGroupName())
-                    .createAt(content.getCreatedAt().toString().substring(2,10).replace("-","."))
+                    .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
                     .contentImageSize(collect.size())
                     .contentImageUrl(collect.get(0).imageUrl)
                     .build();
