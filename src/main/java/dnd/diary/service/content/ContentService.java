@@ -276,15 +276,18 @@ public class ContentService {
         List<Content> contents = query.getResultList();
 
         return contents.stream().map((Content content) ->
-                ContentDto.mapListContent.response(content,
-                        getContentImageResponse(content.getId())
+                ContentDto.mapListContent.response(
+                        content,
+                        getContentImageResponse(content.getId()),
+                        contentRepository.countByLocation(content.getLocation())
                 )
         ).toList();
     }
 
     @Transactional
-    public List<ContentDto.mapListContentDetail> listDetailMyMap(List<Long> contentId) {
-        List<Content> contentList = contentRepository.findByIdIn(contentId);
+    public List<ContentDto.mapListContentDetail> listDetailMyMap(String location, UserDetails userDetails) {
+        List<Long> groupId = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
+        List<Content> contentList = contentRepository.findByLocationAndGroupIdIn(location,groupId);
         return contentList.stream().map((Content content) ->
                 ContentDto.mapListContentDetail.response(
                         content,
