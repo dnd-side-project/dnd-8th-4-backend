@@ -304,12 +304,19 @@ public class UserService {
         List<UserSearchResponse.UserSearchInfo> userSearchInfoList = new ArrayList<>();
 
         for (User user : searchByKeywordList) {
+            // 유저 목록 검색 시 프로필 이미지는 기본 이미지 랜덤 세팅
+            int sampleGroupImageCount = userImageRepository.findAll().size();
+            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
+            UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            String imageUrl = sampleUserImage.getUserImageUrl();
+
             UserSearchResponse.UserSearchInfo userSearchInfo = UserSearchResponse.UserSearchInfo.builder()
                     .userId(user.getId())
                     .userEmail(user.getEmail())
                     .userNickName(user.getNickName())
-                    .profileImageUrl("")   // default 이미지로 통일
+                    .profileImageUrl(imageUrl)
                     .build();
+
             userSearchInfoList.add(userSearchInfo);
         }
 
