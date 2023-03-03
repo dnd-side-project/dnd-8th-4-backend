@@ -46,20 +46,25 @@ public class NotificationService {
 		for (Notification notification : notificationList) {
 			log.info("notification ID : {}", notification.getId());
 			log.info("invite ID : {}", notification.getInvite().getId());
-			Group invitedGroup = notification.getInvite().getGroup();
-			InviteNotificationResponse.InviteNotificationInfo notificationInfo = InviteNotificationResponse.InviteNotificationInfo
-				.builder()
-				.notificationType(NotificationType.INVITE)
-				.notificationId(notification.getId())
-				.groupId(invitedGroup.getId())
-				.groupName(invitedGroup.getGroupName())
-				.groupNote(invitedGroup.getGroupNote())
-				.groupImageUrl(invitedGroup.getGroupImageUrl())
-				.groupInvitedAt(notification.getCreatedAt())   // 초대된 날짜
-				.readYn(notification.isReadYn())
-				.build();
-			notificationInfoList.add(notificationInfo);
-			notificationCount += 1;
+			if (notification.getInvite() == null) {
+				continue;
+			}
+			if (notification.getNotificationType() == NotificationType.INVITE) {
+				Group invitedGroup = notification.getInvite().getGroup();
+				InviteNotificationResponse.InviteNotificationInfo notificationInfo = InviteNotificationResponse.InviteNotificationInfo
+						.builder()
+						.notificationType(NotificationType.INVITE)
+						.notificationId(notification.getId())
+						.groupId(invitedGroup.getId())
+						.groupName(invitedGroup.getGroupName())
+						.groupNote(invitedGroup.getGroupNote())
+						.groupImageUrl(invitedGroup.getGroupImageUrl())
+						.groupInvitedAt(notification.getCreatedAt())   // 초대된 날짜
+						.readYn(notification.isReadYn())
+						.build();
+				notificationInfoList.add(notificationInfo);
+				notificationCount += 1;
+			}
 		}
 
 		return InviteNotificationResponse.builder()
@@ -74,6 +79,9 @@ public class NotificationService {
 		List<Notification> notifications = user.getNotifications();
 		for (Notification notification : notifications) {
 			if (notification.getNotificationType() == NotificationType.CONTENT_COMMENT) {
+				if (notification.getContent() == null || notification.getComment() == null) {
+					continue;
+				}
 				Content content = notification.getContent();
 				Group group = content.getGroup();
 				Comment comment = notification.getComment();
@@ -96,6 +104,9 @@ public class NotificationService {
 
 		for (Notification notification : notifications) {
 			if (notification.getNotificationType() == NotificationType.CONTENT_EMOTION) {
+				if (notification.getContent() == null || notification.getEmotion() == null) {
+					continue;
+				}
 				Content content = notification.getContent();
 				Group group = content.getGroup();
 				Emotion emotion = notification.getEmotion();
