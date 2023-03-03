@@ -132,8 +132,10 @@ public class UserDto {
     public static class BookmarkDto {
         private Long contentId;
         private Long userId;
+        private String profileImageUrl;
         private Long groupId;
         private String groupName;
+        private String groupImage;
         private String content;
         private LocalDateTime createAt;
         private Integer views;
@@ -149,8 +151,10 @@ public class UserDto {
          return BookmarkDto.builder()
                  .contentId(content.getId())
                  .userId(content.getUser().getId())
+                 .profileImageUrl(content.getUser().getProfileImageUrl())
                  .groupId(content.getGroup().getId())
                  .groupName(content.getGroup().getGroupName())
+                 .groupImage(content.getGroup().getGroupImageUrl())
                  .content(content.getContent())
                  .createAt(content.getCreatedAt())
                  .views(views)
@@ -169,6 +173,7 @@ public class UserDto {
         private Long contentId;
         private Long groupId;
         private String groupName;
+        private String groupImage;
         private String content;
         private LocalDateTime createAt;
         private Integer views;
@@ -185,6 +190,7 @@ public class UserDto {
                     .contentId(content.getId())
                     .groupId(content.getGroup().getId())
                     .groupName(content.getGroup().getGroupName())
+                    .groupImage(content.getGroup().getGroupImageUrl())
                     .content(content.getContent())
                     .createAt(content.getCreatedAt())
                     .views(views)
@@ -203,6 +209,7 @@ public class UserDto {
         private Long contentId;
         private Long groupId;
         private String groupName;
+        private String groupImage;
         private String content;
         private LocalDateTime createAt;
         private Integer views;
@@ -217,6 +224,7 @@ public class UserDto {
                     .contentId(content.getId())
                     .groupId(content.getGroup().getId())
                     .groupName(content.getGroup().getGroupName())
+                    .groupImage(content.getGroup().getGroupImageUrl())
                     .content(content.getContent())
                     .createAt(content.getCreatedAt())
                     .views(views)

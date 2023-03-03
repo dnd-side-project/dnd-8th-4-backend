@@ -2,9 +2,11 @@ package dnd.diary.service.content;
 
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
+
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.group.NotificationType;
+
 import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.CommentDto;
@@ -18,7 +20,6 @@ import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.mission.StickerRepository;
 import dnd.diary.repository.user.UserRepository;
-import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -50,7 +51,7 @@ public class CommentService {
 
         Sticker sticker = null;
 
-        if(request.getStickerId() != null){
+        if (request.getStickerId() != null) {
             sticker = stickerRepository.findById(request.getStickerId())
                     .orElseThrow(
                             () -> new CustomException(Result.FAIL)
@@ -73,6 +74,17 @@ public class CommentService {
         notificationRepository.save(notification);
 
         return CommentDto.AddCommentDto.response(comment);
+
+        // return CommentDto.AddCommentDto.response(
+        //         commentRepository.save(
+        //                 Comment.builder()
+        //                         .commentNote(request.getCommentNote())
+        //                         .user(getUser(userDetails))
+        //                         .content(getContent(contentId))
+        //                         .sticker(sticker)
+        //                         .build()
+        //         )
+        // );
     }
 
     @Transactional
@@ -92,9 +104,11 @@ public class CommentService {
 
     private Page<CommentDto.pageCommentDto> getPageCommentDtos(UserDetails userDetails, Page<Comment> comments) {
         return comments.map((Comment comment) -> CommentDto.pageCommentDto.response(
-                        comment, commentLikeRepository.existsByCommentIdAndUserId(
+                        comment,
+                        commentLikeRepository.existsByCommentIdAndUserId(
                                 comment.getId(), getUser(userDetails).getId()
-                        )
+                        ),
+                        getUser(userDetails).getId()
                 )
         );
     }
@@ -115,21 +129,21 @@ public class CommentService {
 
     // validate
     private void validateCommentPage(Long contentId) {
-        if (!contentRepository.existsById(contentId)){
+        if (!contentRepository.existsById(contentId)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
     }
 
     private void validateCommentAdd(Long contentId) {
-        if (!contentRepository.existsById(contentId)){
+        if (!contentRepository.existsById(contentId)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
     }
 
     public List<ContentDto.EmotionResponseDto> emotionList(Long contentId) {
         return emotionRepository.findByContentId(contentId)
-                        .stream()
-                        .map(ContentDto.EmotionResponseDto::response)
-                        .toList();
+                .stream()
+                .map(ContentDto.EmotionResponseDto::response)
+                .toList();
     }
 }

@@ -76,6 +76,7 @@ public class CommentDto {
     public static class pageCommentDto {
 
         private Long id;
+        private Long userId;
         private String stickerImageUrl;
         private String commentNote;
         private String profileImageUrl;
@@ -83,10 +84,11 @@ public class CommentDto {
         private LocalDateTime createdAt;
         private Boolean likesExists;
 
-        public static CommentDto.pageCommentDto response(Comment comment, Boolean likesExists) {
+        public static CommentDto.pageCommentDto response(Comment comment, Boolean likesExists, Long userId) {
             if (comment.getSticker() == null){
                 return pageCommentDto.builder()
                         .id(comment.getId())
+                        .userId(userId)
                         .commentNote(comment.getCommentNote())
                         .stickerImageUrl(null)
                         .profileImageUrl(comment.getUser().getProfileImageUrl())
@@ -98,6 +100,7 @@ public class CommentDto {
             else {
                 return pageCommentDto.builder()
                         .id(comment.getId())
+                        .userId(userId)
                         .commentNote(comment.getCommentNote())
                         .stickerImageUrl(comment.getSticker().getStickerImageUrl())
                         .profileImageUrl(comment.getUser().getProfileImageUrl())
