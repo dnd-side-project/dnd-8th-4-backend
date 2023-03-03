@@ -1,6 +1,10 @@
 package dnd.diary.domain.group;
 
 import dnd.diary.domain.BaseEntity;
+import dnd.diary.domain.comment.Comment;
+import dnd.diary.domain.comment.CommentLike;
+import dnd.diary.domain.content.Content;
+import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.user.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,6 +28,22 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "invite_id")
     private Invite invite;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "content_id")
+    private Content content;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_id")
+    private Comment comment;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "emotion_id")
+    private Emotion emotion;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "comment_like_id")
+    private CommentLike commentLike;
+
     // 어떤 사용자의 알림인지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -42,6 +62,7 @@ public class Notification extends BaseEntity {
     @Builder
     private Notification(Invite invite, User user, NotificationType notificationType) {
         this.invite = invite;
+
         this.user = user;
         this.readYn = false;
         this.notificationType = notificationType;
@@ -49,15 +70,60 @@ public class Notification extends BaseEntity {
         user.getNotifications().add(this);
     }
 
-    public static Notification toEntity(Invite invite, User user, NotificationType notificationType) {
+    public static Notification toInviteEntity(Invite invite, User user, NotificationType notificationType) {
         return new Notification(invite, user, notificationType);
     }
 
     // 게시물 댓글 알림
+    @Builder
+    private Notification(Content content, Comment comment, User user, NotificationType notificationType) {
+        this.content = content;
+        this.comment = comment;
+
+        this.user = user;
+        this.readYn = false;
+        this.notificationType = notificationType;
+
+        user.getNotifications().add(this);
+    }
+
+    public static Notification toContentCommentEntity(Content content, Comment comment, User user, NotificationType notificationType) {
+        return new Notification(content, comment, user, notificationType);
+    }
 
     // 게시물 공감 알림
+    @Builder
+    private Notification(Content content, Emotion emotion, User user, NotificationType notificationType) {
+        this.content = content;
+        this.emotion = emotion;
+
+        this.user = user;
+        this.readYn = false;
+        this.notificationType = notificationType;
+
+        user.getNotifications().add(this);
+    }
+
+    public static Notification toContentEmotionEntity(Content content, Emotion emotion, User user, NotificationType notificationType) {
+        return new Notification(content, emotion, user, notificationType);
+    }
 
     // 댓글 공감 알림
+    @Builder
+    private Notification(Comment comment, Emotion emotion, User user, NotificationType notificationType) {
+        this.comment = comment;
+        this.emotion = emotion;
+
+        this.user = user;
+        this.readYn = false;
+        this.notificationType = notificationType;
+
+        user.getNotifications().add(this);
+    }
+
+    public static Notification toCommentEmotionEntity(Comment comment, Emotion emotion, User user, NotificationType notificationType) {
+        return new Notification(comment, emotion, user, notificationType);
+    }
 
     // 알림 읽음 림리
     public void readNotification() {

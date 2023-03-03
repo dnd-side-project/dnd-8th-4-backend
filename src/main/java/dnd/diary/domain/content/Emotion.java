@@ -27,7 +27,6 @@ public class Emotion extends BaseEntity {
     private Content content;
 
     // 공감을 남긴 유저
-//    @OneToOne(fetch = FetchType.LAZY)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

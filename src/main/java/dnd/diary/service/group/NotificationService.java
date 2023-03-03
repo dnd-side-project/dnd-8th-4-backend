@@ -2,15 +2,21 @@ package dnd.diary.service.group;
 
 import static dnd.diary.enumeration.Result.*;
 
+import dnd.diary.domain.comment.Comment;
+import dnd.diary.domain.content.Content;
+import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.Notification;
+import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.userDto.UserDto;
-import dnd.diary.enumeration.NotificationType;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;
+import dnd.diary.response.notification.ContentCommentNotificationResponse;
+import dnd.diary.response.notification.ContentEmotionNotificationResponse;
 import dnd.diary.response.notification.NotificationReadResponse;
+import dnd.diary.response.notification.InviteNotificationResponse;
 import dnd.diary.response.notification.NotificationResponse;
 import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -30,18 +36,18 @@ public class NotificationService {
 
 	private final UserService userService;
 
-	public NotificationResponse getNotificationList() {
+	public InviteNotificationResponse getInviteNotificationList() {
 		User user = findUser();
 		List<Notification> notificationList = user.getNotifications();
 		log.info("유저 알림 개수 : {}", notificationList.size());
 
 		long notificationCount = 0;
-		List<NotificationResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
+		List<InviteNotificationResponse.InviteNotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
 			log.info("notification ID : {}", notification.getId());
 			log.info("invite ID : {}", notification.getInvite().getId());
 			Group invitedGroup = notification.getInvite().getGroup();
-			NotificationResponse.NotificationInfo notificationInfo = NotificationResponse.NotificationInfo
+			InviteNotificationResponse.InviteNotificationInfo notificationInfo = InviteNotificationResponse.InviteNotificationInfo
 				.builder()
 				.notificationType(NotificationType.INVITE)
 				.notificationId(notification.getId())
@@ -56,9 +62,62 @@ public class NotificationService {
 			notificationCount += 1;
 		}
 
-		return NotificationResponse.builder()
+		return InviteNotificationResponse.builder()
 			.notificationInfoList(notificationInfoList)
 			.totalCount(notificationCount)
+			.build();
+	}
+
+	public ContentCommentNotificationResponse getContentCommentNotificationList(User user) {
+
+		List<ContentCommentNotificationResponse.ContentCommentNotificationInfo> notificationInfoList = new ArrayList<>();
+		List<Notification> notifications = user.getNotifications();
+		for (Notification notification : notifications) {
+			if (notification.getNotificationType() == NotificationType.CONTENT_COMMENT) {
+				Content content = notification.getContent();
+				Group group = content.getGroup();
+				Comment comment = notification.getComment();
+				ContentCommentNotificationResponse.ContentCommentNotificationInfo info = new ContentCommentNotificationResponse
+					.ContentCommentNotificationInfo(notification, group, user, content, comment);
+
+				notificationInfoList.add(info);
+			}
+		}
+		return ContentCommentNotificationResponse.builder()
+			.contentCommentNotificationInfoList(notificationInfoList)
+			.count(notificationInfoList.size())
+			.build();
+	}
+
+	public ContentEmotionNotificationResponse getContentEmotionNotificationList(User user) {
+
+		List<ContentEmotionNotificationResponse.ContentEmotionNotificationInfo> notificationInfoList = new ArrayList<>();
+		List<Notification> notifications = user.getNotifications();
+
+		for (Notification notification : notifications) {
+			if (notification.getNotificationType() == NotificationType.CONTENT_EMOTION) {
+				Content content = notification.getContent();
+				Group group = content.getGroup();
+				Emotion emotion = notification.getEmotion();
+				ContentEmotionNotificationResponse.ContentEmotionNotificationInfo info = new ContentEmotionNotificationResponse
+					.ContentEmotionNotificationInfo(notification, group, user, content, emotion);
+
+				notificationInfoList.add(info);
+			}
+		}
+
+		return ContentEmotionNotificationResponse.builder()
+			.contentEmotionNotificationInfoList(notificationInfoList)
+			.count(notificationInfoList.size())
+			.build();
+	}
+
+	public NotificationResponse getAllNotificationList() {
+		User user = findUser();
+		return NotificationResponse.builder()
+			.inviteNotificationResponse(getInviteNotificationList())
+			.contentCommentNotificationResponse(getContentCommentNotificationList(user))
+			.contentEmotionNotificationResponse(getContentEmotionNotificationList(user))
 			.build();
 	}
 

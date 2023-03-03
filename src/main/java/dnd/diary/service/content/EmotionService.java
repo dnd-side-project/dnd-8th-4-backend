@@ -2,10 +2,13 @@ package dnd.diary.service.content;
 
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.Emotion;
+import dnd.diary.domain.group.Notification;
+import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.EmotionDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
+import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
@@ -23,6 +26,7 @@ public class EmotionService {
     private final ContentRepository contentRepository;
     private final EmotionRepository emotionRepository;
     private final UserRepository userRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public CustomResponseEntity<EmotionDto.AddEmotionDto> addEmotion(
@@ -34,16 +38,22 @@ public class EmotionService {
         Emotion existsEmotionUser = emotionRepository.findByContentIdAndUserId(contentId, user.getId());
 
         if (existsEmotionUser == null) {
-            return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(
-                            emotionRepository.save(
-                                    Emotion.builder()
-                                            .emotionStatus(request.getEmotionStatus())
-                                            .content(getContent(contentId))
-                                            .user(user)
-                                            .build()
-                            )
-                    )
-            );
+            Emotion emotion = Emotion.builder()
+                .emotionStatus(request.getEmotionStatus())
+                .content(getContent(contentId))
+                .user(user)
+                .build();
+
+            emotionRepository.save(emotion);
+
+            // 게시물 생성자에게 알림 생성
+            Content content = getContent(contentId);
+            Notification notification = Notification.toContentEmotionEntity(
+                content, emotion, content.getUser(), NotificationType.CONTENT_EMOTION);
+            notificationRepository.save(notification);
+
+            return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(emotion));
+
         } else {
             emotionRepository.deleteById(existsEmotionUser.getId());
             return CustomResponseEntity.successDeleteEmotion();

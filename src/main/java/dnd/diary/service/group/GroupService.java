@@ -339,7 +339,7 @@ public class GroupService {
 			invitedUserInfoList.add(new GroupInviteResponse.InvitedUserInfo(invitedUser));
 
 			Invite invite = Invite.toEntity(inviteGroup, invitedUser);
-			Notification notification = Notification.toEntity(invite, invitedUser, NotificationType.INVITE);
+			Notification notification = Notification.toInviteEntity(invite, invitedUser, NotificationType.INVITE);
 
 			inviteRepository.save(invite);
 			log.info("초대 ID : {}", invite.getId());

@@ -5,12 +5,12 @@ import static dnd.diary.enumeration.Result.*;
 import java.util.List;
 
 import dnd.diary.domain.group.Notification;
+import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.mission.Mission;
 import dnd.diary.domain.mission.UserAssignMission;
-import dnd.diary.enumeration.NotificationType;
 import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.repository.mission.UserAssignMissionRepository;
-import dnd.diary.response.notification.NotificationResponse;
+import dnd.diary.response.notification.InviteNotificationResponse;
 import org.springframework.stereotype.Service;
 
 import dnd.diary.domain.group.Group;
@@ -42,7 +42,7 @@ public class InviteService {
 
 	// 초대 수락
 	@Transactional
-	public NotificationResponse.NotificationInfo acceptInvite(Long groupId, Long notificationId) {
+	public InviteNotificationResponse.InviteNotificationInfo acceptInvite(Long groupId, Long notificationId) {
 		User user = findUser();
 		Group invitedGroup = findGroup(groupId);
 
@@ -69,7 +69,7 @@ public class InviteService {
 
 	// 초대 거절
 	@Transactional
-	public NotificationResponse.NotificationInfo rejectInvite(Long groupId, Long notificationId) {
+	public InviteNotificationResponse.InviteNotificationInfo rejectInvite(Long groupId, Long notificationId) {
 		User user = findUser();
 		Group invitedGroup = findGroup(groupId);
 
@@ -81,8 +81,8 @@ public class InviteService {
 		return toNotificationResponse(notification, invitedGroup);
 	}
 
-	private NotificationResponse.NotificationInfo toNotificationResponse(Notification notification, Group invitedGroup) {
-		NotificationResponse.NotificationInfo notificationInfo = NotificationResponse.NotificationInfo.builder()
+	private InviteNotificationResponse.InviteNotificationInfo toNotificationResponse(Notification notification, Group invitedGroup) {
+		InviteNotificationResponse.InviteNotificationInfo notificationInfo = InviteNotificationResponse.InviteNotificationInfo.builder()
 				.notificationType(NotificationType.INVITE)
 				.notificationId(notification.getId())
 				.groupId(invitedGroup.getId())
