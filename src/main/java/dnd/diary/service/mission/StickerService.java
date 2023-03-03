@@ -64,7 +64,6 @@ public class StickerService {
         User user = findUser();
 
         long progressBarRange = 0;
-//        user.getSubLevel().intValue() != 0 ? (long) (100 * (Math.ceil(user.getSubLevel()) / 3)) : 0;
         if (user.getSubLevel() < 1.5) {
             progressBarRange = 0;
         } else {
