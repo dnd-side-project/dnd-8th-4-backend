@@ -92,7 +92,7 @@ public class NotificationAllResponse {
             this.contentId = content.getId();
             this.commentId = comment.getId();
             this.commentNote = comment.getCommentNote();
-            this.stickerId = comment.getSticker().getId();
+            this.stickerId = comment.getSticker() != null ? comment.getSticker().getId() : null;
 
             this.createdAt = notification.getCreatedAt();
             this.readYn = notification.isReadYn();
