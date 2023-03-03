@@ -134,6 +134,7 @@ public class UserDto {
         private Long userId;
         private Long groupId;
         private String groupName;
+        private String groupImage;
         private String content;
         private LocalDateTime createAt;
         private Integer views;
@@ -151,6 +152,7 @@ public class UserDto {
                  .userId(content.getUser().getId())
                  .groupId(content.getGroup().getId())
                  .groupName(content.getGroup().getGroupName())
+                 .groupImage(content.getGroup().getGroupImageUrl())
                  .content(content.getContent())
                  .createAt(content.getCreatedAt())
                  .views(views)
@@ -169,6 +171,7 @@ public class UserDto {
         private Long contentId;
         private Long groupId;
         private String groupName;
+        private String groupImage;
         private String content;
         private LocalDateTime createAt;
         private Integer views;
@@ -185,6 +188,7 @@ public class UserDto {
                     .contentId(content.getId())
                     .groupId(content.getGroup().getId())
                     .groupName(content.getGroup().getGroupName())
+                    .groupImage(content.getGroup().getGroupImageUrl())
                     .content(content.getContent())
                     .createAt(content.getCreatedAt())
                     .views(views)
@@ -203,6 +207,7 @@ public class UserDto {
         private Long contentId;
         private Long groupId;
         private String groupName;
+        private String groupImage;
         private String content;
         private LocalDateTime createAt;
         private Integer views;
@@ -217,6 +222,7 @@ public class UserDto {
                     .contentId(content.getId())
                     .groupId(content.getGroup().getId())
                     .groupName(content.getGroup().getGroupName())
+                    .groupImage(content.getGroup().getGroupImageUrl())
                     .content(content.getContent())
                     .createAt(content.getCreatedAt())
                     .views(views)
