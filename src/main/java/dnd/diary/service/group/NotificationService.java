@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -192,6 +193,9 @@ public class NotificationService {
 		List<NotificationAllResponse.NotificationInfo> notificationInfoList = getInviteNotificationList2();
 		notificationInfoList.addAll(getContentCommentNotificationList2());
 		notificationInfoList.addAll(getContentEmotionNotificationList2());
+
+		// 알림 최신순 정렬
+		notificationInfoList.sort(Comparator.comparing(NotificationAllResponse.NotificationInfo::getCreatedAt, Comparator.reverseOrder()));
 
 		long notificationCount = notificationInfoList.size();
 		NotificationAllResponse notificationAllResponse = NotificationAllResponse.builder()

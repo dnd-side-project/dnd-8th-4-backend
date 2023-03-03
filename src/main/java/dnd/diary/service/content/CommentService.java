@@ -75,16 +75,6 @@ public class CommentService {
 
         return CommentDto.AddCommentDto.response(comment);
 
-        // return CommentDto.AddCommentDto.response(
-        //         commentRepository.save(
-        //                 Comment.builder()
-        //                         .commentNote(request.getCommentNote())
-        //                         .user(getUser(userDetails))
-        //                         .content(getContent(contentId))
-        //                         .sticker(sticker)
-        //                         .build()
-        //         )
-        // );
     }
 
     @Transactional
