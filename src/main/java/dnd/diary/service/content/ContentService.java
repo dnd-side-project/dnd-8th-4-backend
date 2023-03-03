@@ -128,13 +128,10 @@ public class ContentService {
     ) throws ParseException {
 
         Group group = getGroup(groupId);
-        Point point = null;
-
-        if (latitude != null && longitude != null) {
-            String pointWKT = String.format("POINT(%s %s)", latitude, longitude);
-            point = (Point) new WKTReader().read(pointWKT);
-        }
-
+        Point point =
+                latitude != null && longitude != null ?
+                        (Point) new WKTReader().read(String.format("POINT(%s %s)", latitude, longitude))
+                        : null;
         Content content = contentRepository.save(
                 Content.builder()
                         .content(contentNote)
@@ -148,18 +145,15 @@ public class ContentService {
                         .group(group)
                         .build()
         );
-        group.updateRecentModifiedAt();
-
-        String redisKey = content.getId().toString();
-        redisDao.setValues(redisKey, "0");
 
         if (multipartFile != null) {
             content.updateContentImages(uploadFiles(multipartFile, content));
         }
 
-        return ContentDto.CreateDto.response(
-                content
-        );
+        group.updateRecentModifiedAt();
+        redisDao.setValues(content.getId().toString(), "0");
+
+        return ContentDto.CreateDto.response(content);
     }
 
     @Transactional
