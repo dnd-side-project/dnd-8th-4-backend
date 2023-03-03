@@ -36,13 +36,10 @@ public class NotificationService {
 	public InviteNotificationResponse getInviteNotificationList() {
 		User user = findUser();
 		List<Notification> notificationList = user.getNotifications();
-		log.info("유저 알림 개수 : {}", notificationList.size());
-
+		
 		long notificationCount = 0;
 		List<InviteNotificationResponse.InviteNotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
-			log.info("notification ID : {}", notification.getId());
-			log.info("invite ID : {}", notification.getInvite().getId());
 			if (notification.getInvite() == null) {
 				continue;
 			}
