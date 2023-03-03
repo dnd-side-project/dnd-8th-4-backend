@@ -19,6 +19,7 @@ import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.BookmarkRepository;
+import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.user.UserImageRepository;
 import dnd.diary.repository.user.UserRepository;
@@ -61,6 +62,7 @@ public class UserService {
     private final BookmarkRepository bookmarkRepository;
     private final ContentRepository contentRepository;
     private final UserImageRepository userImageRepository;
+    private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager em;
     private final AmazonS3Client amazonS3Client;
@@ -151,24 +153,10 @@ public class UserService {
             UserDetails userDetails, Integer page
     ) {
         User user = getUser(userDetails.getUsername());
-        Query query = em.createNativeQuery(
-                "" +
-                        "SELECT DISTINCT content_id \n" +
-                        "FROM comment AS c \n" +
-                        "WHERE user_id = ?"
-        ).setParameter(1, user.getId());
-
-        List<Long> contentId = new ArrayList<>();
-        List<BigInteger> contentIntegerId = query.getResultList();
-        contentIntegerId.forEach(id ->
-                contentId.add(id.longValue())
-        );
-
-        log.info(contentId.get(0).toString());
-        log.info(contentId.get(0).getClass().toString());
+        List<Long> distinctContentIdListByUserId = commentRepository.findDistinctContentIdListByUserId(user.getId());
 
         Page<Content> pageMyComment = contentRepository.findByIdIn(
-                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+                distinctContentIdListByUserId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
         return pageMyComment.map((Content content) ->
