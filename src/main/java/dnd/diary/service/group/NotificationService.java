@@ -13,11 +13,7 @@ import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;
-import dnd.diary.response.notification.ContentCommentNotificationResponse;
-import dnd.diary.response.notification.ContentEmotionNotificationResponse;
-import dnd.diary.response.notification.NotificationReadResponse;
-import dnd.diary.response.notification.InviteNotificationResponse;
-import dnd.diary.response.notification.NotificationResponse;
+import dnd.diary.response.notification.*;
 import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -130,6 +126,80 @@ public class NotificationService {
 			.contentCommentNotificationResponse(getContentCommentNotificationList(user))
 			.contentEmotionNotificationResponse(getContentEmotionNotificationList(user))
 			.build();
+	}
+
+	public List<NotificationAllResponse.NotificationInfo> getInviteNotificationList2() {
+		User user = findUser();
+		List<Notification> notificationList = user.getNotifications();
+		log.info("유저 전체 알림 개수 : {}", notificationList.size());
+
+		List<NotificationAllResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
+		for (Notification notification : notificationList) {
+			if (notification.getInvite() == null) {
+				continue;
+			}
+			if (notification.getNotificationType() == NotificationType.INVITE) {
+				NotificationAllResponse.NotificationInfo notificationInfo = new NotificationAllResponse.NotificationInfo(notification);
+				notificationInfoList.add(notificationInfo);
+			}
+		}
+		log.info("그룹 초대 알림 개수 : {}", notificationList.size());
+
+		return notificationInfoList;
+	}
+
+	public List<NotificationAllResponse.NotificationInfo> getContentCommentNotificationList2() {
+		User user = findUser();
+		List<Notification> notificationList = user.getNotifications();
+		log.info("유저 전체 알림 개수 : {}", notificationList.size());
+
+		List<NotificationAllResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
+		for (Notification notification : notificationList) {
+			if (notification.getNotificationType() == NotificationType.CONTENT_COMMENT) {
+				Content content = notification.getContent();
+				Comment comment = notification.getComment();
+				NotificationAllResponse.NotificationInfo notificationInfo = new NotificationAllResponse.NotificationInfo(notification, content, comment);
+				notificationInfoList.add(notificationInfo);
+			}
+		}
+		log.info("게시물 댓글 알림 개수 : {}", notificationList.size());
+
+		return notificationInfoList;
+	}
+
+	public List<NotificationAllResponse.NotificationInfo> getContentEmotionNotificationList2() {
+		User user = findUser();
+		List<Notification> notificationList = user.getNotifications();
+		log.info("유저 전체 알림 개수 : {}", notificationList.size());
+
+		List<NotificationAllResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
+		for (Notification notification : notificationList) {
+			if (notification.getNotificationType() == NotificationType.CONTENT_EMOTION) {
+				Content content = notification.getContent();
+				Emotion emotion = notification.getEmotion();
+				NotificationAllResponse.NotificationInfo notificationInfo = new NotificationAllResponse.NotificationInfo(notification, content, emotion);
+				notificationInfoList.add(notificationInfo);
+			}
+		}
+		log.info("게시물 공감 알림 개수 : {}", notificationList.size());
+
+		return notificationInfoList;
+	}
+
+	public NotificationAllResponse getAllNotificationList2() {
+		User user = findUser();
+
+		List<NotificationAllResponse.NotificationInfo> notificationInfoList = getInviteNotificationList2();
+		notificationInfoList.addAll(getContentCommentNotificationList2());
+		notificationInfoList.addAll(getContentEmotionNotificationList2());
+
+		long notificationCount = notificationInfoList.size();
+		NotificationAllResponse notificationAllResponse = NotificationAllResponse.builder()
+				.notificationInfoList(notificationInfoList)
+				.totalCount(notificationCount)
+				.build();
+
+		return notificationAllResponse;
 	}
 
 	public NotificationReadResponse readNotification(Long notificationId) {

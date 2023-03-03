@@ -1,6 +1,7 @@
 package dnd.diary.controller.group;
 
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.notification.NotificationAllResponse;
 import dnd.diary.response.notification.NotificationReadResponse;
 import dnd.diary.response.notification.InviteNotificationResponse;
 import dnd.diary.response.notification.NotificationResponse;
@@ -29,10 +30,14 @@ public class NotificationController {
 		return CustomResponseEntity.success(notificationService.getAllNotificationList());
 	}
 
+	@GetMapping("/all2")
+	public CustomResponseEntity<NotificationAllResponse> getAllNotificationList2() {
+		return CustomResponseEntity.success(notificationService.getAllNotificationList2());
+	}
+
 	// 알림 단일 클릭(읽기)
 	@GetMapping("/read")
 	public CustomResponseEntity<NotificationReadResponse> readNotification(@RequestParam Long notificationId) {
 		return CustomResponseEntity.success(notificationService.readNotification(notificationId));
 	}
-
 }
