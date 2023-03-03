@@ -132,6 +132,7 @@ public class UserDto {
     public static class BookmarkDto {
         private Long contentId;
         private Long userId;
+        private String profileImageUrl;
         private Long groupId;
         private String groupName;
         private String groupImage;
@@ -150,6 +151,7 @@ public class UserDto {
          return BookmarkDto.builder()
                  .contentId(content.getId())
                  .userId(content.getUser().getId())
+                 .profileImageUrl(content.getUser().getProfileImageUrl())
                  .groupId(content.getGroup().getId())
                  .groupName(content.getGroup().getGroupName())
                  .groupImage(content.getGroup().getGroupImageUrl())
