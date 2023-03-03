@@ -2,6 +2,11 @@ package dnd.diary.service.content;
 
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
+
+import dnd.diary.domain.content.Emotion;
+import dnd.diary.domain.group.Notification;
+import dnd.diary.domain.group.NotificationType;
+
 import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.CommentDto;
@@ -12,6 +17,7 @@ import dnd.diary.repository.content.CommentLikeRepository;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
+import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.mission.StickerRepository;
 import dnd.diary.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +41,7 @@ public class CommentService {
     private final ContentRepository contentRepository;
     private final EmotionRepository emotionRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public CommentDto.AddCommentDto commentAdd(
@@ -51,16 +58,33 @@ public class CommentService {
                     );
         }
 
-        return CommentDto.AddCommentDto.response(
-                commentRepository.save(
-                        Comment.builder()
-                                .commentNote(request.getCommentNote())
-                                .user(getUser(userDetails))
-                                .content(getContent(contentId))
-                                .sticker(sticker)
-                                .build()
-                )
-        );
+        Comment comment = Comment.builder()
+            .commentNote(request.getCommentNote())
+            .user(getUser(userDetails))
+            .content(getContent(contentId))
+            .sticker(sticker)
+            .build();
+
+        commentRepository.save(comment);
+
+        // 게시물 생성자에게 알림 생성
+        Content content = getContent(contentId);
+        Notification notification = Notification.toContentCommentEntity(
+            content, comment, content.getUser(), NotificationType.CONTENT_COMMENT);
+        notificationRepository.save(notification);
+
+        return CommentDto.AddCommentDto.response(comment);
+
+        // return CommentDto.AddCommentDto.response(
+        //         commentRepository.save(
+        //                 Comment.builder()
+        //                         .commentNote(request.getCommentNote())
+        //                         .user(getUser(userDetails))
+        //                         .content(getContent(contentId))
+        //                         .sticker(sticker)
+        //                         .build()
+        //         )
+        // );
     }
 
     @Transactional

@@ -2,6 +2,7 @@ package dnd.diary.controller.group;
 
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.notification.NotificationReadResponse;
+import dnd.diary.response.notification.InviteNotificationResponse;
 import dnd.diary.response.notification.NotificationResponse;
 import dnd.diary.service.group.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,15 @@ public class NotificationController {
 
 	private final NotificationService notificationService;
 
-	// 알림 목록 조회
+	// 초대 알림 목록 조회
 	@GetMapping
-	public CustomResponseEntity<NotificationResponse> getNotificationList() {
-		return CustomResponseEntity.success(notificationService.getNotificationList());
+	public CustomResponseEntity<InviteNotificationResponse> getInviteNotificationList() {
+		return CustomResponseEntity.success(notificationService.getInviteNotificationList());
+	}
+
+	@GetMapping("/all")
+	public CustomResponseEntity<NotificationResponse> getAllNotificationList() {
+		return CustomResponseEntity.success(notificationService.getAllNotificationList());
 	}
 
 	// 알림 단일 클릭(읽기)

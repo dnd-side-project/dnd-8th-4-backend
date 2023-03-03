@@ -463,6 +463,7 @@ public class MissionService {
 			.build();
 	}
 
+	// 유저에게 할당된 미션 중, 지도 범위 내에 존재하는 미션 목록 조회
 	public List<MissionResponse> getMissionListByMap(MissionListByMapRequest missionListByMapRequest) {
 
 		User user = findUser();
@@ -472,12 +473,16 @@ public class MissionService {
 		);
 		List<MissionResponse> missionResponseList = new ArrayList<>();
 		MissionListByMapRequest request = missionListByMapRequest.setStartXY();
+
 		List<Mission> userMissionListWithInMap = missionRepository.findWithinMap(
 				request.getStartLatitude(), request.getEndLatitude(), request.getStartLongitude(), request.getEndLongitude()
 		);
 
 		for (Mission mission : userMissionListWithInMap) {
-			if (mission.getMissionStatus() == MissionStatus.ACTIVE) {
+			if (!userMissionList.contains(mission)) {   // 유저에게 할당된 미션이 아닌 경우
+				continue;
+			}
+			if (mission.getMissionStatus() == MissionStatus.ACTIVE && !mission.isDeleted()) {
 				missionResponseList.add(toMissionResponse(mission));
 			}
 		}

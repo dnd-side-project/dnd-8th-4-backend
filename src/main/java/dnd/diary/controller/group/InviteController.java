@@ -1,7 +1,7 @@
 package dnd.diary.controller.group;
 
 import dnd.diary.response.CustomResponseEntity;
-import dnd.diary.response.notification.NotificationResponse;
+import dnd.diary.response.notification.InviteNotificationResponse;
 import dnd.diary.service.group.InviteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ public class InviteController {
     private final InviteService inviteService;
 
     @GetMapping("/accept")
-    public CustomResponseEntity<NotificationResponse.NotificationInfo> acceptInvite(
+    public CustomResponseEntity<InviteNotificationResponse.InviteNotificationInfo> acceptInvite(
             @RequestParam Long groupId,
             @RequestParam Long notificationId
     ) {
@@ -25,7 +25,7 @@ public class InviteController {
     }
 
     @GetMapping("/reject")
-    public CustomResponseEntity<NotificationResponse.NotificationInfo> rejectInvite(
+    public CustomResponseEntity<InviteNotificationResponse.InviteNotificationInfo> rejectInvite(
             @RequestParam Long groupId,
             @RequestParam Long notificationId
     ) {
