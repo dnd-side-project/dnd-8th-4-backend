@@ -328,6 +328,7 @@ public class ContentDto {
     @Builder
     public static class mapListContentDetail {
         private Long contentId;
+        private String userProfileImage;
         private Long groupId;
         private String location;
         private String content;
@@ -343,6 +344,7 @@ public class ContentDto {
             if (collect.size() != 0){
                 return mapListContentDetail.builder()
                         .contentId(content.getId())
+                        .userProfileImage(content.getUser().getProfileImageUrl())
                         .groupId(content.getGroup().getId())
                         .location(content.getLocation())
                         .content(content.getContent())
@@ -355,6 +357,7 @@ public class ContentDto {
             } else {
                 return mapListContentDetail.builder()
                         .contentId(content.getId())
+                        .userProfileImage(content.getUser().getProfileImageUrl())
                         .groupId(content.getId())
                         .location(content.getLocation())
                         .content(content.getContent())
