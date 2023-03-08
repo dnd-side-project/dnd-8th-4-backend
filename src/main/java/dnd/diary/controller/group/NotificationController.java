@@ -1,7 +1,7 @@
 package dnd.diary.controller.group;
 
 import dnd.diary.response.CustomResponseEntity;
-import dnd.diary.response.notification.NotificationAllResponse;
+import dnd.diary.response.notification.AllNotificationListResponse;
 import dnd.diary.response.notification.NotificationReadResponse;
 import dnd.diary.response.notification.InviteNotificationResponse;
 import dnd.diary.service.group.NotificationService;
@@ -25,7 +25,7 @@ public class NotificationController {
 	}
 
 	@GetMapping("/all")
-	public CustomResponseEntity<NotificationAllResponse> getAllNotificationList() {
+	public CustomResponseEntity<AllNotificationListResponse> getAllNotificationList() {
 		return CustomResponseEntity.success(notificationService.getAllNotificationList());
 	}
 

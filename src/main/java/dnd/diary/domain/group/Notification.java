@@ -44,6 +44,10 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "comment_like_id")
     private CommentLike commentLike;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private Group group;
+
     // 어떤 사용자의 알림인지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -124,6 +128,23 @@ public class Notification extends BaseEntity {
     public static Notification toCommentEmotionEntity(Comment comment, Emotion emotion, User user, NotificationType notificationType) {
         return new Notification(comment, emotion, user, notificationType);
     }
+
+    // 그룹 새 멤버 알림
+    @Builder
+    private Notification(Group group, User user, NotificationType notificationType) {
+        this.group = group;
+
+        this.user = user;
+        this.readYn = false;
+        this.notificationType = notificationType;
+
+        user.getNotifications().add(this);
+    }
+
+    public static Notification toNewGroupMemberEntity(Group group, User user, NotificationType notificationType) {
+        return new Notification(group, user, notificationType);
+    }
+
 
     // 알림 읽음 림리
     public void readNotification() {
