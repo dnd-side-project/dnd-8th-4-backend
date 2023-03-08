@@ -33,7 +33,7 @@ public class NotificationService {
 
 	private final UserService userService;
 
-	public InviteNotificationResponse getInviteNotificationList() {
+	public InviteNotificationResponse getInviteNotification() {
 		User user = findUser();
 		List<Notification> notificationList = user.getNotifications();
 		
@@ -67,67 +67,7 @@ public class NotificationService {
 			.build();
 	}
 
-	public ContentCommentNotificationResponse getContentCommentNotificationList(User user) {
-
-		List<ContentCommentNotificationResponse.ContentCommentNotificationInfo> notificationInfoList = new ArrayList<>();
-		List<Notification> notifications = user.getNotifications();
-		for (Notification notification : notifications) {
-			if (notification.getNotificationType() == NotificationType.CONTENT_COMMENT) {
-				if (notification.getContent() == null || notification.getComment() == null) {
-					continue;
-				}
-				Content content = notification.getContent();
-				Group group = content.getGroup();
-				Comment comment = notification.getComment();
-				ContentCommentNotificationResponse.ContentCommentNotificationInfo info = new ContentCommentNotificationResponse
-					.ContentCommentNotificationInfo(notification, group, user, content, comment);
-
-				notificationInfoList.add(info);
-			}
-		}
-		return ContentCommentNotificationResponse.builder()
-			.contentCommentNotificationInfoList(notificationInfoList)
-			.count(notificationInfoList.size())
-			.build();
-	}
-
-	public ContentEmotionNotificationResponse getContentEmotionNotificationList(User user) {
-
-		List<ContentEmotionNotificationResponse.ContentEmotionNotificationInfo> notificationInfoList = new ArrayList<>();
-		List<Notification> notifications = user.getNotifications();
-
-		for (Notification notification : notifications) {
-			if (notification.getNotificationType() == NotificationType.CONTENT_EMOTION) {
-				if (notification.getContent() == null || notification.getEmotion() == null) {
-					continue;
-				}
-				Content content = notification.getContent();
-				Group group = content.getGroup();
-				Emotion emotion = notification.getEmotion();
-				ContentEmotionNotificationResponse.ContentEmotionNotificationInfo info = new ContentEmotionNotificationResponse
-					.ContentEmotionNotificationInfo(notification, group, user, content, emotion);
-
-				notificationInfoList.add(info);
-			}
-		}
-
-		return ContentEmotionNotificationResponse.builder()
-			.contentEmotionNotificationInfoList(notificationInfoList)
-			.count(notificationInfoList.size())
-			.build();
-	}
-
-	public NotificationResponse getAllNotificationList() {
-		User user = findUser();
-		return NotificationResponse.builder()
-			.inviteNotificationResponse(getInviteNotificationList())
-			.contentCommentNotificationResponse(getContentCommentNotificationList(user))
-			.contentEmotionNotificationResponse(getContentEmotionNotificationList(user))
-			.build();
-	}
-
-	public List<NotificationAllResponse.NotificationInfo> getInviteNotificationList2() {
-		User user = findUser();
+	public List<NotificationAllResponse.NotificationInfo> getInviteNotificationList(User user) {
 		List<Notification> notificationList = user.getNotifications();
 		log.info("유저 전체 알림 개수 : {}", notificationList.size());
 
@@ -146,8 +86,8 @@ public class NotificationService {
 		return notificationInfoList;
 	}
 
-	public List<NotificationAllResponse.NotificationInfo> getContentCommentNotificationList2() {
-		User user = findUser();
+	public List<NotificationAllResponse.NotificationInfo> getContentCommentNotificationList(User user) {
+
 		List<Notification> notificationList = user.getNotifications();
 		log.info("유저 전체 알림 개수 : {}", notificationList.size());
 
@@ -165,8 +105,8 @@ public class NotificationService {
 		return notificationInfoList;
 	}
 
-	public List<NotificationAllResponse.NotificationInfo> getContentEmotionNotificationList2() {
-		User user = findUser();
+	public List<NotificationAllResponse.NotificationInfo> getContentEmotionNotificationList(User user) {
+
 		List<Notification> notificationList = user.getNotifications();
 		log.info("유저 전체 알림 개수 : {}", notificationList.size());
 
@@ -184,12 +124,12 @@ public class NotificationService {
 		return notificationInfoList;
 	}
 
-	public NotificationAllResponse getAllNotificationList2() {
+	public NotificationAllResponse getAllNotificationList() {
 		User user = findUser();
 
-		List<NotificationAllResponse.NotificationInfo> notificationInfoList = getInviteNotificationList2();
-		notificationInfoList.addAll(getContentCommentNotificationList2());
-		notificationInfoList.addAll(getContentEmotionNotificationList2());
+		List<NotificationAllResponse.NotificationInfo> notificationInfoList = getInviteNotificationList(user);
+		notificationInfoList.addAll(getContentCommentNotificationList(user));
+		notificationInfoList.addAll(getContentEmotionNotificationList(user));
 
 		// 알림 최신순 정렬
 		notificationInfoList.sort(Comparator.comparing(NotificationAllResponse.NotificationInfo::getCreatedAt, Comparator.reverseOrder()));
