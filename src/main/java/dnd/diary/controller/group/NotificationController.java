@@ -1,10 +1,9 @@
 package dnd.diary.controller.group;
 
 import dnd.diary.response.CustomResponseEntity;
-import dnd.diary.response.notification.NotificationAllResponse;
+import dnd.diary.response.notification.AllNotificationListResponse;
 import dnd.diary.response.notification.NotificationReadResponse;
 import dnd.diary.response.notification.InviteNotificationResponse;
-import dnd.diary.response.notification.NotificationResponse;
 import dnd.diary.service.group.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,18 +20,13 @@ public class NotificationController {
 
 	// 초대 알림 목록 조회
 	@GetMapping
-	public CustomResponseEntity<InviteNotificationResponse> getInviteNotificationList() {
-		return CustomResponseEntity.success(notificationService.getInviteNotificationList());
+	public CustomResponseEntity<InviteNotificationResponse> getInviteNotification() {
+		return CustomResponseEntity.success(notificationService.getInviteNotification());
 	}
 
 	@GetMapping("/all")
-	public CustomResponseEntity<NotificationResponse> getAllNotificationList() {
+	public CustomResponseEntity<AllNotificationListResponse> getAllNotificationList() {
 		return CustomResponseEntity.success(notificationService.getAllNotificationList());
-	}
-
-	@GetMapping("/all2")
-	public CustomResponseEntity<NotificationAllResponse> getAllNotificationList2() {
-		return CustomResponseEntity.success(notificationService.getAllNotificationList2());
 	}
 
 	// 알림 단일 클릭(읽기)

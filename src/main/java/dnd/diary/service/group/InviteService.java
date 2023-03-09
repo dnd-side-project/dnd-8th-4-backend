@@ -51,9 +51,7 @@ public class InviteService {
 		UserJoinGroup userJoinGroup = UserJoinGroup.toEntity(user, invitedGroup);
 		userJoinGroupRepository.save(userJoinGroup);
 
-		/**
-		 * 이미 그룹에 존재하는 미션 할당 처리
-		 */
+		// 이미 그룹에 존재하는 미션 할당 처리
 		for (Mission mission : invitedGroup.getMissions()) {
 			UserAssignMission addUserAssignMission = UserAssignMission.toEntity(user, mission);
 			userAssignMissionRepository.save(addUserAssignMission);
@@ -63,6 +61,18 @@ public class InviteService {
 
 		Notification notification = findNotification(notificationId);
 		notification.readNotification();
+
+		// 초대 수락한 그룹에 속해 있는 구성원에게 [새 구성원 가입] 알림 발행
+		List<UserJoinGroup> userJoinGroups = invitedGroup.getUserJoinGroups();
+		userJoinGroups.forEach(
+			alreadyUserJoinGroup -> {
+				User alreadyGroupUser = alreadyUserJoinGroup.getUser();
+				if (!user.getId().equals(alreadyGroupUser.getId())) {   // 가입자 제외 새 멤버 알림 전송
+					Notification newGroupMemberNotification = Notification.toNewGroupMemberEntity(invitedGroup, user, alreadyGroupUser, NotificationType.NEW_GROUP_MEMBER);
+					notificationRepository.save(newGroupMemberNotification);
+				}
+			}
+		);
 
 		return toNotificationResponse(notification, invitedGroup);
 	}

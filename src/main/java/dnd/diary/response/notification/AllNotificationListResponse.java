@@ -7,6 +7,7 @@ import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.group.NotificationType;
+import dnd.diary.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +20,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NotificationAllResponse {
+public class AllNotificationListResponse {
 
     private List<NotificationInfo> notificationInfoList;
 
@@ -29,12 +30,12 @@ public class NotificationAllResponse {
         private Long notificationId;
         private NotificationType notificationType;
 
-        private Long groupId;   // 초대된 그룹 ID
-        private String groupName;   // 초대된 그룹 이름
-        private String groupNote;   // 초대된 그룹 소개
-        private String groupImageUrl;   // 초대된 그룹 이미지
+        private Long groupId;   // 초대된 그룹 ID / 새로운 멤버가 추가된 그룹 ID
+        private String groupName;   // 초대된 그룹 이름 / 새로운 멤버가 추가된 그룹 이름
+        private String groupNote;   // 초대된 그룹 소개 / 새로운 멤버가 추가된 그룹 소개
+        private String groupImageUrl;   // 초대된 그룹 이미지 / 새로운 멤버가 추가된 그룹 이미지 url
 
-        // 작성자 관련
+        // 작성자 관련 / 그룹 새 멤버 관련
         private String userName;
         private String userProfileImageUrl;
 
@@ -115,6 +116,26 @@ public class NotificationAllResponse {
 
             this.emotionId = emotion.getId();
             this.emotionStatus = emotion.getEmotionStatus();
+
+            this.createdAt = notification.getCreatedAt();
+            this.readYn = notification.isReadYn();
+        }
+
+        // 그룹 새 멤버 알림 response
+        @Builder
+        public NotificationInfo(Group group, User newGroupUser, Notification notification) {
+            this.notificationId = notification.getId();
+            this.notificationType = notification.getNotificationType();
+
+            // 새 구성원이 들어온 그룹 정보
+            this.groupId = group.getId();
+            this.groupName = group.getGroupName();
+            this.groupNote = group.getGroupNote();
+            this.groupImageUrl = group.getGroupImageUrl();
+
+            // 그룹에 새로 가입한 구성원 정보
+            this.userName = newGroupUser.getName();
+            this.userProfileImageUrl = newGroupUser.getProfileImageUrl();
 
             this.createdAt = notification.getCreatedAt();
             this.readYn = notification.isReadYn();
