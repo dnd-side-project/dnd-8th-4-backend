@@ -81,12 +81,14 @@ public class AllNotificationListResponse {
             this.notificationId = notification.getId();
             this.notificationType = notification.getNotificationType();
 
+            // 내 게시물이 속한 그룹 정보
             Group targetGroup = content.getGroup();
             this.groupId = targetGroup.getId();
             this.groupName = targetGroup.getGroupName();
             this.groupNote = targetGroup.getGroupNote();
             this.groupImageUrl = targetGroup.getGroupImageUrl();
 
+            // 내 게시물 댓글 작성자 정보
             this.userName = comment.getUser().getName();
             this.userProfileImageUrl = comment.getUser().getProfileImageUrl();
 
