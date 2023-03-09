@@ -95,10 +95,10 @@ public class NotificationService {
 
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
-			if (notification.getInvite() == null) {
-				continue;
-			}
 			if (notification.getNotificationType() == NotificationType.INVITE) {
+				if (notification.getInvite() == null) {
+					continue;
+				}
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification);
 				notificationInfoList.add(notificationInfo);
 			}
@@ -117,6 +117,9 @@ public class NotificationService {
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
 			if (notification.getNotificationType() == NotificationType.CONTENT_COMMENT) {
+				if (notification.getContent() == null || notification.getComment() == null) {
+					continue;
+				}
 				Content content = notification.getContent();
 				Comment comment = notification.getComment();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification, content, comment);
@@ -137,6 +140,9 @@ public class NotificationService {
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
 			if (notification.getNotificationType() == NotificationType.CONTENT_EMOTION) {
+				if (notification.getContent() == null || notification.getEmotion() == null) {
+					continue;
+				}
 				Content content = notification.getContent();
 				Emotion emotion = notification.getEmotion();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification, content, emotion);
@@ -157,6 +163,9 @@ public class NotificationService {
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
 			if (notification.getNotificationType() == NotificationType.NEW_GROUP_MEMBER) {
+				if (notification.getGroup() == null || notification.getNewGroupUser() == null) {
+					continue;
+				}
 				Group group = notification.getGroup();
 				User newGroupUser = notification.getNewGroupUser();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(group, newGroupUser, notification);
