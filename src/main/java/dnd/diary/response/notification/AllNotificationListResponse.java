@@ -123,7 +123,7 @@ public class AllNotificationListResponse {
 
         // 그룹 새 멤버 알림 response
         @Builder
-        public NotificationInfo(Group group, User user, Notification notification) {
+        public NotificationInfo(Group group, User newGroupUser, Notification notification) {
             this.notificationId = notification.getId();
             this.notificationType = notification.getNotificationType();
 
@@ -134,8 +134,8 @@ public class AllNotificationListResponse {
             this.groupImageUrl = group.getGroupImageUrl();
 
             // 그룹에 새로 가입한 구성원 정보
-            this.userName = user.getName();
-            this.userProfileImageUrl = user.getProfileImageUrl();
+            this.userName = newGroupUser.getName();
+            this.userProfileImageUrl = newGroupUser.getProfileImageUrl();
 
             this.createdAt = notification.getCreatedAt();
             this.readYn = notification.isReadYn();

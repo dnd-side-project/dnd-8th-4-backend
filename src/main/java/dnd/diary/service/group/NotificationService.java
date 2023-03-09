@@ -67,7 +67,29 @@ public class NotificationService {
 			.build();
 	}
 
-	public List<AllNotificationListResponse.NotificationInfo> getInviteNotificationList(User user) {
+	// 전체 알림 목록 조회
+	public AllNotificationListResponse getAllNotificationList() {
+		User user = findUser();
+
+		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = getInviteNotificationList(user);
+		notificationInfoList.addAll(getContentCommentNotificationList(user));
+		notificationInfoList.addAll(getContentEmotionNotificationList(user));
+		notificationInfoList.addAll(getNewGroupMemberNotificationList(user));
+
+		// 알림 최신순 정렬
+		notificationInfoList.sort(Comparator.comparing(AllNotificationListResponse.NotificationInfo::getCreatedAt, Comparator.reverseOrder()));
+
+		long notificationCount = notificationInfoList.size();
+		AllNotificationListResponse allNotificationListResponse = AllNotificationListResponse.builder()
+				.notificationInfoList(notificationInfoList)
+				.totalCount(notificationCount)
+				.build();
+
+		return allNotificationListResponse;
+	}
+
+	// 초대 알림 목록
+	private List<AllNotificationListResponse.NotificationInfo> getInviteNotificationList(User user) {
 		List<Notification> notificationList = user.getNotifications();
 		log.info("유저 전체 알림 개수 : {}", notificationList.size());
 
@@ -86,7 +108,8 @@ public class NotificationService {
 		return notificationInfoList;
 	}
 
-	public List<AllNotificationListResponse.NotificationInfo> getContentCommentNotificationList(User user) {
+	// 게시물 댓글 알림 목록
+	private List<AllNotificationListResponse.NotificationInfo> getContentCommentNotificationList(User user) {
 
 		List<Notification> notificationList = user.getNotifications();
 		log.info("유저 전체 알림 개수 : {}", notificationList.size());
@@ -105,7 +128,8 @@ public class NotificationService {
 		return notificationInfoList;
 	}
 
-	public List<AllNotificationListResponse.NotificationInfo> getContentEmotionNotificationList(User user) {
+	// 게시물 공감 알림 목록
+	private List<AllNotificationListResponse.NotificationInfo> getContentEmotionNotificationList(User user) {
 
 		List<Notification> notificationList = user.getNotifications();
 		log.info("유저 전체 알림 개수 : {}", notificationList.size());
@@ -124,23 +148,25 @@ public class NotificationService {
 		return notificationInfoList;
 	}
 
-	public AllNotificationListResponse getAllNotificationList() {
-		User user = findUser();
+	// 그룹 새 멤버 알림 목록
+	private List<AllNotificationListResponse.NotificationInfo> getNewGroupMemberNotificationList(User user) {
 
-		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = getInviteNotificationList(user);
-		notificationInfoList.addAll(getContentCommentNotificationList(user));
-		notificationInfoList.addAll(getContentEmotionNotificationList(user));
+		List<Notification> notificationList = user.getNotifications();
+		log.info("유저 전체 알림 개수 : {} : ", notificationList.size());
 
-		// 알림 최신순 정렬
-		notificationInfoList.sort(Comparator.comparing(AllNotificationListResponse.NotificationInfo::getCreatedAt, Comparator.reverseOrder()));
+		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
+		for (Notification notification : notificationList) {
+			if (notification.getNotificationType() == NotificationType.NEW_GROUP_MEMBER) {
+				Group group = notification.getGroup();
+				User newGroupUser = notification.getNewGroupUser();
+				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(group, newGroupUser, notification);
+				notificationInfoList.add(notificationInfo);
+			}
+		}
 
-		long notificationCount = notificationInfoList.size();
-		AllNotificationListResponse allNotificationListResponse = AllNotificationListResponse.builder()
-				.notificationInfoList(notificationInfoList)
-				.totalCount(notificationCount)
-				.build();
+		log.info("그룹 새 멤버 알림 개수 : {}", notificationInfoList.size());
 
-		return allNotificationListResponse;
+		return notificationInfoList;
 	}
 
 	public NotificationReadResponse readNotification(Long notificationId) {

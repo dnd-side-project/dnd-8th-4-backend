@@ -68,7 +68,7 @@ public class InviteService {
 			alreadyUserJoinGroup -> {
 				User alreadyGroupUser = alreadyUserJoinGroup.getUser();
 				if (!user.getId().equals(alreadyGroupUser.getId())) {   // 가입자 제외 새 멤버 알림 전송
-					Notification newGroupMemberNotification = Notification.toNewGroupMemberEntity(invitedGroup, alreadyGroupUser, NotificationType.NEW_GROUP_MEMBER);
+					Notification newGroupMemberNotification = Notification.toNewGroupMemberEntity(invitedGroup, user, alreadyGroupUser, NotificationType.NEW_GROUP_MEMBER);
 					notificationRepository.save(newGroupMemberNotification);
 				}
 			}
