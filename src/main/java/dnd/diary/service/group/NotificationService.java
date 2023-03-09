@@ -117,9 +117,14 @@ public class NotificationService {
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
 			if (notification.getNotificationType() == NotificationType.CONTENT_COMMENT) {
+			    // 알림의 게시물/댓글 정보가 없는 경우 제외
 				if (notification.getContent() == null || notification.getComment() == null) {
 					continue;
 				}
+				// 이미 삭제된 게시물일 경우 제외
+                if (notification.getContent().getDeleteAt() != null) {
+                    continue;
+                }
 				Content content = notification.getContent();
 				Comment comment = notification.getComment();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification, content, comment);
@@ -140,9 +145,14 @@ public class NotificationService {
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
 			if (notification.getNotificationType() == NotificationType.CONTENT_EMOTION) {
+                // 알림의 게시물/공감 정보가 없는 경우 제외
 				if (notification.getContent() == null || notification.getEmotion() == null) {
 					continue;
 				}
+                // 이미 삭제된 게시물일 경우 제외
+                if (notification.getContent().getDeleteAt() != null) {
+                    continue;
+                }
 				Content content = notification.getContent();
 				Emotion emotion = notification.getEmotion();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification, content, emotion);
@@ -166,6 +176,10 @@ public class NotificationService {
 				if (notification.getGroup() == null || notification.getNewGroupUser() == null) {
 					continue;
 				}
+                // 이미 삭제된 그룹일 경우 제외
+                if (notification.getGroup().isDeleted()) {
+                    continue;
+                }
 				Group group = notification.getGroup();
 				User newGroupUser = notification.getNewGroupUser();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(group, newGroupUser, notification);
