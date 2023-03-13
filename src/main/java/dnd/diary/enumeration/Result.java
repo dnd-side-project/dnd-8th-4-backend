@@ -58,13 +58,13 @@ public enum Result {
 	CONTENT_DELETE_OK(0, "피드 삭제 성공"),
 	EMOTION_DELETE_OK(0, "공감 삭제 성공"),
 	COMMENT_LIKE_DELETE_OK(0, "댓글 좋아요 삭제 성공"),
+	BOOKMARK_DELETE_OK(0, "북마크 삭제 성공"),
 	NOT_FOUND_CONTENT(2300, "해당 게시글은 존재하지 않습니다."),
 	NOT_FOUND_COMMENT(2301, "해당 댓글은 존재하지 않습니다."),
-
 	NOT_MATCHED_USER_CONTENT(2302, "유저가 작성한 글이 아닙니다."),
 	NOT_SUPPORTED_EMOTION_STATUS(2303, "지원하지 않는 감정 상태입니다."),
 	ALREADY_ADD_BOOKMARK(2304, "이미 북마크한 게시물 입니다."),
-	BOOKMARK_DELETE_OK(0, "북마크 삭제 성공"),
+	NOT_SAVE_EMOTION_DELETE(2305, "아직 공감을 등록하지 않아 공감 삭제 요청을 할 수 없습니다."),
 
 	// 파일 관련
 	FAIL_IMAGE_UPLOAD(2000, "파일 업로드 실패");
