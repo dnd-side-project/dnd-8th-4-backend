@@ -19,6 +19,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
+import static dnd.diary.enumeration.Result.FAIL;
 import static dnd.diary.enumeration.Result.NOT_SAVE_EMOTION_DELETE;
 
 @Service
@@ -40,9 +43,6 @@ public class EmotionService {
         Emotion existsEmotionUser = emotionRepository.findByContentIdAndUserId(contentId, user.getId());
 
         if (existsEmotionUser == null) {
-            if(request.getEmotionStatus() == -1){
-                throw new CustomException(NOT_SAVE_EMOTION_DELETE);
-            }
             // 감정 표현 등록
             Emotion emotion = Emotion.builder()
                 .emotionStatus(request.getEmotionStatus())
@@ -62,6 +62,13 @@ public class EmotionService {
         } else if (existsEmotionUser.getEmotionStatus().equals(request.getEmotionStatus())) {
             // 감정 표현 삭제
             emotionRepository.deleteById(existsEmotionUser.getId());
+            Notification notification = notificationRepository
+                    .findByContentIdAndEmotionIdAndUserId(contentId, existsEmotionUser.getId(), user.getId())
+                    .orElseThrow(
+                            () -> new CustomException(FAIL)
+                    );
+
+            notification.deleteEmotionNotification();
             return CustomResponseEntity.successDeleteEmotion();
         } else {
             // 감정 표현 업데이트
