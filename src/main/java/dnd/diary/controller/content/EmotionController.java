@@ -19,12 +19,12 @@ public class EmotionController {
     private final EmotionService emotionService;
 
     @PostMapping("/content/{contentId}/emotion")
-    public CustomResponseEntity<EmotionDto.AddEmotionDto> emotionAdd(
+    public CustomResponseEntity<EmotionDto.AddEmotionDto> emotionSave(
             @AuthenticationPrincipal final UserDetails userDetails,
             @PathVariable(name = "contentId") final Long contentId,
             @Valid @RequestBody final EmotionDto.AddEmotionDto request
     ) {
-        return emotionService.addEmotion(userDetails, contentId, request);
+        return emotionService.saveEmotion(userDetails, contentId, request);
     }
 
 }

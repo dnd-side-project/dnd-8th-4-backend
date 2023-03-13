@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static dnd.diary.enumeration.Result.NOT_SAVE_EMOTION_DELETE;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,7 +31,7 @@ public class EmotionService {
     private final NotificationRepository notificationRepository;
 
     @Transactional
-    public CustomResponseEntity<EmotionDto.AddEmotionDto> addEmotion(
+    public CustomResponseEntity<EmotionDto.AddEmotionDto> saveEmotion(
             UserDetails userDetails, Long contentId, EmotionDto.AddEmotionDto request
     ) {
         validateAddEmotion(request,contentId);
@@ -38,12 +40,15 @@ public class EmotionService {
         Emotion existsEmotionUser = emotionRepository.findByContentIdAndUserId(contentId, user.getId());
 
         if (existsEmotionUser == null) {
+            if(request.getEmotionStatus() == -1){
+                throw new CustomException(NOT_SAVE_EMOTION_DELETE);
+            }
+            // 감정 표현 등록
             Emotion emotion = Emotion.builder()
                 .emotionStatus(request.getEmotionStatus())
                 .content(getContent(contentId))
                 .user(user)
                 .build();
-
             emotionRepository.save(emotion);
 
             // 게시물 생성자에게 알림 생성
@@ -54,9 +59,14 @@ public class EmotionService {
 
             return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(emotion));
 
-        } else {
+        } else if (existsEmotionUser.getEmotionStatus().equals(request.getEmotionStatus())) {
+            // 감정 표현 삭제
             emotionRepository.deleteById(existsEmotionUser.getId());
             return CustomResponseEntity.successDeleteEmotion();
+        } else {
+            // 감정 표현 업데이트
+            existsEmotionUser.updateEmotion(request.getEmotionStatus());
+            return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(existsEmotionUser));
         }
     }
 
