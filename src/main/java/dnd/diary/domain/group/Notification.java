@@ -152,10 +152,19 @@ public class Notification extends BaseEntity {
         return new Notification(group, newGroupUser, user, notificationType);
     }
 
-
     // 알림 읽음 림리
     public void readNotification() {
         this.readYn = true;
+    }
+
+    // emotion 삭제시 알림 emotionId 변경
+    public void deleteEmotionNotification(){
+        this.emotion = null;
+    }
+
+    // emotion 변경시 알림 emotionId 변경
+    public void updateEmotionNotification(){
+        this.emotion = null;
     }
 
 }
