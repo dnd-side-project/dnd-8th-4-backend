@@ -152,7 +152,7 @@ public class Notification extends BaseEntity {
         return new Notification(group, newGroupUser, user, notificationType);
     }
 
-    // 알림 읽음 림리
+    // 알림 읽음 처리
     public void readNotification() {
         this.readYn = true;
     }
