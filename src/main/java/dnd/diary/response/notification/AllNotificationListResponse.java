@@ -116,6 +116,8 @@ public class AllNotificationListResponse {
             this.userName = emotion.getUser().getName();
             this.userProfileImageUrl = emotion.getUser().getProfileImageUrl();
 
+            this.contentId = content.getId();
+      
             this.emotionId = emotion.getId();
             this.emotionStatus = emotion.getEmotionStatus();
 
