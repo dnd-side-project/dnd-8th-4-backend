@@ -36,6 +36,7 @@ public class ContentDto {
         private LocalDateTime createAt;
         private long views;
         private String contentLink;
+        private Boolean deletedYn;
         private Long comments;
         private Long emotions;
         private Long emotionStatus;
@@ -60,6 +61,7 @@ public class ContentDto {
                     .createAt(content.getCreatedAt())
                     .views(Long.parseLong(views))
                     .contentLink(content.getContentLink())
+                    .deletedYn(content.getDeletedYn())
                     .comments((long) content.getComments().size())
                     .emotions((long) content.getEmotions().size())
                     .emotionStatus(emotionStatus)
@@ -193,6 +195,7 @@ public class ContentDto {
         private Boolean bookmarkAddStatus;
         private Long emotionStatus;
         private String contentLink;
+        private Boolean deletedYn;
         List<ContentDto.ImageResponseDto> collect;
 
         public static ContentDto.detailDto response(
@@ -210,6 +213,7 @@ public class ContentDto {
                     .location(content.getLocation())
                     .views(views)
                     .contentLink(content.getContentLink())
+                    .deletedYn(content.getDeletedYn())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
                     .collect(collect)
@@ -236,6 +240,7 @@ public class ContentDto {
         private String location;
         private long views;
         private String contentLink;
+        private Boolean deletedYn;
         private Long userId;
         private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
@@ -252,6 +257,7 @@ public class ContentDto {
                     .location(content.getLocation())
                     .views(views)
                     .contentLink(content.getContentLink())
+                    .deletedYn(content.getDeletedYn())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
                     .collect(content.getContentImages()
@@ -277,6 +283,7 @@ public class ContentDto {
     @Builder
     public static class deleteContent {
         private Long contentid;
+        private Boolean deletedYn;
     }
 
     @AllArgsConstructor

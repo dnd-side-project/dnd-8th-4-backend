@@ -96,7 +96,7 @@ public class NotificationService {
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
 			if (notification.getNotificationType() == NotificationType.INVITE) {
-				if (notification.getInvite() == null) {
+				if (notification.getInvite() == null) {   // 초대 정보가 없는 알림인 경우
 					continue;
 				}
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification);
@@ -121,10 +121,10 @@ public class NotificationService {
 				if (notification.getContent() == null || notification.getComment() == null) {
 					continue;
 				}
-				// 이미 삭제된 게시물일 경우 제외
-                if (notification.getContent().getDeleteAt() != null) {
-                    continue;
-                }
+				// 이미 삭제된 게시물일 경우에도 포함
+//                if (notification.getContent().getDeletedYn()) {
+//                    continue;
+//                }
 				Content content = notification.getContent();
 				Comment comment = notification.getComment();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification, content, comment);
@@ -149,10 +149,10 @@ public class NotificationService {
 				if (notification.getContent() == null || notification.getEmotion() == null) {
 					continue;
 				}
-                // 이미 삭제된 게시물일 경우
-                if (notification.getContent().getDeleteAt() != null) {
-                    continue;
-                }
+                // 이미 삭제된 게시물일 경우에도 포함
+//                if (notification.getContent().getDeletedYn()) {
+//                    continue;
+//                }
 				Content content = notification.getContent();
 				Emotion emotion = notification.getEmotion();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification, content, emotion);
@@ -177,7 +177,7 @@ public class NotificationService {
 					continue;
 				}
                 // 이미 삭제된 그룹일 경우 제외
-                if (notification.getGroup().isDeleted()) {
+                if (notification.getGroup().isDeleted()) {   // 이미 삭제된 그룹인 경우에도 포함
                     continue;
                 }
 				Group group = notification.getGroup();

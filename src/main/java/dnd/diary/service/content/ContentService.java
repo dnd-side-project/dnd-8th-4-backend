@@ -72,8 +72,8 @@ public class ContentService {
     ) {
         validateGroupListContent(groupId);
 
-        Page<Content> contents = contentRepository.findByGroupId(
-                groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        Page<Content> contents = contentRepository.findByGroupIdAndDeletedYn(
+                groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
         return contents.map(
                 (Content content) -> {
@@ -99,8 +99,8 @@ public class ContentService {
     ) {
         validateGroupAllListContent(groupId);
 
-        Page<Content> contents = contentRepository.findByGroupIdIn(
-                groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        Page<Content> contents = contentRepository.findByGroupIdInAndDeletedYn(
+                groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
         return contents.map(
@@ -134,13 +134,14 @@ public class ContentService {
                         : null;
         Content content = contentRepository.save(
                 Content.builder()
-                        .content(contentNote)
+                        .content(contentNote)// 이미 삭제된 게시물일 경우
                         .latitude(latitude)
                         .longitude(longitude)
                         .point(point)
                         .location(location)
                         .views(0L)
                         .contentLink("test")
+                        .deletedYn(false)
                         .user(getUser(userDetails))
                         .group(group)
                         .build()
@@ -203,6 +204,11 @@ public class ContentService {
                 contentId, getUser(userDetails).getId()
         );
 
+        // 이미 삭제 처리된 게시물일 경우
+        if (content.getDeletedYn()) {
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
+
         List<ContentImage> contentImages = deleteAndSaveContentImage(
                 multipartFile, contentImageRepository.findImageNameList(contentId), content
         );
@@ -220,9 +226,11 @@ public class ContentService {
     public CustomResponseEntity<ContentDto.deleteContent> deleteContent(
             UserDetails userDetails, Long contentId
     ) {
-        contentRepository.delete(
-                existsContentAndUser(contentId, getUser(userDetails).getId())
-        );
+//        contentRepository.delete(
+//                existsContentAndUser(contentId, getUser(userDetails).getId())
+//        );
+        Content content = existsContentAndUser(contentId, getUser(userDetails).getId());
+        content.deleteContent();   // 게시물 삭제 시 상태값만 변경
         return CustomResponseEntity.successDeleteContent();
     }
 
@@ -255,11 +263,13 @@ public class ContentService {
 
         List<Content> contents = query.getResultList();
 
-        return contents.stream().map((Content content) ->
+        return contents.stream()
+                .filter(content -> !content.getDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
+                .map((Content content) ->
                 ContentDto.mapListContent.response(
                         content,
                         getContentImageResponse(content),
-                        contentRepository.countByLocationAndGroupIdIn(content.getLocation(), groupIdList)
+                        contentRepository.countByLocationAndGroupIdInAndDeletedYn(content.getLocation(), groupIdList, false)
                 )
         ).toList();
     }
@@ -267,8 +277,10 @@ public class ContentService {
     @Transactional
     public List<ContentDto.mapListContentDetail> listDetailMyMap(String location, UserDetails userDetails) {
         List<Long> groupId = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
-        List<Content> contentList = contentRepository.findByLocationAndGroupIdIn(location, groupId);
-        return contentList.stream().map((Content content) ->
+        List<Content> contentList = contentRepository.findByLocationAndGroupIdInAndDeletedYn(location, groupId, false);
+        return contentList.stream()
+                .filter(content -> !content.getDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
+                .map((Content content) ->
                 ContentDto.mapListContentDetail.response(
                         content,
                         getContentImageResponse(content)
@@ -280,9 +292,10 @@ public class ContentService {
     public CustomResponseEntity<Page<ContentDto.ContentSearchDto>> contentSearch(
             List<Long> groupId, String word, Integer page
     ) {
+        // 삭제 처리되지 않은 게시물만 조회
         Page<Content> contentPage = contentRepository
-                .findByContentContainingAndGroupIdIn(
-                        word, groupId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+                .findByContentContainingAndGroupIdInAndDeletedYn(
+                        word, groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
                 );
 
         return CustomResponseEntity.success(
@@ -321,7 +334,7 @@ public class ContentService {
     }
 
     private Content existsContentAndUser(Long contentId, Long userId) {
-        return contentRepository.findByIdAndUserId(contentId, userId)
+        return contentRepository.findByIdAndUserIdAndDeletedYn(contentId, userId, false)
                 .orElseThrow(
                         () -> new CustomException(Result.NOT_MATCHED_USER_CONTENT)
                 );
@@ -379,6 +392,10 @@ public class ContentService {
                 .orElseThrow(
                         () -> new CustomException(Result.NOT_FOUND_CONTENT)
                 );
+        // 이미 삭제된 게시물일 경우
+        if (content.getDeletedYn()) {
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
         return content;
     }
 

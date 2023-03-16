@@ -53,6 +53,8 @@ public class Content extends BaseEntity {
     @Column(name = "delete_at", nullable = true)
     private LocalDateTime deleteAt;
 
+    private Boolean deletedYn;   // 게시물 삭제 여부
+
     // 게시물을 작성자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -103,6 +105,10 @@ public class Content extends BaseEntity {
         this.latitude = latitude;
         this.longitude = longitude;
         this.location = location;
+    }
+
+    public void deleteContent() {
+        this.deletedYn = true;
     }
 
 }
