@@ -111,10 +111,15 @@ public class CommentService {
     }
 
     private Content getContent(Long contentId) {
-        return contentRepository.findById(contentId)
+        Content content = contentRepository.findById(contentId)
                 .orElseThrow(
                         () -> new CustomException(Result.NOT_FOUND_CONTENT)
                 );
+        // 이미 삭제된 게시물일 경우
+        if (content.getDeletedYn()) {
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
+        return content;
     }
 
     // validate
@@ -125,7 +130,7 @@ public class CommentService {
     }
 
     private void validateCommentAdd(Long contentId) {
-        if (!contentRepository.existsById(contentId)) {
+        if (!contentRepository.existsByIdAndDeletedYn(contentId, false)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
     }
