@@ -96,7 +96,7 @@ public class EmotionService {
 
     // validate
     private void validateAddEmotion(EmotionDto.AddEmotionDto request, Long contentId) {
-        if (!contentRepository.existsById(contentId)){
+        if (!contentRepository.existsByIdAndDeletedYn(contentId, false)){
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
         if(request.getEmotionStatus()>=6){

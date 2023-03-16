@@ -109,6 +109,7 @@ public class NotificationService {
 	}
 
 	// 게시물 댓글 알림 목록
+	// 이미 삭제된 게시물일 경우에도 포함
 	private List<AllNotificationListResponse.NotificationInfo> getContentCommentNotificationList(User user) {
 
 		List<Notification> notificationList = user.getNotifications();
@@ -121,10 +122,6 @@ public class NotificationService {
 				if (notification.getContent() == null || notification.getComment() == null) {
 					continue;
 				}
-				// 이미 삭제된 게시물일 경우에도 포함
-//                if (notification.getContent().getDeletedYn()) {
-//                    continue;
-//                }
 				Content content = notification.getContent();
 				Comment comment = notification.getComment();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification, content, comment);
@@ -137,6 +134,7 @@ public class NotificationService {
 	}
 
 	// 게시물 공감 알림 목록
+	// 이미 삭제된 게시물일 경우에도 포함
 	private List<AllNotificationListResponse.NotificationInfo> getContentEmotionNotificationList(User user) {
 
 		List<Notification> notificationList = user.getNotifications();
@@ -149,10 +147,6 @@ public class NotificationService {
 				if (notification.getContent() == null || notification.getEmotion() == null) {
 					continue;
 				}
-                // 이미 삭제된 게시물일 경우에도 포함
-//                if (notification.getContent().getDeletedYn()) {
-//                    continue;
-//                }
 				Content content = notification.getContent();
 				Emotion emotion = notification.getEmotion();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification, content, emotion);
