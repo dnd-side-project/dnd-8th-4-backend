@@ -103,7 +103,7 @@ public class NotificationService {
 				notificationInfoList.add(notificationInfo);
 			}
 		}
-		log.info("그룹 초대 알림 개수 : {}", notificationList.size());
+		log.info("그룹 초대 알림 개수 : {}", notificationInfoList.size());
 
 		return notificationInfoList;
 	}
@@ -131,7 +131,7 @@ public class NotificationService {
 				notificationInfoList.add(notificationInfo);
 			}
 		}
-		log.info("게시물 댓글 알림 개수 : {}", notificationList.size());
+		log.info("게시물 댓글 알림 개수 : {}", notificationInfoList.size());
 
 		return notificationInfoList;
 	}
@@ -149,7 +149,7 @@ public class NotificationService {
 				if (notification.getContent() == null || notification.getEmotion() == null) {
 					continue;
 				}
-                // 이미 삭제된 게시물일 경우 제외
+                // 이미 삭제된 게시물일 경우
                 if (notification.getContent().getDeleteAt() != null) {
                     continue;
                 }
@@ -159,7 +159,7 @@ public class NotificationService {
 				notificationInfoList.add(notificationInfo);
 			}
 		}
-		log.info("게시물 공감 알림 개수 : {}", notificationList.size());
+		log.info("게시물 공감 알림 개수 : {}", notificationInfoList.size());
 
 		return notificationInfoList;
 	}

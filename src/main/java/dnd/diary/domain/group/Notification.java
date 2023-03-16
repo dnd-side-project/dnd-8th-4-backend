@@ -10,9 +10,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 
+@Slf4j
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -157,10 +159,13 @@ public class Notification extends BaseEntity {
         this.readYn = true;
     }
 
-    // emotion 삭제시 알림 emotionId 변경
-    public void deleteEmotionNotification(){
-        this.emotion = null;
-    }
+//    // emotion 삭제 시 공감 알림은 유지
+//    public void remainEmotionNotification(){
+//        Boolean emotionYn = this.emotion.getEmotionYn();
+//        log.info("emotion 삭제 전 emotionYn 상태 : {}", emotionYn);
+//        emotionYn = false;
+//        log.info("emotion 삭제 후 emotionYn 상태 : {}", emotionYn);
+//    }
 
     // emotion 변경시 알림 emotionId 변경
     public void updateEmotionNotification(){

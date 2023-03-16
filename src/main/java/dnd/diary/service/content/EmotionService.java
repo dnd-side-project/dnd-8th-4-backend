@@ -48,6 +48,7 @@ public class EmotionService {
                 .emotionStatus(request.getEmotionStatus())
                 .content(getContent(contentId))
                 .user(user)
+                .emotionYn(true)
                 .build();
             emotionRepository.save(emotion);
 
@@ -61,14 +62,15 @@ public class EmotionService {
 
         } else if (existsEmotionUser.getEmotionStatus().equals(request.getEmotionStatus())) {
             // 감정 표현 삭제
-            emotionRepository.deleteById(existsEmotionUser.getId());
-            Notification notification = notificationRepository
-                    .findByContentIdAndEmotionIdAndUserId(contentId, existsEmotionUser.getId(), user.getId())
-                    .orElseThrow(
-                            () -> new CustomException(FAIL)
-                    );
+//            emotionRepository.deleteById(existsEmotionUser.getId());
+            existsEmotionUser.cancelEmotion();
+//            Notification notification = notificationRepository
+//                    .findByContentIdAndEmotionIdAndUserId(contentId, existsEmotionUser.getId(), user.getId())
+//                    .orElseThrow(
+//                            () -> new CustomException(FAIL)
+//                    );
 
-            notification.deleteEmotionNotification();
+//            notification.remainEmotionNotification();
             return CustomResponseEntity.successDeleteEmotion();
         } else {
             // 감정 표현 업데이트
