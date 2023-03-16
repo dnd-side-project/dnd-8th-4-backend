@@ -24,6 +24,7 @@ public class EmotionDto {
         private Long emotionStatus;
         private Long contentId;
         private Long userId;
+        private Boolean emotionYn;
 
         public static EmotionDto.AddEmotionDto response(Emotion emotion){
             return AddEmotionDto.builder()
@@ -31,6 +32,7 @@ public class EmotionDto {
                     .emotionStatus(emotion.getEmotionStatus())
                     .contentId(emotion.getContent().getId())
                     .userId(emotion.getUser().getId())
+                    .emotionYn(true)
                     .build();
         }
     }

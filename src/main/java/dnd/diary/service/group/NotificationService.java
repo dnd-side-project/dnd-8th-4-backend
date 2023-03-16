@@ -149,7 +149,7 @@ public class NotificationService {
 				if (notification.getContent() == null || notification.getEmotion() == null) {
 					continue;
 				}
-                // 이미 삭제된 게시물일 경우 제외
+                // 이미 삭제된 게시물일 경우
                 if (notification.getContent().getDeleteAt() != null) {
                     continue;
                 }
