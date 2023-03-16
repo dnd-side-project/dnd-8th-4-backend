@@ -131,8 +131,8 @@ public class UserService {
 
         // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
         List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userDetails.getUsername()).getId());
-        Page<Content> bookmarkPage = contentRepository.findByIdIn(
-                contentIdList, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        Page<Content> bookmarkPage = contentRepository.findByIdInAndDeletedYn(
+                contentIdList, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
         return bookmarkPage.map((Content content) -> UserDto.BookmarkDto.response(
@@ -155,8 +155,8 @@ public class UserService {
         User user = getUser(userDetails.getUsername());
         List<Long> distinctContentIdListByUserId = commentRepository.findDistinctContentIdListByUserId(user.getId());
 
-        Page<Content> pageMyComment = contentRepository.findByIdIn(
-                distinctContentIdListByUserId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        Page<Content> pageMyComment = contentRepository.findByIdInAndDeletedYn(
+                distinctContentIdListByUserId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
         return pageMyComment.map((Content content) ->
@@ -178,8 +178,8 @@ public class UserService {
                         () -> new CustomException(Result.FAIL)
                 );
 
-        Page<Content> pageMyContent = contentRepository.findByUserId(
-                user.getId(), PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        Page<Content> pageMyContent = contentRepository.findByUserIdAndDeletedYn(
+                user.getId(), false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
         return pageMyContent.map((Content content) ->
