@@ -44,7 +44,7 @@ public class NotificationService {
 				continue;
 			}
 			if (notification.getNotificationType() == NotificationType.INVITE) {
-				Group invitedGroup = notification.getInvite().getGroup();
+				Group invitedGroup = notification.getInvite().getGroup();   // 이미 삭제된 그룹 알림도 포함
 				InviteNotificationResponse.InviteNotificationInfo notificationInfo = InviteNotificationResponse.InviteNotificationInfo
 						.builder()
 						.notificationType(NotificationType.INVITE)
@@ -170,10 +170,7 @@ public class NotificationService {
 				if (notification.getGroup() == null || notification.getNewGroupUser() == null) {
 					continue;
 				}
-                // 이미 삭제된 그룹일 경우 제외
-                if (notification.getGroup().isDeleted()) {   // 이미 삭제된 그룹인 경우에도 포함
-                    continue;
-                }
+				// 이미 삭제된 그룹인 경우에도 포함
 				Group group = notification.getGroup();
 				User newGroupUser = notification.getNewGroupUser();
 				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(group, newGroupUser, notification);
