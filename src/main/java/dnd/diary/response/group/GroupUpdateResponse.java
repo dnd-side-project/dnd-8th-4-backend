@@ -31,4 +31,6 @@ public class GroupUpdateResponse {
 
     private boolean isGroupDelete;
 
+    private boolean deletedYn;
+
 }

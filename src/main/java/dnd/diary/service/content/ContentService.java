@@ -205,7 +205,7 @@ public class ContentService {
         );
 
         // 이미 삭제 처리된 게시물일 경우
-        if (content.getDeletedYn()) {
+        if (content.isDeletedYn()) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
 
@@ -264,7 +264,7 @@ public class ContentService {
         List<Content> contents = query.getResultList();
 
         return contents.stream()
-                .filter(content -> !content.getDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
+                .filter(content -> !content.isDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
                 .map((Content content) ->
                 ContentDto.mapListContent.response(
                         content,
@@ -279,7 +279,7 @@ public class ContentService {
         List<Long> groupId = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
         List<Content> contentList = contentRepository.findByLocationAndGroupIdInAndDeletedYn(location, groupId, false);
         return contentList.stream()
-                .filter(content -> !content.getDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
+                .filter(content -> !content.isDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
                 .map((Content content) ->
                 ContentDto.mapListContentDetail.response(
                         content,
@@ -393,7 +393,7 @@ public class ContentService {
                         () -> new CustomException(Result.NOT_FOUND_CONTENT)
                 );
         // 이미 삭제된 게시물일 경우
-        if (content.getDeletedYn()) {
+        if (content.isDeletedYn()) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
         return content;

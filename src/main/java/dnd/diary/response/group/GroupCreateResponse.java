@@ -33,6 +33,8 @@ public class GroupCreateResponse {
 
     private boolean isGroupDelete;
 
+    private boolean deletedYn;
+
     // 현재 그룹에 가입된 구성원 정보
     private List<GroupCreateResponse.GroupMember> groupMemberList = new ArrayList<>();
 

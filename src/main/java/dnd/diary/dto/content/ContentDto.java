@@ -61,7 +61,7 @@ public class ContentDto {
                     .createAt(content.getCreatedAt())
                     .views(Long.parseLong(views))
                     .contentLink(content.getContentLink())
-                    .deletedYn(content.getDeletedYn())
+                    .deletedYn(content.isDeletedYn())
                     .comments((long) content.getComments().size())
                     .emotions((long) content.getEmotions().size())
                     .emotionStatus(emotionStatus)
@@ -150,6 +150,7 @@ public class ContentDto {
         private String location;
         private long views;
         private String contentLink;
+        private boolean deletedYn;
         private Long userId;
         private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
@@ -165,6 +166,7 @@ public class ContentDto {
                     .location(content.getLocation())
                     .views(content.getViews())
                     .contentLink(content.getContentLink())
+                    .deletedYn(content.isDeletedYn())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
                     .collect(content.getContentImages()
@@ -195,7 +197,7 @@ public class ContentDto {
         private Boolean bookmarkAddStatus;
         private Long emotionStatus;
         private String contentLink;
-        private Boolean deletedYn;
+        private boolean deletedYn;
         List<ContentDto.ImageResponseDto> collect;
 
         public static ContentDto.detailDto response(
@@ -213,7 +215,7 @@ public class ContentDto {
                     .location(content.getLocation())
                     .views(views)
                     .contentLink(content.getContentLink())
-                    .deletedYn(content.getDeletedYn())
+                    .deletedYn(content.isDeletedYn())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
                     .collect(collect)
@@ -240,7 +242,7 @@ public class ContentDto {
         private String location;
         private long views;
         private String contentLink;
-        private Boolean deletedYn;
+        private boolean deletedYn;
         private Long userId;
         private Long groupId;
         List<ContentDto.ImageResponseDto> collect;
@@ -257,7 +259,7 @@ public class ContentDto {
                     .location(content.getLocation())
                     .views(views)
                     .contentLink(content.getContentLink())
-                    .deletedYn(content.getDeletedYn())
+                    .deletedYn(content.isDeletedYn())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
                     .collect(content.getContentImages()
@@ -299,6 +301,7 @@ public class ContentDto {
         private Long groupId;
         private Long counts;
         private String contentImageUrl;
+        private boolean deletedYn;
 
         public static ContentDto.mapListContent response(
                 Content content, List<ContentDto.ImageResponseDto> collect, Long counts
@@ -313,6 +316,7 @@ public class ContentDto {
                         .groupId(content.getGroup().getId())
                         .counts(counts)
                         .contentImageUrl(collect.get(0).imageUrl)
+                        .deletedYn(content.isDeletedYn())
                         .build();
             } else {
                 return mapListContent.builder()
@@ -324,6 +328,7 @@ public class ContentDto {
                         .groupId(content.getGroup().getId())
                         .counts(counts)
                         .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/%EC%BF%B5%EC%95%BC.png")
+                        .deletedYn(content.isDeletedYn())
                         .build();
             }
         }
@@ -344,6 +349,7 @@ public class ContentDto {
         private String createAt;
         private Integer contentImageSize;
         private String contentImageUrl;
+        private boolean deletedYn;
 
         public static ContentDto.mapListContentDetail response(
                 Content content, List<ContentDto.ImageResponseDto> collect
@@ -360,6 +366,7 @@ public class ContentDto {
                         .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
                         .contentImageSize(collect.size())
                         .contentImageUrl(collect.get(0).imageUrl)
+                        .deletedYn(content.isDeletedYn())
                         .build();
             } else {
                 return mapListContentDetail.builder()
@@ -373,6 +380,7 @@ public class ContentDto {
                         .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
                         .contentImageSize(0)
                         .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/%EC%BF%B5%EC%95%BC.png")
+                        .deletedYn(content.isDeletedYn())
                         .build();
             }
         }
@@ -394,6 +402,7 @@ public class ContentDto {
         private LocalDateTime createAt;
         private Integer contentImageListSize;
         List<ContentDto.ImageResponseDto> contentImageList;
+        private Boolean deletedYn;
 
         public static ContentDto.ContentSearchDto response(
                 Content content,
@@ -411,6 +420,7 @@ public class ContentDto {
                     .createAt(content.getCreatedAt())
                     .contentImageListSize(collect.size())
                     .contentImageList(collect)
+                    .deletedYn(content.isDeletedYn())
                     .build();
         }
     }
