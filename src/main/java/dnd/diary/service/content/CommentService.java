@@ -116,7 +116,7 @@ public class CommentService {
                         () -> new CustomException(Result.NOT_FOUND_CONTENT)
                 );
         // 이미 삭제된 게시물일 경우
-        if (content.getDeletedYn()) {
+        if (content.isDeletedYn()) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
         return content;

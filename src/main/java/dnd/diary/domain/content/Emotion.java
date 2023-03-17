@@ -40,7 +40,7 @@ public class Emotion extends BaseEntity {
     private LocalDateTime deleteAt;
 
     // 공감 표현 등록 상태 여부 -> 공감 취소 시 emotionYn = false 처리
-    private Boolean emotionYn;
+    private boolean emotionYn = Boolean.TRUE;
 
     public void updateEmotion(Long emotionStatus){
         this.emotionStatus = emotionStatus;

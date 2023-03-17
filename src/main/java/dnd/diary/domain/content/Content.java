@@ -53,7 +53,7 @@ public class Content extends BaseEntity {
     @Column(name = "delete_at", nullable = true)
     private LocalDateTime deleteAt;
 
-    private Boolean deletedYn;   // 게시물 삭제 여부
+    private boolean deletedYn = Boolean.FALSE;;   // 게시물 삭제 여부
 
     // 게시물을 작성자
     @ManyToOne(fetch = FetchType.LAZY)

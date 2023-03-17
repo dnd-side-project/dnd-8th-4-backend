@@ -88,6 +88,7 @@ public class GroupService {
 			.groupCreatedAt(group.getCreatedAt())
 			.groupModifiedAt(group.getModifiedAt())
 			.recentUpdatedAt(group.getRecentUpdatedAt())
+			.deletedYn(group.isDeletedYn())
 			.groupMemberList(List.of(
 				new GroupCreateResponse.GroupMember(hostUser.getId(), hostUser.getEmail(), hostUser.getNickName()
 					, updateHostUser.getCreatedAt()))
@@ -98,8 +99,7 @@ public class GroupService {
 	@Transactional
 	public GroupUpdateResponse updateGroup(MultipartFile multipartFile, Long groupId, String groupName, String groupNote) {
 		User user = findUser();
-		Group group = groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
-
+		Group group = findGroup(groupId);
 		// 그룹 호스트 유저만 수정 가능
 		if (!group.getGroupCreateUser().getId().equals(user.getId())) {
 			throw new CustomException(FAIL_UPDATE_GROUP);
@@ -128,14 +128,14 @@ public class GroupService {
             .groupModifiedAt(group.getModifiedAt())
             .recentUpdatedAt(group.getRecentUpdatedAt())
 			.isGroupDelete(group.isDeleted())
+			.deletedYn(group.isDeletedYn())
 			.build();
 	}
 
 	@Transactional
 	public void deleteGroup(Long groupId) {
 		User user = findUser();
-		Group group = groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
-
+		Group group = findGroup(groupId);
 		// 방장만 삭제 가능
 		if (!group.getGroupCreateUser().getId().equals(user.getId())) {
 			throw new CustomException(FAIL_DELETE_GROUP);
@@ -153,8 +153,7 @@ public class GroupService {
 	@Transactional
 	public GroupStarResponse starGroup(Long groupId) {
 		User user = findUser();
-
-		Group group = groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
+		Group group = findGroup(groupId);
 		GroupStar groupStar = groupStarRepository.findByGroupIdAndUserId(groupId, user.getId());
 
 		if (groupStar == null) {
@@ -190,7 +189,11 @@ public class GroupService {
 		// 사용자가 가입한 그룹 목록 조회
 		List<Group> groupList = new ArrayList<>();
 		userJoinGroupList.forEach(
-			userJoinGroup -> groupList.add(userJoinGroup.getGroup())
+			userJoinGroup -> {
+				if (!userJoinGroup.getGroup().isDeletedYn()) {
+					groupList.add(userJoinGroup.getGroup());
+				}
+			}
 		);
 
 		GroupListResponse response = new GroupListResponse();
@@ -198,6 +201,9 @@ public class GroupService {
 
 		List<GroupListResponse.GroupInfo> groupInfoList = new ArrayList<>();
 		for (Group group : groupList) {
+			if (group.isDeletedYn()) {
+				continue;
+			}
 			boolean isStarGroup = false;
 			for (GroupStar groupStar : group.getGroupStars()) {
 				if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD && user.getId().equals(groupStar.getUser().getId())) {
@@ -232,6 +238,9 @@ public class GroupService {
 		List<GroupSampleResponse> groupSampleResponseList = new ArrayList<>();
 		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
 			Group group = userJoinGroup.getGroup();
+			if (group.isDeletedYn()) {
+				continue;
+			}
 			groupSampleResponseList.add(
 					GroupSampleResponse.builder()
 							.groupId(group.getId())
@@ -273,7 +282,7 @@ public class GroupService {
 		GroupListResponse response = new GroupListResponse();
 		response.setExistGroup(true);
 		List<GroupListResponse.GroupInfo> groupInfoList = new ArrayList<>();
-		List<Group> searchGroupList = groupRepository.findByGroupNameContainingIgnoreCaseOrGroupNoteContainingIgnoreCase(keyword, keyword);
+		List<Group> searchGroupList = groupRepository.findByGroupNameContainingIgnoreCaseOrGroupNoteContainingIgnoreCaseAndDeletedYn(keyword, keyword, false);
 
 		for (Group group : searchGroupList) {
 			boolean isStarGroup = false;
@@ -307,7 +316,7 @@ public class GroupService {
 	public GroupInviteResponse inviteGroupMember(GroupInviteRequest request) {
 
 		User hostUser = findUser();
-		Group inviteGroup = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
+		Group inviteGroup = findGroup(request.getGroupId());
 
 		// 초대는 방장만 가능
 		if (!hostUser.getId().equals(inviteGroup.getGroupCreateUser().getId())) {
@@ -411,7 +420,7 @@ public class GroupService {
 	}
 
 	private Group findGroup(Long groupId) {
-		return groupRepository.findById(groupId).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
+		return groupRepository.findByIdAndDeletedYn(groupId, false).orElseThrow(() -> new CustomException(NOT_FOUND_GROUP));
 	}
 
 	private void validCreateAndUpdateGroup(String groupName) {

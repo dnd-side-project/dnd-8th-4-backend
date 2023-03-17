@@ -53,6 +53,8 @@ public class Group extends BaseEntity {
 
     private boolean deleted = Boolean.FALSE;   // 그룹 삭제 여부
 
+    private boolean deletedYn = Boolean.FALSE;  // 삭제 여부 컬럼
+
     // 그룹에 가입한 유저 정보
     @OneToMany(mappedBy = "group")
     private List<UserJoinGroup> userJoinGroups = new ArrayList<>();
@@ -81,6 +83,7 @@ public class Group extends BaseEntity {
         this.groupCreateUser = groupCreateUser;
         this.recentUpdatedAt = LocalDateTime.now(ZoneId.of("Asia/Seoul"));   // 그룹 생성일을 초기값으로
         this.deleted = false;
+        this.deletedYn = false;
     }
 
     public static Group toEntity(String groupName, String groupNote, String groupImageUrl, User groupCreateUser) {
@@ -100,5 +103,9 @@ public class Group extends BaseEntity {
     @PreRemove
     public void deleteGroup() {
         this.deleted = false;
+    }
+
+    public void deleteGroupByColumn() {
+        this.deletedYn = true;
     }
 }
