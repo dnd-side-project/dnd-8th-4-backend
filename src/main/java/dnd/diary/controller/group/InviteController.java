@@ -4,6 +4,9 @@ import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.notification.InviteNotificationResponse;
 import dnd.diary.service.group.InviteService;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.io.ParseException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,10 +21,11 @@ public class InviteController {
 
     @GetMapping("/accept")
     public CustomResponseEntity<InviteNotificationResponse.InviteNotificationInfo> acceptInvite(
+            @AuthenticationPrincipal final UserDetails userDetails,
             @RequestParam Long groupId,
             @RequestParam Long notificationId
-    ) {
-        return CustomResponseEntity.success(inviteService.acceptInvite(groupId, notificationId));
+    ) throws ParseException {
+        return CustomResponseEntity.success(inviteService.acceptInvite(userDetails, groupId, notificationId));
     }
 
     @GetMapping("/reject")
