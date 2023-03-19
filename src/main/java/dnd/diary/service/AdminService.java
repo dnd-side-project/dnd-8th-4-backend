@@ -5,6 +5,7 @@ import static dnd.diary.enumeration.Result.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import dnd.diary.response.mission.StickerPerResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,7 +93,7 @@ public class AdminService {
 		List<String> stickerImageUrlList = s3Service.uploadImageList(multipartFiles);
 		List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
 		for (String stickerImageUrl : stickerImageUrlList) {
-			Sticker sticker = Sticker.toEntity(stickerImageUrl, targetStickerGroup);
+			Sticker sticker = Sticker.toEntity(stickerImageUrl, targetStickerGroup, false);
 			stickerRepository.save(sticker);
 
 			stickerInfoList.add(
@@ -112,6 +113,29 @@ public class AdminService {
 			.build();
 	}
 
+	@Transactional
+	public StickerPerResponse createStickerOne(Long stickerGroupId, MultipartFile multipartFiles, boolean mainStickerYn) {
+		// 존재하는 스티커 그룹인지 확인
+		StickerGroup targetStickerGroup = stickerGroupRepository.findById(stickerGroupId).orElseThrow(() -> new CustomException(NOT_FOUND_STICKER_GROUP));
+
+		String stickerImageUrl = s3Service.uploadImage(multipartFiles);
+		Sticker sticker = Sticker.toEntity(stickerImageUrl, targetStickerGroup, mainStickerYn);
+		stickerRepository.save(sticker);
+
+		StickerPerResponse.StickerInfo stickerInfo = StickerPerResponse.StickerInfo.builder()
+				.stickerId(sticker.getId())
+				.stickerImageUrl(sticker.getStickerImageUrl())
+				.mainStickerYn(mainStickerYn)
+				.build();
+
+		return StickerPerResponse.builder()
+				.stickerGroupId(targetStickerGroup.getId())
+				.stickerGroupName(targetStickerGroup.getStickerGroupName())
+				.stickerGroupLevel(targetStickerGroup.getStickerGroupLevel())
+				.stickerGroupThumbnailUrl(targetStickerGroup.getStickerGroupThumbnailUrl())
+				.stickerInfo(stickerInfo)
+				.build();
+	}
 
 	// [관리자] 획득 가능한 스티커 그룹 목록 조회
 	public List<StickerGroupResponse> getSickerGroupList() {

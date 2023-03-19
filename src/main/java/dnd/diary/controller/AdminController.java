@@ -2,6 +2,7 @@ package dnd.diary.controller;
 
 import java.util.List;
 
+import dnd.diary.response.mission.StickerPerResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,6 +70,15 @@ public class AdminController {
 			@RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles
 	) {
 		return CustomResponseEntity.success(adminService.createSticker(stickerGroupId, multipartFiles));
+	}
+
+	@PostMapping("/sticker/one")
+	public CustomResponseEntity<StickerPerResponse> createSticker(
+			@RequestParam Long stickerGroupId,
+			@RequestPart(value = "image", required = false) MultipartFile multipartFile,
+			@RequestParam(required = false) boolean mainStickerYn
+	) {
+		return CustomResponseEntity.success(adminService.createStickerOne(stickerGroupId, multipartFile, mainStickerYn));
 	}
 
 	// [관리자] 획득 가능한 스티커 그룹 별 전체 스티커 목록 조회

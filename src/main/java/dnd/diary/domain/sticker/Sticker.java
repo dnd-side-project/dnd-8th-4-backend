@@ -28,7 +28,7 @@ public class Sticker {
 
 	// 개별 스티커 이미지가, 해당 스티커 그룹의 대표인지 여부
 	// -> 대표 스티커라면, 그 이미지를 스티커 상세 보기 썸네일 이미지로 대체
-	private boolean mainStickerYn;
+	private boolean mainStickerYn = Boolean.FALSE;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "sticker_group_id")
