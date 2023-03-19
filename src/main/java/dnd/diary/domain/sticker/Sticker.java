@@ -26,19 +26,24 @@ public class Sticker {
 
 	private String stickerImageUrl;
 
+	// 개별 스티커 이미지가, 해당 스티커 그룹의 대표인지 여부
+	// -> 대표 스티커라면, 그 이미지를 스티커 상세 보기 썸네일 이미지로 대체
+	private boolean mainStickerYn;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "sticker_group_id")
 	private StickerGroup stickerGroup;
 
 	@Builder
-	private Sticker(String stickerImageUrl, StickerGroup stickerGroup) {
+	private Sticker(String stickerImageUrl, StickerGroup stickerGroup, boolean mainStickerYn) {
 		this.stickerImageUrl = stickerImageUrl;
 		this.stickerGroup = stickerGroup;
+		this.mainStickerYn = mainStickerYn;
 
 		stickerGroup.getStickers().add(this);
 	}
 
-	public static Sticker toEntity(String stickerImageUrl, StickerGroup stickerGroup) {
-		return new Sticker(stickerImageUrl, stickerGroup);
+	public static Sticker toEntity(String stickerImageUrl, StickerGroup stickerGroup, boolean mainStickerYn) {
+		return new Sticker(stickerImageUrl, stickerGroup, mainStickerYn);
 	}
 }
