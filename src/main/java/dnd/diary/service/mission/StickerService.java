@@ -130,7 +130,11 @@ public class StickerService {
         StickerGroup targetStickerGroup = userStickerGroup.getStickerGroup();
 
         List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
+        String stickerGroupThumbnailUrl = "";
         for (Sticker sticker : targetStickerGroup.getStickers()) {
+            if (sticker.isMainStickerYn()) {
+                stickerGroupThumbnailUrl = sticker.getStickerImageUrl();
+            }
             stickerInfoList.add(
                 StickerResponse.StickerInfo.builder()
                     .stickerId(sticker.getId())
@@ -142,7 +146,7 @@ public class StickerService {
             .stickerGroupId(targetStickerGroup.getId())
             .stickerGroupName(targetStickerGroup.getStickerGroupName())
             .stickerGroupLevel(targetStickerGroup.getStickerGroupLevel())
-            .stickerGroupThumbnailUrl(targetStickerGroup.getStickerGroupThumbnailUrl())
+            .stickerGroupThumbnailUrl(stickerGroupThumbnailUrl)
             .stickerInfoList(stickerInfoList)
             .build();
     }
