@@ -85,7 +85,6 @@ public class AdminService {
 	}
 
 	// [관리자] 스티커 그룹 별 개별 스티커 등록
-	/*
 	@Transactional
 	public StickerResponse createSticker(Long stickerGroupId, List<MultipartFile> multipartFiles) {
 		// 존재하는 스티커 그룹인지 확인
@@ -94,7 +93,7 @@ public class AdminService {
 		List<String> stickerImageUrlList = s3Service.uploadImageList(multipartFiles);
 		List<StickerResponse.StickerInfo> stickerInfoList = new ArrayList<>();
 		for (String stickerImageUrl : stickerImageUrlList) {
-			Sticker sticker = Sticker.toEntity(stickerImageUrl, targetStickerGroup, );
+			Sticker sticker = Sticker.toEntity(stickerImageUrl, targetStickerGroup, false);
 			stickerRepository.save(sticker);
 
 			stickerInfoList.add(
@@ -113,10 +112,9 @@ public class AdminService {
 			.stickerInfoList(stickerInfoList)
 			.build();
 	}
-	 */
 
 	@Transactional
-	public StickerPerResponse createSticker(Long stickerGroupId, MultipartFile multipartFiles, boolean mainStickerYn) {
+	public StickerPerResponse createStickerOne(Long stickerGroupId, MultipartFile multipartFiles, boolean mainStickerYn) {
 		// 존재하는 스티커 그룹인지 확인
 		StickerGroup targetStickerGroup = stickerGroupRepository.findById(stickerGroupId).orElseThrow(() -> new CustomException(NOT_FOUND_STICKER_GROUP));
 

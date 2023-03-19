@@ -64,24 +64,21 @@ public class AdminController {
 	}
 
 	// [관리자] 스티커 그룹 별 개별 스티커 등록
-	/*
 	@PostMapping("/sticker")
 	public CustomResponseEntity<StickerResponse> createSticker(
 			@RequestParam Long stickerGroupId,
-			@RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles,
-			@RequestParam(required = false) boolean mainStickerYn
+			@RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles
 	) {
-		return CustomResponseEntity.success(adminService.createSticker(stickerGroupId, multipartFiles, mainStickerYn));
+		return CustomResponseEntity.success(adminService.createSticker(stickerGroupId, multipartFiles));
 	}
-	 */
 
-	@PostMapping("/sticker")
+	@PostMapping("/sticker/one")
 	public CustomResponseEntity<StickerPerResponse> createSticker(
 			@RequestParam Long stickerGroupId,
 			@RequestPart(value = "image", required = false) MultipartFile multipartFile,
 			@RequestParam(required = false) boolean mainStickerYn
 	) {
-		return CustomResponseEntity.success(adminService.createSticker(stickerGroupId, multipartFile, mainStickerYn));
+		return CustomResponseEntity.success(adminService.createStickerOne(stickerGroupId, multipartFile, mainStickerYn));
 	}
 
 	// [관리자] 획득 가능한 스티커 그룹 별 전체 스티커 목록 조회
