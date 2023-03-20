@@ -77,7 +77,7 @@ public class ContentService {
         );
         return contents.map(
                 (Content content) -> {
-                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
+                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), getUser(userDetails).getId(), true);
                     Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
                     Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + userDetails.getUsername())
                             .contains(content.getId().toString());
@@ -105,7 +105,7 @@ public class ContentService {
 
         return contents.map(
                 (Content content) -> {
-                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
+                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), getUser(userDetails).getId(), true);
                     Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
                     Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + userDetails.getUsername())
                             .contains(content.getId().toString());
@@ -176,7 +176,7 @@ public class ContentService {
         List<String> bookmarkStatusList = redisDao.getValuesList("bookmark" + userDetails.getUsername());
         boolean bookmarkAddStatus = bookmarkStatusList.contains(contentId.toString());
 
-        Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserId(content.getId(), getUser(userDetails).getId());
+        Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), getUser(userDetails).getId(), true);
         Long emotionStatus;
         if (byContentIdAndUserId == null) {
             emotionStatus = -1L;
