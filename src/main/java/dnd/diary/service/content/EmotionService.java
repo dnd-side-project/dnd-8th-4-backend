@@ -60,19 +60,25 @@ public class EmotionService {
 
             return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(emotion));
 
-        } else if (existsEmotionUser.getEmotionStatus().equals(request.getEmotionStatus())) {
-//            emotionRepository.deleteById(existsEmotionUser.getId());
-            existsEmotionUser.cancelEmotion();   // 감정 표현 취소
-//            Notification notification = notificationRepository
-//                    .findByContentIdAndEmotionIdAndUserId(contentId, existsEmotionUser.getId(), user.getId())
-//                    .orElseThrow(
-//                            () -> new CustomException(FAIL)
-//                    );
-            return CustomResponseEntity.successDeleteEmotion();
         } else {
-            // 감정 표현 업데이트
-            existsEmotionUser.updateEmotion(request.getEmotionStatus());
-            return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(existsEmotionUser));
+            // 공감이 존재하는 상태에서
+            if (existsEmotionUser.isEmotionYn()) {
+                // 같은 공감을 누를 경우 -> 취소
+                if (existsEmotionUser.getEmotionStatus().equals(request.getEmotionStatus())) {
+                    //            emotionRepository.deleteById(existsEmotionUser.getId());
+                    existsEmotionUser.cancelEmotion();   // 감정 표현 취소
+                    return CustomResponseEntity.successDeleteEmotion();
+                    // 다른 공감을 누를 경우 -> 변경
+                } else {
+                    // 감정 표현 업데이트
+                    existsEmotionUser.updateEmotion(request.getEmotionStatus());
+                    return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(existsEmotionUser));
+                }
+            // 공감이 취소되었던 상태에서
+            } else {
+                existsEmotionUser.updateEmotion(request.getEmotionStatus());
+                return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(existsEmotionUser));
+            }
         }
     }
 
