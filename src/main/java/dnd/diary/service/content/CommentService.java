@@ -137,8 +137,9 @@ public class CommentService {
 
     public List<ContentDto.EmotionResponseDto> emotionList(Long contentId) {
         return emotionRepository.findByContentId(contentId)
-                .stream()
-                .map(ContentDto.EmotionResponseDto::response)
-                .toList();
+            .stream()
+            .filter(Emotion::isEmotionYn)
+            .map(ContentDto.EmotionResponseDto::response)
+            .toList();
     }
 }

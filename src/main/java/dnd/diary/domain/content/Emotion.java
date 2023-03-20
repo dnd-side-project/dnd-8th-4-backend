@@ -44,9 +44,14 @@ public class Emotion extends BaseEntity {
 
     public void updateEmotion(Long emotionStatus){
         this.emotionStatus = emotionStatus;
+        this.emotionYn = true;
     }
 
     public void cancelEmotion() {
         this.emotionYn = false;
+    }
+
+    public void reAddEmotion() {
+        this.emotionYn = true;
     }
 }
