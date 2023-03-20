@@ -61,16 +61,13 @@ public class EmotionService {
             return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(emotion));
 
         } else if (existsEmotionUser.getEmotionStatus().equals(request.getEmotionStatus())) {
-            // 감정 표현 삭제
 //            emotionRepository.deleteById(existsEmotionUser.getId());
-            existsEmotionUser.cancelEmotion();
+            existsEmotionUser.cancelEmotion();   // 감정 표현 취소
 //            Notification notification = notificationRepository
 //                    .findByContentIdAndEmotionIdAndUserId(contentId, existsEmotionUser.getId(), user.getId())
 //                    .orElseThrow(
 //                            () -> new CustomException(FAIL)
 //                    );
-
-//            notification.remainEmotionNotification();
             return CustomResponseEntity.successDeleteEmotion();
         } else {
             // 감정 표현 업데이트
