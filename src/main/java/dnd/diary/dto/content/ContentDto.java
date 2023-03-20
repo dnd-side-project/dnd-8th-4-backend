@@ -72,6 +72,7 @@ public class ContentDto {
                             .toList())
                     .emotionResponseDtos(content.getEmotions()
                             .stream().limit(2)
+                            .filter(Emotion::isEmotionYn)   // 공감이 추가된 상태인 경우에만 응답으로 추가
                             .map(ContentDto.EmotionResponseGroupListDto::response)
                             .toList())
                     .build();
