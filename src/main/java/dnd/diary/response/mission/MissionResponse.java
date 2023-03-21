@@ -17,7 +17,7 @@ public class MissionResponse {
 	private String missionNote;   // 미션 내용
 
 	private Long createUserId;   // 미션 생성자 ID
-	private String createUserName;   // 미션 생성자 이름
+	private String createUserName;   // 미션 생성자 이름 -> nickName
 	private String createUserProfileImageUrl;   // 미션 생성자 프로필
 
 	private Long groupId;   // 미션이 생성된 그룹 ID

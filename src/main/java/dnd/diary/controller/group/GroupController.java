@@ -1,8 +1,6 @@
 package dnd.diary.controller.group;
 
-import dnd.diary.dto.group.GroupCreateRequest;
 import dnd.diary.dto.group.GroupInviteRequest;
-import dnd.diary.dto.group.GroupUpdateRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.group.*;
 import dnd.diary.response.group.GroupInviteResponse;
@@ -61,7 +59,7 @@ public class GroupController {
 	}
 
 	@GetMapping("/list/my")
-	public CustomResponseEntity<List<GroupSampleResponse>> getGroupSimpleList() {
+	public CustomResponseEntity<List<GroupSimpleResponse>> getGroupSimpleList() {
 		return CustomResponseEntity.success(groupService.getGroupSimpleList());
 	}
 

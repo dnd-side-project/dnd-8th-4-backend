@@ -411,7 +411,7 @@ public class ContentDto {
         ) {
             return ContentSearchDto.builder()
                     .userId(content.getUser().getId())
-                    .userName(content.getUser().getName())
+                    .userName(content.getUser().getNickName())
                     .profileImageUrl(content.getUser().getProfileImageUrl())
                     .contentId(content.getId())
                     .groupId(content.getId())

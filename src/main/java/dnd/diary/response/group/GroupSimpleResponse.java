@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupSampleResponse {
+public class GroupSimpleResponse {
 
     private Long groupId;
     private String groupImageUrl;
