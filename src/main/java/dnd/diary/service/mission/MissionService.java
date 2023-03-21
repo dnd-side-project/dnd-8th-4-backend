@@ -132,7 +132,7 @@ public class MissionService {
 			.missionName(mission.getMissionName())
 			.missionNote(mission.getMissionNote())
 			.createUserId(user.getId())
-			.createUserName(user.getName())
+			.createUserName(user.getNickName())
 			.createUserProfileImageUrl(user.getProfileImageUrl())
 
 			.groupId(group.getId())
@@ -437,7 +437,7 @@ public class MissionService {
 			.missionNote(mission.getMissionNote())
 
 			.createUserId(mission.getMissionCreateUser().getId())
-			.createUserName(mission.getMissionCreateUser().getName())
+			.createUserName(mission.getMissionCreateUser().getNickName())
 			.createUserProfileImageUrl(mission.getMissionCreateUser().getProfileImageUrl())
 
 			.groupId(mission.getGroup().getId())

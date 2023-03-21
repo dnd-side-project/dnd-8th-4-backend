@@ -68,7 +68,7 @@ public class AllNotificationListResponse {
             this.groupImageUrl = invitedGroup.getGroupImageUrl();
 
             // 초대한 유저 기준
-            this.userName = invitedGroup.getGroupCreateUser().getName();
+            this.userName = invitedGroup.getGroupCreateUser().getNickName();
             this.userProfileImageUrl = invitedGroup.getGroupCreateUser().getProfileImageUrl();
 
             this.createdAt = notification.getCreatedAt();
@@ -89,7 +89,7 @@ public class AllNotificationListResponse {
             this.groupImageUrl = targetGroup.getGroupImageUrl();
 
             // 내 게시물 댓글 작성자 정보
-            this.userName = comment.getUser().getName();
+            this.userName = comment.getUser().getNickName();
             this.userProfileImageUrl = comment.getUser().getProfileImageUrl();
 
             this.contentId = content.getId();
@@ -113,7 +113,7 @@ public class AllNotificationListResponse {
             this.groupNote = invitedGroup.getGroupNote();
             this.groupImageUrl = invitedGroup.getGroupImageUrl();
 
-            this.userName = emotion.getUser().getName();
+            this.userName = emotion.getUser().getNickName();
             this.userProfileImageUrl = emotion.getUser().getProfileImageUrl();
 
             this.contentId = content.getId();
@@ -138,7 +138,7 @@ public class AllNotificationListResponse {
             this.groupImageUrl = group.getGroupImageUrl();
 
             // 그룹에 새로 가입한 구성원 정보
-            this.userName = newGroupUser.getName();
+            this.userName = newGroupUser.getNickName();
             this.userProfileImageUrl = newGroupUser.getProfileImageUrl();
 
             this.createdAt = notification.getCreatedAt();

@@ -13,8 +13,6 @@ import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.dto.group.GroupInviteRequest;
 import dnd.diary.dto.userDto.UserDto;
-import dnd.diary.dto.group.GroupCreateRequest;
-import dnd.diary.dto.group.GroupUpdateRequest;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupImageRepository;
 import dnd.diary.repository.group.GroupRepository;
@@ -232,24 +230,24 @@ public class GroupService {
 	}
 
 	// 내가 속한 그룹 목록 Simple 조회
-	public List<GroupSampleResponse> getGroupSimpleList() {
+	public List<GroupSimpleResponse> getGroupSimpleList() {
 		User user = findUser();
 		List<UserJoinGroup> userJoinGroupList = user.getUserJoinGroups();
-		List<GroupSampleResponse> groupSampleResponseList = new ArrayList<>();
+		List<GroupSimpleResponse> groupSimpleResponseList = new ArrayList<>();
 		for (UserJoinGroup userJoinGroup : userJoinGroupList) {
 			Group group = userJoinGroup.getGroup();
 			if (group.isDeletedYn()) {
 				continue;
 			}
-			groupSampleResponseList.add(
-					GroupSampleResponse.builder()
+			groupSimpleResponseList.add(
+					GroupSimpleResponse.builder()
 							.groupId(group.getId())
 							.groupName(group.getGroupName())
 							.groupImageUrl(group.getGroupImageUrl())
 							.build()
 			);
 		}
-		return groupSampleResponseList;
+		return groupSimpleResponseList;
 	}
 
 	public List<GroupStarListResponse> getGroupStarList() {
@@ -387,7 +385,7 @@ public class GroupService {
 			User groupUser = userJoinGroup.getUser();
 			GroupDetailResponse.GroupMemberInfo groupMemberInfo = GroupDetailResponse.GroupMemberInfo.builder()
 				.userId(groupUser.getId())
-				.userName(groupUser.getName())
+				.userName(groupUser.getNickName())
 				.userNickname(groupUser.getNickName())
 				.userEmail(groupUser.getEmail())
 				.userProfileImageUrl(groupUser.getProfileImageUrl())
