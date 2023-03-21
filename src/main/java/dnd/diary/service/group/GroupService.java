@@ -385,7 +385,7 @@ public class GroupService {
 			User groupUser = userJoinGroup.getUser();
 			GroupDetailResponse.GroupMemberInfo groupMemberInfo = GroupDetailResponse.GroupMemberInfo.builder()
 				.userId(groupUser.getId())
-				.userName(groupUser.getName())   // nickName 변경
+				.userName(groupUser.getNickName())
 				.userNickname(groupUser.getNickName())
 				.userEmail(groupUser.getEmail())
 				.userProfileImageUrl(groupUser.getProfileImageUrl())
