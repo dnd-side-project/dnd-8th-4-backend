@@ -348,7 +348,12 @@ public class MissionService {
 
 				missionResponseList.add(missionResponse);
 			} else {
+				// 1 : 시작 전, 2 : 진행중 인 미션 중, 이미 기간이 끝났지만 배치 처리로 미션 상태 변경이 정상 동작하지 않은 경우
 				if (findMissionStatus == mission.getMissionStatus()) {
+					if ((MissionStatus.READY == mission.getMissionStatus() || MissionStatus.ACTIVE == mission.getMissionStatus())
+						&& LocalDateTime.now().isAfter(mission.getMissionEndDate())) {
+						continue;
+					}
 					MissionResponse missionResponse = toMissionResponse(mission);
 
 					MissionResponse.UserAssignMissionInfo userAssignMissionInfo = getUserAssignMissionInfo(user, mission, userAssignMission);
