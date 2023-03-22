@@ -34,6 +34,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -128,16 +129,12 @@ public class ContentService {
     ) throws ParseException {
 
         Group group = getGroup(groupId);
-        Point point =
-                latitude != null && longitude != null ?
-                        (Point) new WKTReader().read(String.format("POINT(%s %s)", latitude, longitude))
-                        : null;
+
         Content content = contentRepository.save(
                 Content.builder()
                         .content(contentNote)// 이미 삭제된 게시물일 경우
                         .latitude(latitude)
                         .longitude(longitude)
-                        .point(point)
                         .location(location)
                         .views(0L)
                         .contentLink("test")
@@ -230,47 +227,23 @@ public class ContentService {
     }
 
     @Transactional
-    public List<ContentDto.mapListContent> listMyMap(UserDetails userDetails, Double x, Double y) {
-        // 우 상단
-        Location northEast = GeometryUtil.calculate(x, y, 2.0, Direction.NORTHEAST.getBearing());
-        // 좌 하단
-        Location southWest = GeometryUtil.calculate(x, y, 2.0, Direction.SOUTHWEST.getBearing());
-
-
-        String pointFormat = String.format(
-                "'LINESTRING(%f %f, %f %f)'",
-                // 우 상단 Y, X / 좌 하단 Y, X
-                northEast.getLatitude(), northEast.getLongitude(), southWest.getLatitude(), southWest.getLongitude()
-        );
+    public Page<ContentDto.mapListContent> listMyMap(UserDetails userDetails, Integer page, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude) {
 
         List<Long> groupIdList = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
-
-        String join = String.join(
-                ",", groupIdList.stream().map(Object::toString).toList()
+        Page<Content> contents = contentRepository.findByMapList(
+                groupIdList, startLatitude, endLatitude, startLongitude, endLongitude,
+                PageRequest.of(page - 1, 5, Sort.Direction.DESC, "created_at")
         );
 
-        Query query = em.createNativeQuery(
-                "" +
-                        "SELECT * \n" +
-                        "FROM content AS c \n" +
-                        "WHERE c.group_id IN (" + join + ") " +
-                        "AND " +
-                        "MBRContains(ST_LINESTRINGFROMTEXT(" + pointFormat + "), c.point)"
-                , Content.class
-        ).setMaxResults(10);
-
-
-        List<Content> contents = query.getResultList();
-
-        return contents.stream()
-                .filter(content -> !content.isDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
-                .map((Content content) ->
-                ContentDto.mapListContent.response(
-                        content,
-                        getContentImageResponse(content),
-                        contentRepository.countByLocationAndGroupIdInAndDeletedYn(content.getLocation(), groupIdList, false)
-                )
-        ).toList();
+        return contents.map(
+                (Content content)->{
+                    return ContentDto.mapListContent.response(
+                            content,
+                            getContentImageResponse(content),
+                            contentRepository.countByLocationAndGroupIdInAndDeletedYn(content.getLocation(), groupIdList, false)
+                    );
+                }
+        );
     }
 
     @Transactional
