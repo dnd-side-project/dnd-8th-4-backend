@@ -15,6 +15,7 @@ import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class EmotionService {
     private final NotificationRepository notificationRepository;
 
     @Transactional
+    @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
     public CustomResponseEntity<EmotionDto.AddEmotionDto> saveEmotion(
             UserDetails userDetails, Long contentId, EmotionDto.AddEmotionDto request
     ) {
@@ -66,11 +68,10 @@ public class EmotionService {
                 // 같은 공감을 누를 경우 -> 취소
                 if (existsEmotionUser.getEmotionStatus().equals(request.getEmotionStatus())) {
                     //            emotionRepository.deleteById(existsEmotionUser.getId());
-                    existsEmotionUser.cancelEmotion();   // 감정 표현 취소
+                    existsEmotionUser.cancelEmotion();
                     return CustomResponseEntity.successDeleteEmotion();
                     // 다른 공감을 누를 경우 -> 변경
                 } else {
-                    // 감정 표현 업데이트
                     existsEmotionUser.updateEmotion(request.getEmotionStatus());
                     return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(existsEmotionUser));
                 }
