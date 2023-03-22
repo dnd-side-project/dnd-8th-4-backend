@@ -176,13 +176,8 @@ public class ContentService {
         List<String> bookmarkStatusList = redisDao.getValuesList("bookmark" + userDetails.getUsername());
         boolean bookmarkAddStatus = bookmarkStatusList.contains(contentId.toString());
 
-        Emotion byContentIdAndUserId = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), getUser(userDetails).getId(), true);
-        Long emotionStatus;
-        if (byContentIdAndUserId == null) {
-            emotionStatus = -1L;
-        } else {
-            emotionStatus = byContentIdAndUserId.getEmotionStatus();
-        }
+        Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), getUser(userDetails).getId(), true);
+        Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
 
         return ContentDto.detailDto.response(
                 content,
@@ -236,11 +231,15 @@ public class ContentService {
 
     @Transactional
     public List<ContentDto.mapListContent> listMyMap(UserDetails userDetails, Double x, Double y) {
+        // 우 상단
         Location northEast = GeometryUtil.calculate(x, y, 2.0, Direction.NORTHEAST.getBearing());
+        // 좌 하단
         Location southWest = GeometryUtil.calculate(x, y, 2.0, Direction.SOUTHWEST.getBearing());
+
 
         String pointFormat = String.format(
                 "'LINESTRING(%f %f, %f %f)'",
+                // 우 상단 Y, X / 좌 하단 Y, X
                 northEast.getLatitude(), northEast.getLongitude(), southWest.getLatitude(), southWest.getLongitude()
         );
 
