@@ -227,7 +227,7 @@ public class ContentService {
     }
 
     @Transactional
-    public List<ContentDto.mapListContent> listMyMap(UserDetails userDetails, Integer page, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude) {
+    public List<ContentDto.mapListContent> listMyMap(UserDetails userDetails, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude) {
 
         List<Long> groupIdList = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
         List<Content> contents = contentRepository.findByMapList(
