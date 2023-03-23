@@ -227,23 +227,21 @@ public class ContentService {
     }
 
     @Transactional
-    public Page<ContentDto.mapListContent> listMyMap(UserDetails userDetails, Integer page, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude) {
+    public List<ContentDto.mapListContent> listMyMap(UserDetails userDetails, Integer page, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude) {
 
         List<Long> groupIdList = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
-        Page<Content> contents = contentRepository.findByMapList(
-                groupIdList, endLatitude, startLatitude, startLongitude, endLongitude,
-                PageRequest.of(page - 1, 5, Sort.Direction.DESC, "created_at")
-        );
+        List<Content> contents = contentRepository.findByMapList(
+                groupIdList, endLatitude, startLatitude, startLongitude, endLongitude);
 
-        return contents.map(
-                (Content content)->{
-                    return ContentDto.mapListContent.response(
-                            content,
-                            getContentImageResponse(content),
-                            contentRepository.countByLocationAndGroupIdInAndDeletedYn(content.getLocation(), groupIdList, false)
-                    );
-                }
-        );
+        return contents.stream()
+                .filter(content -> !content.isDeletedYn())
+                .map((Content content) ->
+                        ContentDto.mapListContent.response(
+                                content,
+                                getContentImageResponse(content),
+                                contentRepository.countByLocationAndGroupIdInAndDeletedYn(content.getLocation(),groupIdList,false)
+                        )
+                ).toList();
     }
 
     @Transactional

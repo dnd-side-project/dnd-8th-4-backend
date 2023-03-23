@@ -102,7 +102,7 @@ public class ContentController {
 
     // 지도 포함 검색
     @GetMapping("content/map")
-    public CustomResponseEntity<Page<ContentDto.mapListContent>> myMapList(
+    public CustomResponseEntity<List<ContentDto.mapListContent>> myMapList(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam final Integer page,
             @RequestParam final Double startLatitude,
