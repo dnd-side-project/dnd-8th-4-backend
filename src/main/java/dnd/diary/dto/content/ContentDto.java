@@ -328,7 +328,7 @@ public class ContentDto {
                         .userId(content.getUser().getId())
                         .groupId(content.getGroup().getId())
                         .counts(counts)
-                        .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/%EC%BF%B5%EC%95%BC.png")
+                        .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/6f6b761a-8481-45b6-a6cc-9b48ff73c679.png")
                         .deletedYn(content.isDeletedYn())
                         .build();
             }
@@ -380,7 +380,7 @@ public class ContentDto {
                         .groupName(content.getGroup().getGroupName())
                         .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
                         .contentImageSize(0)
-                        .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/%EC%BF%B5%EC%95%BC.png")
+                        .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/6f6b761a-8481-45b6-a6cc-9b48ff73c679.png")
                         .deletedYn(content.isDeletedYn())
                         .build();
             }
