@@ -38,5 +38,5 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
             countQuery =  "SELECT * FROM content AS c \n" +
                     "WHERE c.group_id IN (?1) AND c.latitude between ?3 and ?2 and c.longitude between ?4 and ?5",
             nativeQuery = true)
-    Page<Content> findByMapList(List<Long> group_id, Double startLatitude, Double endLatitude, Double startLongitude, Double endLongitude, Pageable pageable);
+    Page<Content> findByMapList(List<Long> group_id, Double endLatitude, Double startLatitude, Double startLongitude, Double endLongitude, Pageable pageable);
 }

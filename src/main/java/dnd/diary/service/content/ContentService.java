@@ -231,7 +231,7 @@ public class ContentService {
 
         List<Long> groupIdList = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
         Page<Content> contents = contentRepository.findByMapList(
-                groupIdList, startLatitude, endLatitude, startLongitude, endLongitude,
+                groupIdList, endLatitude, startLatitude, startLongitude, endLongitude,
                 PageRequest.of(page - 1, 5, Sort.Direction.DESC, "created_at")
         );
 
