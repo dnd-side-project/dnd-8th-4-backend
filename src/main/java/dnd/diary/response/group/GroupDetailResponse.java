@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import dnd.diary.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +30,7 @@ public class GroupDetailResponse {
 
 	private long memberCount;
 	private Boolean isStarGroup;
+	private Boolean isHostUser;   // 조회 유저가 해당 그룹의 방장인지 정보
 
 	private HostUserInfo hostUserInfo;
 	@Getter

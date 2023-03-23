@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -378,6 +379,8 @@ public class GroupService {
 			}
 		}
 
+		User hostUser = targetGroup.getGroupCreateUser();
+
 		// 그룹 구성원 정보
 		List<UserJoinGroup> userJoinGroupList = targetGroup.getUserJoinGroups();
 		List<GroupDetailResponse.GroupMemberInfo> groupMemberInfoList = new ArrayList<>();
@@ -400,9 +403,8 @@ public class GroupService {
 			.groupName(targetGroup.getGroupName())
 			.groupNote(targetGroup.getGroupNote())
 			.groupImageUrl(targetGroup.getGroupImageUrl())
-			.hostUserInfo(new GroupDetailResponse.HostUserInfo(
-				targetGroup.getGroupCreateUser().getId(), targetGroup.getGroupCreateUser().getNickName(), targetGroup.getGroupCreateUser().getProfileImageUrl()
-			))
+			.isHostUser(Objects.equals(user.getId(), hostUser.getId()))
+			.hostUserInfo(new GroupDetailResponse.HostUserInfo(hostUser.getId(), hostUser.getNickName(), hostUser.getProfileImageUrl()))
 			.groupCreatedAt(targetGroup.getCreatedAt())
 			.groupModifiedAt(targetGroup.getModifiedAt())
 			.groupRecentUpdatedAt(targetGroup.getRecentUpdatedAt())
