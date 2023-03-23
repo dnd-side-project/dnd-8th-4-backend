@@ -104,13 +104,12 @@ public class ContentController {
     @GetMapping("content/map")
     public CustomResponseEntity<List<ContentDto.mapListContent>> myMapList(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam final Integer page,
             @RequestParam final Double startLatitude,
             @RequestParam final Double startLongitude,
             @RequestParam final Double endLatitude,
             @RequestParam final Double endLongitude
     ) {
-        return CustomResponseEntity.success(contentService.listMyMap(userDetails, page, startLatitude, startLongitude, endLatitude, endLongitude));
+        return CustomResponseEntity.success(contentService.listMyMap(userDetails, startLatitude, startLongitude, endLatitude, endLongitude));
     }
 
     // 지도 피드 상세보기
