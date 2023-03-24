@@ -16,4 +16,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Long> findDistinctContentIdListByUserId(@Param("userId") Long userId);
     Page<Comment> findByContentIdAndDeletedYn(Long contentId, boolean deletedYn, Pageable pageable);
     Boolean existsByIdAndDeletedYn(Long commentId, boolean deletedYn);
+    Comment findCommentByIdAndDeletedYn(Long commentId, boolean deletedYn);
 }
