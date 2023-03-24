@@ -318,9 +318,16 @@ public class GroupService {
 		Group inviteGroup = findGroup(request.getGroupId());
 
 		// 초대는 방장만 가능
-		if (!hostUser.getId().equals(inviteGroup.getGroupCreateUser().getId())) {
-			throw new CustomException(NO_AUTHORITY_INVITE);
+		// if (!hostUser.getId().equals(inviteGroup.getGroupCreateUser().getId())) {
+		// 	throw new CustomException(NO_AUTHORITY_INVITE);
+		// }
+
+		// 초대는 그룹 구성원 모두 가능
+		UserJoinGroup checkUserJoinGroup = userJoinGroupRepository.findUserJoinGroupByUserIdAndGroupId(hostUser.getId(), inviteGroup.getId());
+		if (checkUserJoinGroup == null) {
+			throw new CustomException(NOT_GROUP_MEMBER);
 		}
+
 		// 초대 시도하는 사용자 수가 50명 이상인 경우(방장 제외)
 		if (request.getInvitedUserIdList().size() >= MAX_GROUP_MEMBER_COUNT) {
 			throw new CustomException(HIGH_MAX_INVITE_MEMBER_COUNT);
