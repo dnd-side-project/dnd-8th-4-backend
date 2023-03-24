@@ -67,7 +67,6 @@ public class EmotionService {
             if (existsEmotionUser.isEmotionYn()) {
                 // 같은 공감을 누를 경우 -> 취소
                 if (existsEmotionUser.getEmotionStatus().equals(request.getEmotionStatus())) {
-                    //            emotionRepository.deleteById(existsEmotionUser.getId());
                     existsEmotionUser.cancelEmotion();
                     return CustomResponseEntity.successDeleteEmotion();
                     // 다른 공감을 누를 경우 -> 변경
