@@ -167,6 +167,7 @@ public class AllNotificationListResponse {
             this.contentId = comment.getContent().getId();
 
             this.commentId = comment.getId();
+            this.commentNote = comment.getCommentNote();
             this.commentLikeId = commentLike.getId();
 
             this.createdAt = notification.getCreatedAt();

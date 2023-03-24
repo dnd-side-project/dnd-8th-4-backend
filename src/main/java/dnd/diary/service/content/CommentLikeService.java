@@ -46,7 +46,7 @@ public class CommentLikeService {
             commentLikeRepository.save(commentLike);
 
             // 댓글 좋아요 알림 추가
-            Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, user, NotificationType.COMMENT_LIKE);
+            Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, targetComment.getUser(), NotificationType.COMMENT_LIKE);
             notificationRepository.save(notification);
 
             return CustomResponseEntity.success(
