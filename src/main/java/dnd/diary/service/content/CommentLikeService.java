@@ -87,7 +87,7 @@ public class CommentLikeService {
 
     // validate
     private void validateCommentLikeSave(Long commentId) {
-        if (!commentRepository.existsById(commentId)){
+        if (!commentRepository.existsByIdAndDeletedYn(commentId, false)){
             throw new CustomException(Result.NOT_FOUND_COMMENT);
         }
     }
