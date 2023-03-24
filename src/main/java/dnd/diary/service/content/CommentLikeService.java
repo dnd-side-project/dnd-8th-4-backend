@@ -2,10 +2,13 @@ package dnd.diary.service.content;
 
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.comment.CommentLike;
+import dnd.diary.domain.group.Notification;
+import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.CommentLikeDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
+import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.content.CommentLikeRepository;
 import dnd.diary.repository.content.CommentRepository;
@@ -21,6 +24,7 @@ public class CommentLikeService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public CustomResponseEntity<CommentLikeDto.SaveCommentLike> commentLikeSave(
@@ -33,17 +37,24 @@ public class CommentLikeService {
                 commentLikeRepository.findByCommentIdAndUserId(commentId, user.getId());
 
         if (existsLike == null){
+            Comment targetComment = getComment(commentId);
+            CommentLike commentLike = CommentLike.builder()
+                .comment(targetComment)
+                .user(user)
+                .deletedYn(false)
+                .build();
+            commentLikeRepository.save(commentLike);
+
+            // 댓글 좋아요 알림 추가
+            Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, user, NotificationType.COMMENT_LIKE);
+            notificationRepository.save(notification);
+
             return CustomResponseEntity.success(
-                    CommentLikeDto.SaveCommentLike.response(
-                            commentLikeRepository.save(
-                                    CommentLike.builder()
-                                            .comment(getComment(commentId))
-                                            .user(user)
-                                            .build()
-                            )
-                    )
+                    CommentLikeDto.SaveCommentLike.response(commentLike)
             );
+
         } else {
+            // 댓글 좋아요
             commentLikeRepository.deleteById(existsLike.getId());
             return CustomResponseEntity.successDeleteLike();
         }

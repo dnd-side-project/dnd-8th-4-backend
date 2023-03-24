@@ -65,9 +65,6 @@ public class Notification extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
-    // 현재 상태에서는 '초대'만 알림 처리하여 유저가 받은 알림을 초대 목록을 통해 조회할 수 있지만
-    // 이후 알림 타입이 추가될 경우 [유저 : 알림 = 1 : 다] 직접 조회 가능해야 함
-
     // 초대 알림
     @Builder
     private Notification(Invite invite, User user, NotificationType notificationType) {
@@ -118,11 +115,11 @@ public class Notification extends BaseEntity {
         return new Notification(content, emotion, user, notificationType);
     }
 
-    // 댓글 공감 알림
+    // 댓글 좋아요 알림
     @Builder
-    private Notification(Comment comment, Emotion emotion, User user, NotificationType notificationType) {
+    private Notification(Comment comment, CommentLike commentLike, User user, NotificationType notificationType) {
         this.comment = comment;
-        this.emotion = emotion;
+        this.commentLike = commentLike;
 
         this.user = user;
         this.readYn = false;
@@ -131,8 +128,8 @@ public class Notification extends BaseEntity {
         user.getNotifications().add(this);
     }
 
-    public static Notification toCommentEmotionEntity(Comment comment, Emotion emotion, User user, NotificationType notificationType) {
-        return new Notification(comment, emotion, user, notificationType);
+    public static Notification toCommentLikeEntity(Comment comment, CommentLike commentLike, User user, NotificationType notificationType) {
+        return new Notification(comment, commentLike, user, notificationType);
     }
 
     // 그룹 새 멤버 알림

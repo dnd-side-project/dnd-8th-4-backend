@@ -2,6 +2,7 @@ package dnd.diary.response.notification;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import dnd.diary.domain.comment.Comment;
+import dnd.diary.domain.comment.CommentLike;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
@@ -48,6 +49,9 @@ public class AllNotificationListResponse {
         // 게시물 공감 관련
         private Long emotionId;
         private Long emotionStatus;
+
+        // 댓글 좋아요 관련
+        private Long commentLikeId;
 
         // 알림 발생 날짜 (그룹 초대 일자, 게시물 댓글 생성 일자, 게시물 공감 생성 일자)
         @JsonFormat(pattern = "yyyy.MM.dd", timezone = "Asia/Seoul")
@@ -107,11 +111,11 @@ public class AllNotificationListResponse {
             this.notificationId = notification.getId();
             this.notificationType = notification.getNotificationType();
 
-            Group invitedGroup = notification.getContent().getGroup();
-            this.groupId = invitedGroup.getId();
-            this.groupName = invitedGroup.getGroupName();
-            this.groupNote = invitedGroup.getGroupNote();
-            this.groupImageUrl = invitedGroup.getGroupImageUrl();
+            Group targetGroup = notification.getContent().getGroup();
+            this.groupId = targetGroup.getId();
+            this.groupName = targetGroup.getGroupName();
+            this.groupNote = targetGroup.getGroupNote();
+            this.groupImageUrl = targetGroup.getGroupImageUrl();
 
             this.userName = emotion.getUser().getNickName();
             this.userProfileImageUrl = emotion.getUser().getProfileImageUrl();
@@ -140,6 +144,30 @@ public class AllNotificationListResponse {
             // 그룹에 새로 가입한 구성원 정보
             this.userName = newGroupUser.getNickName();
             this.userProfileImageUrl = newGroupUser.getProfileImageUrl();
+
+            this.createdAt = notification.getCreatedAt();
+            this.readYn = notification.isReadYn();
+        }
+
+        // 댓글 좋아요 알림 response
+        @Builder
+        public NotificationInfo(Notification notification, Comment comment, CommentLike commentLike) {
+            this.notificationId = notification.getId();
+            this.notificationType = notification.getNotificationType();
+
+            Group targetGroup = comment.getContent().getGroup();
+            this.groupId = targetGroup.getId();
+            this.groupName = targetGroup.getGroupName();
+            this.groupNote = targetGroup.getGroupNote();
+            this.groupImageUrl = targetGroup.getGroupImageUrl();
+
+            this.userName = commentLike.getUser().getNickName();
+            this.userProfileImageUrl = commentLike.getUser().getProfileImageUrl();
+
+            this.contentId = comment.getContent().getId();
+
+            this.commentId = comment.getId();
+            this.commentLikeId = commentLike.getId();
 
             this.createdAt = notification.getCreatedAt();
             this.readYn = notification.isReadYn();
