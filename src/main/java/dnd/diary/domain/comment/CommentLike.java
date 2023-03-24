@@ -26,5 +26,12 @@ public class CommentLike extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    private boolean deletedYn = Boolean.FALSE;
+    private boolean commentLikeYn = Boolean.TRUE;
+
+    public void addCommentLike() {
+        this.commentLikeYn = true;
+    }
+    public void cancelCommentLike() {
+        this.commentLikeYn = false;
+    }
 }

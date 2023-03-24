@@ -36,12 +36,13 @@ public class CommentLikeService {
         CommentLike existsLike =
                 commentLikeRepository.findByCommentIdAndUserId(commentId, user.getId());
 
+        // 최초 좋아요 등록일 경우
         if (existsLike == null){
             Comment targetComment = getComment(commentId);
             CommentLike commentLike = CommentLike.builder()
                 .comment(targetComment)
                 .user(user)
-                .deletedYn(false)
+                .commentLikeYn(true)
                 .build();
             commentLikeRepository.save(commentLike);
 
@@ -52,10 +53,17 @@ public class CommentLikeService {
             return CustomResponseEntity.success(
                     CommentLikeDto.SaveCommentLike.response(commentLike)
             );
-
+        // 최초 등록이 아닐 경우
         } else {
-            // 댓글 좋아요
-            commentLikeRepository.deleteById(existsLike.getId());
+            // 댓글 좋아요 취소일 경우 : commentLikeYn = true -> commentLikeYn = false 로 변경
+            if (existsLike.isCommentLikeYn()) {
+                existsLike.cancelCommentLike();
+            }
+            // 댓글 좋아요 취소 후 다시 등록할 경우 : commentLikeYn = false -> commentLikeYn = true 로 변경
+            else {
+                existsLike.addCommentLike();
+            }
+            // commentLikeRepository.deleteById(existsLike.getId());
             return CustomResponseEntity.successDeleteLike();
         }
     }
