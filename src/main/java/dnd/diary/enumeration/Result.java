@@ -33,6 +33,7 @@ public enum Result {
 	ALREADY_EXIST_IN_GROUP(2111, "이미 그룹에 가입된 사용자"),
 	ALREADY_EXIST_GROUP_NAME(2112, "이미 존재하는 그룹 이름"),
 	NOT_FOUND_GROUP_IMAGE(2113, "그룹 기본 이미지가 존재하지 않음"),
+	NOT_GROUP_MEMBER(2114, "그룹 구성원이 아닌 경우"),
 
 	// 알림 관련
 	NOT_FOUND_NOTIFICATION(2400, "존재하지 않는 알림"),
