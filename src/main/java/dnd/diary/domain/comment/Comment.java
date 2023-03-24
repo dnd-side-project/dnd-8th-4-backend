@@ -40,6 +40,9 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "sticker_id")
     private Sticker sticker;
 
+    // 댓글 삭제 여부
+    private boolean deletedYn = Boolean.FALSE;
+
     // 댓글에 달린 좋아요
     @OneToMany(mappedBy = "comment")
     private List<CommentLike> commentLikes = new ArrayList<>();

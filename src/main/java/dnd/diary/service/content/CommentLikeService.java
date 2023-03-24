@@ -41,11 +41,12 @@ public class CommentLikeService {
             CommentLike commentLike = CommentLike.builder()
                 .comment(targetComment)
                 .user(user)
+                .deletedYn(false)
                 .build();
             commentLikeRepository.save(commentLike);
 
             // 댓글 좋아요 알림 추가
-            Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, user, NotificationType.COMMENT_Like);
+            Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, user, NotificationType.COMMENT_LIKE);
             notificationRepository.save(notification);
 
             return CustomResponseEntity.success(
@@ -53,6 +54,7 @@ public class CommentLikeService {
             );
 
         } else {
+            // 댓글 좋아요
             commentLikeRepository.deleteById(existsLike.getId());
             return CustomResponseEntity.successDeleteLike();
         }

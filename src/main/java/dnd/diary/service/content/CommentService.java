@@ -63,6 +63,7 @@ public class CommentService {
             .user(getUser(userDetails))
             .content(getContent(contentId))
             .sticker(sticker)
+            .deletedYn(false)
             .build();
 
         commentRepository.save(comment);

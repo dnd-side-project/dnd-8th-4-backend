@@ -3,6 +3,7 @@ package dnd.diary.service.group;
 import static dnd.diary.enumeration.Result.*;
 
 import dnd.diary.domain.comment.Comment;
+import dnd.diary.domain.comment.CommentLike;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
@@ -75,6 +76,7 @@ public class NotificationService {
 		notificationInfoList.addAll(getContentCommentNotificationList(user));
 		notificationInfoList.addAll(getContentEmotionNotificationList(user));
 		notificationInfoList.addAll(getNewGroupMemberNotificationList(user));
+		notificationInfoList.addAll(getCommentLikeNotificationList(user));
 
 		// 알림 최신순 정렬
 		notificationInfoList.sort(Comparator.comparing(AllNotificationListResponse.NotificationInfo::getCreatedAt, Comparator.reverseOrder()));
@@ -154,6 +156,31 @@ public class NotificationService {
 			}
 		}
 		log.info("게시물 공감 알림 개수 : {}", notificationInfoList.size());
+
+		return notificationInfoList;
+	}
+
+	// 댓글 좋아요 알림 목록
+	// 이미 삭제된 댓글일 경우에도 포함
+	private List<AllNotificationListResponse.NotificationInfo> getCommentLikeNotificationList(User user) {
+
+		List<Notification> notificationList = user.getNotifications();
+		log.info("유저 전체 알림 개수 : {}", notificationList.size());
+
+		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
+		for (Notification notification : notificationList) {
+			if (notification.getNotificationType() == NotificationType.COMMENT_LIKE) {
+				// 알림의 댓글/좋아요 정보가 없는 경우 제외
+				if (notification.getComment() == null || notification.getCommentLike() == null) {
+					continue;
+				}
+				Comment comment = notification.getComment();
+				CommentLike commentLike = notification.getCommentLike();
+				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(notification, comment, commentLike);
+				notificationInfoList.add(notificationInfo);
+			}
+		}
+		log.info("댓글 좋아요 알림 개수 : {}", notificationInfoList.size());
 
 		return notificationInfoList;
 	}
