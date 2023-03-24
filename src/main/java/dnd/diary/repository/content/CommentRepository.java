@@ -15,4 +15,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query(value = "SELECT DISTINCT content_id FROM comment as c WHERE c.user_id = :userId", nativeQuery = true)
     List<Long> findDistinctContentIdListByUserId(@Param("userId") Long userId);
     Page<Comment> findByContentId(Long contentId, Pageable pageable);
+    Page<Comment> findByContentIdAndDeletedYn(Long contentId, boolean deletedYn, Pageable pageable);
 }

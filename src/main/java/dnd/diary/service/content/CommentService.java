@@ -1,6 +1,7 @@
 package dnd.diary.service.content;
 
 import dnd.diary.domain.comment.Comment;
+import dnd.diary.domain.comment.CommentLike;
 import dnd.diary.domain.content.Content;
 
 import dnd.diary.domain.content.Emotion;
@@ -88,17 +89,20 @@ public class CommentService {
 
     // method
     private Page<Comment> getPageComments(Long contentId, Integer page) {
-        return commentRepository.findByContentId(
-                contentId, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        return commentRepository.findByContentIdAndDeletedYn(
+                contentId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
     }
 
     private Page<CommentDto.pageCommentDto> getPageCommentDtos(UserDetails userDetails, Page<Comment> comments) {
         return comments.map((Comment comment) -> CommentDto.pageCommentDto.response(
                         comment,
-                        commentLikeRepository.existsByCommentIdAndUserId(
-                                comment.getId(), getUser(userDetails).getId()
+                        commentLikeRepository.existsByCommentIdAndUserIdAndCommentLikeYn(
+                            comment.getId(), getUser(userDetails).getId(), true
                         ),
+                        // commentLikeRepository.existsByCommentIdAndUserId(
+                        //         comment.getId(), getUser(userDetails).getId()
+                        // ),
                         getUser(userDetails).getId()
                 )
         );
