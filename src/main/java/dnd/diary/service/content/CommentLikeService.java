@@ -55,11 +55,11 @@ public class CommentLikeService {
             );
         // 최초 등록이 아닐 경우
         } else {
-            // 댓글 좋아요 취소일 경우 : commentLikeYn = true -> commentLikeYn = false 로 변경
+            // 댓글 좋아요 취소일 경우
             if (existsLike.isCommentLikeYn()) {
                 existsLike.cancelCommentLike();
             }
-            // 댓글 좋아요 취소 후 다시 등록할 경우 : commentLikeYn = false -> commentLikeYn = true 로 변경
+            // 댓글 좋아요 취소 후 다시 등록할 경우
             else {
                 existsLike.addCommentLike();
             }
