@@ -60,7 +60,7 @@ public class Notification extends BaseEntity {
     private User user;
 
     // 알림을 읽었는지 여부
-    private boolean readYn;
+    private boolean readYn = Boolean.FALSE;
 
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
