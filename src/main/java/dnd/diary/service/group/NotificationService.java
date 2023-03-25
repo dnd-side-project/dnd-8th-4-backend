@@ -213,9 +213,9 @@ public class NotificationService {
 	// 알림 단일 클릭(읽기)
 	public NotificationReadResponse readNotification(Long notificationId) {
 		Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new CustomException(NOT_FOUND_NOTIFICATION));
-		if (!notification.isReadYn()) {
-			notification.readNotification();
-		}
+		log.info("알림 읽기 처리 전 상태 : {}", notification.isReadYn());
+		notification.updateReadNotification();
+		log.info("알림 읽기 처리 후 상태 : {}", notification.isReadYn());
 
 		return NotificationReadResponse.builder()
 			.notificationId(notification.getId())

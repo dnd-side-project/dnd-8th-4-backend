@@ -152,7 +152,7 @@ public class Notification extends BaseEntity {
     }
 
     // 알림 읽음 처리
-    public void readNotification() {
+    public void updateReadNotification() {
         this.readYn = true;
     }
 
