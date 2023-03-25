@@ -97,6 +97,7 @@ public class NotificationService {
 
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
+			log.info("알림 읽음 상태 : {}", notification.isReadYn());
 			if (notification.getNotificationType() == NotificationType.INVITE) {
 				if (notification.getInvite() == null) {   // 초대 정보가 없는 알림인 경우
 					continue;
@@ -119,6 +120,7 @@ public class NotificationService {
 
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
+			log.info("알림 읽음 상태 : {}", notification.isReadYn());
 			if (notification.getNotificationType() == NotificationType.CONTENT_COMMENT) {
 			    // 알림의 게시물/댓글 정보가 없는 경우 제외
 				if (notification.getContent() == null || notification.getComment() == null) {
@@ -144,6 +146,7 @@ public class NotificationService {
 
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
+			log.info("알림 읽음 상태 : {}", notification.isReadYn());
 			if (notification.getNotificationType() == NotificationType.CONTENT_EMOTION) {
                 // 알림의 게시물/공감 정보가 없는 경우 제외
 				if (notification.getContent() == null || notification.getEmotion() == null) {
@@ -169,6 +172,7 @@ public class NotificationService {
 
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
+			log.info("알림 읽음 상태 : {}", notification.isReadYn());
 			if (notification.getNotificationType() == NotificationType.COMMENT_LIKE) {
 				// 알림의 댓글/좋아요 정보가 없는 경우 제외
 				if (notification.getComment() == null || notification.getCommentLike() == null) {
@@ -193,6 +197,7 @@ public class NotificationService {
 
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
+			log.info("알림 읽음 상태 : {}", notification.isReadYn());
 			if (notification.getNotificationType() == NotificationType.NEW_GROUP_MEMBER) {
 				if (notification.getGroup() == null || notification.getNewGroupUser() == null) {
 					continue;
