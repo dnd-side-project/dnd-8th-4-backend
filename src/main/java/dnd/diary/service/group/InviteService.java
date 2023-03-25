@@ -64,7 +64,7 @@ public class InviteService {
 		}
 
 		Notification notification = findNotification(notificationId);
-		notification.readNotification();
+		notification.updateReadNotification();
 
 		// 1. 초대 수락한 그룹에 속해 있는 구성원에게 [새 구성원 가입] 알림 발행
 		List<UserJoinGroup> userJoinGroups = invitedGroup.getUserJoinGroups();
@@ -98,7 +98,7 @@ public class InviteService {
 		checkAlreadyExist(user, invitedGroup);
 
 		Notification notification = findNotification(notificationId);
-		notification.readNotification();
+		notification.updateReadNotification();
 
 		return toNotificationResponse(notification, invitedGroup);
 	}
