@@ -210,25 +210,17 @@ public class NotificationService {
 		return notificationInfoList;
 	}
 
+	// 알림 단일 클릭(읽기)
 	public NotificationReadResponse readNotification(Long notificationId) {
-		User user = findUser();
 		Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new CustomException(NOT_FOUND_NOTIFICATION));
 		if (!notification.isReadYn()) {
 			notification.readNotification();
 		}
-		Group group = notification.getInvite().getGroup();
+
 		return NotificationReadResponse.builder()
 			.notificationId(notification.getId())
-			.notificationType(NotificationType.INVITE)
-			.notificationInfo(
-				NotificationReadResponse.NotificationInfo.builder()
-					.groupId(group.getId())
-					.groupName(group.getGroupName())
-					.groupNote(group.getGroupName())
-					.groupImageUrl(group.getGroupImageUrl())
-					.readYn(notification.isReadYn())
-					.build()
-			)
+			.notificationType(notification.getNotificationType())
+            .readYn(notification.isReadYn())
 			.build();
 	}
 

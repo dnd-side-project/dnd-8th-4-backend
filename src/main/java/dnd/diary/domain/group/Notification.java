@@ -156,14 +156,6 @@ public class Notification extends BaseEntity {
         this.readYn = true;
     }
 
-//    // emotion 삭제 시 공감 알림은 유지
-//    public void remainEmotionNotification(){
-//        Boolean emotionYn = this.emotion.getEmotionYn();
-//        log.info("emotion 삭제 전 emotionYn 상태 : {}", emotionYn);
-//        emotionYn = false;
-//        log.info("emotion 삭제 후 emotionYn 상태 : {}", emotionYn);
-//    }
-
     // emotion 변경시 알림 emotionId 변경
     public void updateEmotionNotification(){
         this.emotion = null;
