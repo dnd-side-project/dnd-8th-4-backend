@@ -194,13 +194,14 @@ public class NotificationService {
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = new ArrayList<>();
 		for (Notification notification : notificationList) {
 			if (notification.getNotificationType() == NotificationType.NEW_GROUP_MEMBER) {
-				if (notification.getGroup() == null || notification.getNewGroupUser() == null) {
+				if (notification.getGroup() == null || notification.getNewGroupUser() == null || notification.getContent() == null) {
 					continue;
 				}
 				// 이미 삭제된 그룹인 경우에도 포함
 				Group group = notification.getGroup();
 				User newGroupUser = notification.getNewGroupUser();
-				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(group, newGroupUser, notification);
+				Content newGroupMemberContent = notification.getContent();
+				AllNotificationListResponse.NotificationInfo notificationInfo = new AllNotificationListResponse.NotificationInfo(group, newGroupUser, newGroupMemberContent, notification);
 				notificationInfoList.add(notificationInfo);
 			}
 		}

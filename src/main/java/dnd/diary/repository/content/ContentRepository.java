@@ -37,4 +37,6 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
             "WHERE c.group_id IN (?1) AND c.latitude between ?3 and ?2 and c.longitude between ?4 and ?5",
             nativeQuery = true)
     List<Content> findByMapList(List<Long> group_id, Double endLatitude, Double startLatitude, Double startLongitude, Double endLongitude);
+
+    Content findByIdAndDeletedYn(Long contentId, Boolean deletedYn);
 }

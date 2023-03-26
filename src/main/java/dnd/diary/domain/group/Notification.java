@@ -136,19 +136,22 @@ public class Notification extends BaseEntity {
     // group : 새로운 멤버가 가입한 그룹, user : 알림을 받을 그룹 구성원
     // group 의 새 멤버가 누구인지 정보 -> userName, userProfileImageUrl
     @Builder
-    private Notification(Group group, User newGroupUser, User user, NotificationType notificationType) {
+    private Notification(Group group, User newGroupUser, User user, Content content, NotificationType notificationType) {
         this.group = group;
         this.newGroupUser = newGroupUser;
 
         this.user = user;
+
+        this.content = content;
+
         this.readYn = false;
         this.notificationType = notificationType;
 
         user.getNotifications().add(this);
     }
 
-    public static Notification toNewGroupMemberEntity(Group group, User newGroupUser, User user, NotificationType notificationType) {
-        return new Notification(group, newGroupUser, user, notificationType);
+    public static Notification toNewGroupMemberEntity(Group group, User newGroupUser, User user, Content content, NotificationType notificationType) {
+        return new Notification(group, newGroupUser, user, content, notificationType);
     }
 
     // 알림 읽음 처리
