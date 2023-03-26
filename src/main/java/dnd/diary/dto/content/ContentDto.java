@@ -199,6 +199,7 @@ public class ContentDto {
         private Long emotionStatus;
         private String contentLink;
         private boolean deletedYn;
+        private String createAt;
         List<ContentDto.ImageResponseDto> collect;
 
         public static ContentDto.detailDto response(
@@ -222,6 +223,7 @@ public class ContentDto {
                     .collect(collect)
                     .bookmarkAddStatus(bookmarkAddStatus)
                     .emotionStatus(emotionStatus)
+                    .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
                     .build();
         }
     }
