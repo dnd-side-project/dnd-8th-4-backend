@@ -69,11 +69,13 @@ public class CommentService {
 
         commentRepository.save(comment);
 
-        // 게시물 생성자에게 알림 생성
+        // 자신을 제외한 게시물 생성자에게 알림 생성
         Content content = getContent(contentId);
-        Notification notification = Notification.toContentCommentEntity(
-            content, comment, content.getUser(), NotificationType.CONTENT_COMMENT);
-        notificationRepository.save(notification);
+        if (!comment.getUser().getId().equals(content.getUser().getId())) {
+            Notification notification = Notification.toContentCommentEntity(
+                    content, comment, content.getUser(), NotificationType.CONTENT_COMMENT);
+            notificationRepository.save(notification);
+        }
 
         return CommentDto.AddCommentDto.response(comment);
 
