@@ -46,10 +46,11 @@ public class CommentLikeService {
                 .build();
             commentLikeRepository.save(commentLike);
 
-            // 댓글 좋아요 알림 추가
-            Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, targetComment.getUser(), NotificationType.COMMENT_LIKE);
-            notificationRepository.save(notification);
-
+            // 자신의 댓글이 아닌 경우에 댓글 좋아요 알림 추가
+            if (!user.getId().equals(targetComment.getUser().getId())) {
+                Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, targetComment.getUser(), NotificationType.COMMENT_LIKE);
+                notificationRepository.save(notification);
+            }
             return CustomResponseEntity.success(
                     CommentLikeDto.SaveCommentLike.response(commentLike)
             );
