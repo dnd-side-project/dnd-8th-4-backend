@@ -12,6 +12,8 @@ import dnd.diary.repository.content.BookmarkRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,14 +29,16 @@ public class BookmarkService {
     private final RedisDao redisDao;
 
     @Transactional
+    @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
     public CustomResponseEntity<BookmarkDto.addBookmarkDto> bookmarkAdd(
             UserDetails userDetails, Long contentId
     ) {
         Bookmark bookmark = bookmarkRepository.findByUserIdAndContentId(
                 getUser(userDetails).getId(), contentId
         );
-        String redisUserKey = "bookmark" + userDetails.getUsername();
 
+        String redisUserKey = "bookmark" + userDetails.getUsername();
+        // 이미 북마크를 등록했다면
         if (bookmark != null){
             bookmarkRepository.delete(bookmark);
             List<String> valuesList = redisDao.getValuesList(redisUserKey);
@@ -43,6 +47,7 @@ public class BookmarkService {
             valuesList.forEach(s -> redisDao.setValuesList(redisUserKey,s));
             return CustomResponseEntity.successDeleteBookmark();
         } else {
+            // 북마크 추가
             redisDao.setValuesList(redisUserKey, String.valueOf(contentId));
             return CustomResponseEntity.success(
                     BookmarkDto.addBookmarkDto.response(
