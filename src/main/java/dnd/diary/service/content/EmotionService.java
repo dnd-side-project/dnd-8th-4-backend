@@ -54,11 +54,13 @@ public class EmotionService {
                 .build();
             emotionRepository.save(emotion);
 
-            // 게시물 생성자에게 알림 생성
+            // 자신을 제외한 게시물 생성자에게 알림 생성
             Content content = getContent(contentId);
-            Notification notification = Notification.toContentEmotionEntity(
-                content, emotion, content.getUser(), NotificationType.CONTENT_EMOTION);
-            notificationRepository.save(notification);
+            if (!user.getId().equals(content.getUser().getId())) {
+                Notification notification = Notification.toContentEmotionEntity(
+                        content, emotion, content.getUser(), NotificationType.CONTENT_EMOTION);
+                notificationRepository.save(notification);
+            }
 
             return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(emotion));
 
