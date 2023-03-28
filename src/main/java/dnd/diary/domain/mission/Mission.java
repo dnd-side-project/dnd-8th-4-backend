@@ -66,7 +66,9 @@ public class Mission extends BaseEntity {
 
 //    private Point point;
 
-    private boolean deleted = Boolean.FALSE;   // 미션 삭제 여부
+    private boolean deleted = Boolean.FALSE;   // 미션 삭제 여부 - soft delete 처리용
+
+    private boolean deletedYn = Boolean.FALSE;   // 미션 삭제 여부
 
     // 미션 생성자
     @OneToOne(fetch = FetchType.LAZY)
@@ -102,7 +104,7 @@ public class Mission extends BaseEntity {
         this.longitude = longitude;
         this.missionColor = missionColor;
         this.missionStatus = missionStatus;
-//        this.point = point;
+        this.deletedYn = false;
 
         group.getMissions().add(this);
     }
@@ -110,7 +112,7 @@ public class Mission extends BaseEntity {
     public static Mission toEntity(User user, Group group, String missionName, String missionNote, Boolean existPeriod
         , LocalDateTime missionStartDate, LocalDateTime missionEndDate, String missionLocationName, String missionLocationAddress
          , Double latitude, Double longitude
-        , Integer missionColor, MissionStatus missionStatus, Point point ) {
+        , Integer missionColor, MissionStatus missionStatus, Point point) {
         return new Mission(user, group, missionName, missionNote
             ,existPeriod, missionStartDate, missionEndDate
             , missionLocationName, missionLocationAddress, latitude, longitude, missionColor, missionStatus, point);
@@ -119,6 +121,10 @@ public class Mission extends BaseEntity {
     @PreRemove
     public void deleteMission() {
         this.deleted = false;
+    }
+
+    public void deleteMissionByColumn() {
+        this.deletedYn = true;
     }
 
     // 미션 진행 기간에 따른 상태
