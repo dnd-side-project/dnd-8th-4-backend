@@ -163,7 +163,10 @@ public class MissionService {
 	@Transactional
 	public void deleteMission(Long missionId) {
 		User user = findUser();
-		Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
+		Mission mission = missionRepository.findMissionByIdAndDeletedYn(missionId, false);
+		if (mission == null) {
+			new CustomException(NOT_FOUND_MISSION);
+		};
 
 		if (!user.getId().equals(mission.getMissionCreateUser().getId())) {
 			throw new CustomException(FAIL_DELETE_MISSION);
@@ -174,7 +177,7 @@ public class MissionService {
 		userAssignMissionRepository.deleteAll(userAssignMissionList);
 
 		// 미션 삭제 처리
-		missionRepository.delete(mission);
+		mission.deleteMissionByColumn();
 	}
 	
 	// 미션 위치 인증
@@ -200,8 +203,13 @@ public class MissionService {
 		if (!userAssignMissionIdList.contains(request.getMissionId())) {
 			throw new CustomException(INVALID_USER_MISSION);
 		}
+
+		Mission targetMission = missionRepository.findMissionByIdAndDeletedYn(request.getMissionId(), false);
+		if (targetMission == null) {
+			throw new CustomException(NOT_FOUND_MISSION);
+		}
+
 		// 미션 진행 기간인지 확인
-		Mission targetMission = missionRepository.findById(request.getMissionId()).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
 		if (targetMission.getMissionStatus() != MissionStatus.ACTIVE) {
 			throw new CustomException(INVALID_MISSION_PERIOD);
 		}
@@ -260,7 +268,11 @@ public class MissionService {
 	public MissionCheckContentResponse checkMissionContent(UserDetails userDetails, List<MultipartFile> multipartFiles, Long missionId, String content) throws ParseException {
 
 		User user = getUser(userDetails);
-		Mission targetMission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
+		Mission targetMission = missionRepository.findMissionByIdAndDeletedYn(missionId, false);
+
+		if (targetMission == null) {
+			throw new CustomException(NOT_FOUND_MISSION);
+		}
 
 		// 미션 진행 기간인지 확인
 		if (targetMission.getMissionStatus() != MissionStatus.ACTIVE) {
@@ -322,7 +334,7 @@ public class MissionService {
 	private User getUser(UserDetails userDetails) {
 		User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
 				.orElseThrow(
-						() -> new CustomException(Result.FAIL)
+						() -> new CustomException(NOT_FOUND_USER)
 				);
 		return user;
 	}
@@ -339,6 +351,8 @@ public class MissionService {
 			Mission mission = userAssignMission.getMission();
 
 			if (userAssignMission.getIsComplete()) continue;
+
+			if (mission.isDeletedYn()) continue;
 
 			if (MissionStatus.ALL == findMissionStatus) {
 				MissionResponse missionResponse = toMissionResponse(mission);
@@ -424,7 +438,10 @@ public class MissionService {
 
 	public MissionResponse getMission(Long missionId) {
 		User user = findUser();
-		Mission mission = missionRepository.findById(missionId).orElseThrow(() -> new CustomException(NOT_FOUND_MISSION));
+		Mission mission = missionRepository.findMissionByIdAndDeletedYn(missionId, false);
+		if (mission == null) {
+			throw new CustomException(NOT_FOUND_MISSION);
+		}
 		UserAssignMission userAssignMission = userAssignMissionRepository.findByUserIdAndMissionId(user.getId(), missionId);
 		if (userAssignMission == null) {
 			throw new CustomException(INVALID_USER_MISSION);
@@ -475,7 +492,11 @@ public class MissionService {
 		User user = findUser();
 		List<Mission> userMissionList = new ArrayList<>();
 		user.getUserAssignMissions().forEach(
-				userAssignMission -> userMissionList.add(userAssignMission.getMission())
+				userAssignMission -> {
+					if (!userAssignMission.getIsComplete()) {   // 이미 완료한 미션은 지도 모아보기에서 제외
+						userMissionList.add(userAssignMission.getMission());
+					}
+				}
 		);
 		List<MissionResponse> missionResponseList = new ArrayList<>();
 		MissionListByMapRequest request = missionListByMapRequest.setStartXY();
@@ -485,6 +506,8 @@ public class MissionService {
 		);
 
 		for (Mission mission : userMissionListWithInMap) {
+			if (mission.isDeletedYn()) continue;
+
 			if (!userMissionList.contains(mission)) {   // 유저에게 할당된 미션이 아닌 경우
 				continue;
 			}
