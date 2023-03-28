@@ -88,7 +88,7 @@ public class CommentDto {
             if (comment.getSticker() == null){
                 return pageCommentDto.builder()
                         .id(comment.getId())
-                        .userId(userId)
+                        .userId(comment.getUser().getId())
                         .commentNote(comment.getCommentNote())
                         .stickerImageUrl(null)
                         .profileImageUrl(comment.getUser().getProfileImageUrl())

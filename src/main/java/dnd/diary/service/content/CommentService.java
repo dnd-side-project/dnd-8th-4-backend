@@ -92,7 +92,7 @@ public class CommentService {
     // method
     private Page<Comment> getPageComments(Long contentId, Integer page) {
         return commentRepository.findByContentIdAndDeletedYn(
-                contentId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+                contentId, false, PageRequest.of(page - 1, 10, Sort.Direction.ASC, "createdAt")
         );
     }
 
