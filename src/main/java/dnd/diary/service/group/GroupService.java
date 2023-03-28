@@ -145,7 +145,8 @@ public class GroupService {
 		userJoinGroupRepository.deleteAll(userJoinGroupList);
 
 		// 그룹 삭제 처리
-		groupRepository.delete(group);
+//		groupRepository.delete(group);
+		group.deleteGroupByColumn();
 
 	}
 
@@ -284,6 +285,9 @@ public class GroupService {
 		List<Group> searchGroupList = groupRepository.findByGroupNameContainingIgnoreCaseOrGroupNoteContainingIgnoreCaseAndDeletedYn(keyword, keyword, false);
 
 		for (Group group : searchGroupList) {
+			if (group.isDeletedYn()) {
+				continue;
+			}
 			boolean isStarGroup = false;
 			for (GroupStar groupStar : group.getGroupStars()) {
 				if (groupStar.getGroupStarStatus() == GroupStarStatus.ADD && user.getId().equals(groupStar.getUser().getId())) {
