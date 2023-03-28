@@ -348,8 +348,7 @@ public class GroupService {
 		);
 
 		List<GroupInviteResponse.InvitedUserInfo> invitedUserInfoList = new ArrayList<>();
-
-		List<Invite> inviteList = new ArrayList<>();
+		
 		for (Long userId : request.getInvitedUserIdList()) {
 			User invitedUser = userRepository.findById(userId).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 			if (groupUserIdList.contains(invitedUser.getId())) {
@@ -365,7 +364,7 @@ public class GroupService {
 			notificationRepository.save(notification);
 			log.info("생성된 알림 ID : {} , 알림을 보낸 그룹 ID : {}", notification.getId(), notification.getInvite().getGroup().getId());
 
-			inviteList.add(invite);
+			invitedUser.updateNewNotification();
 		}
 
 		return GroupInviteResponse.builder()

@@ -76,9 +76,12 @@ public class ContentService {
         Page<Content> contents = contentRepository.findByGroupIdAndDeletedYn(
                 groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
+
+        User user = getUser(userDetails);
+
         return contents.map(
                 (Content content) -> {
-                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), getUser(userDetails).getId(), true);
+                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), user.getId(), true);
                     Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
                     Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + userDetails.getUsername())
                             .contains(content.getId().toString());
@@ -88,7 +91,8 @@ public class ContentService {
                             content,
                             emotionStatus,
                             views,
-                            myBookmarkStatus
+                            myBookmarkStatus,
+                            user.isNewNotification()
                     );
                 }
         );
@@ -104,9 +108,11 @@ public class ContentService {
                 groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
+        User user = getUser(userDetails);
+
         return contents.map(
                 (Content content) -> {
-                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), getUser(userDetails).getId(), true);
+                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), user.getId(), true);
                     Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
                     Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + userDetails.getUsername())
                             .contains(content.getId().toString());
@@ -116,7 +122,8 @@ public class ContentService {
                             content,
                             emotionStatus,
                             views,
-                            myBookmarkStatus
+                            myBookmarkStatus,
+                            user.isNewNotification()
                     );
                 }
         );

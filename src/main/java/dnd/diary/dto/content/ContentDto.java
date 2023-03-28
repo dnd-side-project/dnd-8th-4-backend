@@ -41,11 +41,12 @@ public class ContentDto {
         private Long emotions;
         private Long emotionStatus;
         private Boolean bookmarkAddStatus;
+        private Boolean isNewNotification;
         List<ContentDto.ImageResponseDto> Images;
         List<EmotionResponseGroupListDto> emotionResponseDtos;
 
         public static ContentDto.groupListPagePostsDto response(
-                Content content, Long emotionStatus, String views, Boolean bookmarkAddStatus
+                Content content, Long emotionStatus, String views, Boolean bookmarkAddStatus, Boolean isNewNotification
         ) {
             return groupListPagePostsDto.builder()
                     .id(content.getId())
@@ -66,6 +67,7 @@ public class ContentDto {
                     .emotions((long) content.getEmotions().size())
                     .emotionStatus(emotionStatus)
                     .bookmarkAddStatus(bookmarkAddStatus)
+                    .isNewNotification(isNewNotification)
                     .Images(content.getContentImages()
                             .stream()
                             .map(ContentDto.ImageResponseDto::response)

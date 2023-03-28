@@ -50,6 +50,8 @@ public class CommentLikeService {
             if (!user.getId().equals(targetComment.getUser().getId())) {
                 Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, targetComment.getUser(), NotificationType.COMMENT_LIKE);
                 notificationRepository.save(notification);
+
+                targetComment.getUser().updateNewNotification();
             }
             return CustomResponseEntity.success(
                     CommentLikeDto.SaveCommentLike.response(commentLike)

@@ -75,6 +75,8 @@ public class CommentService {
             Notification notification = Notification.toContentCommentEntity(
                     content, comment, content.getUser(), NotificationType.CONTENT_COMMENT);
             notificationRepository.save(notification);
+
+            content.getUser().updateNewNotification();
         }
 
         return CommentDto.AddCommentDto.response(comment);
