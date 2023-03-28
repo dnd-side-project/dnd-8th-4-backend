@@ -475,7 +475,11 @@ public class MissionService {
 		User user = findUser();
 		List<Mission> userMissionList = new ArrayList<>();
 		user.getUserAssignMissions().forEach(
-				userAssignMission -> userMissionList.add(userAssignMission.getMission())
+				userAssignMission -> {
+					if (!userAssignMission.getIsComplete()) {   // 이미 완료한 미션은 지도 모아보기에서 제외
+						userMissionList.add(userAssignMission.getMission());
+					}
+				}
 		);
 		List<MissionResponse> missionResponseList = new ArrayList<>();
 		MissionListByMapRequest request = missionListByMapRequest.setStartXY();
