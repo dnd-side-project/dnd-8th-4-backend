@@ -60,6 +60,8 @@ public class EmotionService {
                 Notification notification = Notification.toContentEmotionEntity(
                         content, emotion, content.getUser(), NotificationType.CONTENT_EMOTION);
                 notificationRepository.save(notification);
+
+                content.getUser().updateNewNotification();
             }
 
             return CustomResponseEntity.success(EmotionDto.AddEmotionDto.response(emotion));

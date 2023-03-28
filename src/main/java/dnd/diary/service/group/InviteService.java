@@ -88,6 +88,8 @@ public class InviteService {
 				if (!user.getId().equals(alreadyGroupUser.getId())) {   // 가입자 제외 새 멤버 알림 전송
 					Notification newGroupMemberNotification = Notification.toNewGroupMemberEntity(invitedGroup, user, alreadyGroupUser, newGroupMemberContent, NotificationType.NEW_GROUP_MEMBER);
 					notificationRepository.save(newGroupMemberNotification);
+
+					alreadyGroupUser.updateNewNotification();
 				}
 			}
 		);

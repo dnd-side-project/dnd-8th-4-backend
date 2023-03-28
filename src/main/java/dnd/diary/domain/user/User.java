@@ -62,6 +62,8 @@ public class User extends BaseEntity {
     private Double subLevel;   // 레벨 상승 기준 현재 위치(0 -> 1 -> 2 -> 3이 되면 레벨 + 1 / subLevel 0 으로)
     private LocalDateTime deleteAt;
 
+    private boolean isNewNotification = Boolean.FALSE;   // 새로운 알림 생성 여부
+
     // 유저 권한
     @ManyToMany
     @JoinTable(
@@ -146,5 +148,9 @@ public class User extends BaseEntity {
     public void updateUserProfile(String nickName, String profileImageUrl){
         this.nickName = nickName;
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateNewNotification() {
+        this.isNewNotification = true;
     }
 }
