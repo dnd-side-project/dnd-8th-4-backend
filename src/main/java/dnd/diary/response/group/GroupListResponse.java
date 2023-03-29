@@ -15,7 +15,7 @@ import java.util.List;
 public class GroupListResponse {
 
 	private boolean isNewNotification;
-	private Boolean existGroup;   // 가입한 그룹이 있는지 여부
+	private boolean existGroup;   // 가입한 그룹이 있는지 여부
 	private List<GroupInfo> groupInfoList = new ArrayList<>();
 
 	@Getter
