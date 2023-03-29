@@ -511,7 +511,7 @@ public class MissionService {
 			if (!userMissionList.contains(mission)) {   // 유저에게 할당된 미션이 아닌 경우
 				continue;
 			}
-			if (mission.getMissionStatus() == MissionStatus.ACTIVE && !mission.isDeleted()) {
+			if (mission.getMissionStatus() == MissionStatus.ACTIVE || mission.getMissionStatus() == MissionStatus.READY) {
 				missionResponseList.add(toMissionResponse(mission));
 			}
 		}
