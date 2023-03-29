@@ -33,7 +33,7 @@ public class GroupController {
 	public CustomResponseEntity<GroupUpdateResponse> updateGroup(
 			@RequestPart(value = "image", required = false) MultipartFile multipartFile,
 		 	@RequestParam Long groupId,
-		 	@RequestParam String groupName,
+		 	@RequestParam(required = false) String groupName,
 		 	@RequestParam(required = false) String groupNote
 	 ) {
 		 groupValidator.checkGroupCreateAndUpdate(groupName, groupNote);
