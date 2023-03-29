@@ -91,8 +91,7 @@ public class ContentService {
                             content,
                             emotionStatus,
                             views,
-                            myBookmarkStatus,
-                            user.isNewNotification()
+                            myBookmarkStatus
                     );
                 }
         );
@@ -122,8 +121,7 @@ public class ContentService {
                             content,
                             emotionStatus,
                             views,
-                            myBookmarkStatus,
-                            user.isNewNotification()
+                            myBookmarkStatus
                     );
                 }
         );

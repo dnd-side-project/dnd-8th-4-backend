@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupListResponse {
 
-	@Setter
+	private Boolean isNewNotification;
 	private Boolean existGroup;   // 가입한 그룹이 있는지 여부
-	@Setter
 	private List<GroupInfo> groupInfoList = new ArrayList<>();
 
 	@Getter
