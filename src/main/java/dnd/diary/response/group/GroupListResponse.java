@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class GroupListResponse {
 
-	private Boolean isNewNotification;
+	private boolean isNewNotification;
 	private Boolean existGroup;   // 가입한 그룹이 있는지 여부
 	private List<GroupInfo> groupInfoList = new ArrayList<>();
 

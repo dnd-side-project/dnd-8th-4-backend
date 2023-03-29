@@ -115,6 +115,7 @@ public class GroupService {
 			imageUrl = sampleGroupImage.getGroupImageUrl();
 		}
 
+		// group.update(groupName == null ? group.getGroupName() : groupName, groupNote == null ? group.getGroupNote() : groupNote, imageUrl);
 		group.update(groupName, groupNote, imageUrl);
 
 		return GroupUpdateResponse.builder()
@@ -227,7 +228,8 @@ public class GroupService {
 
 		groupInfoList.sort(Comparator.comparing(GroupListResponse.GroupInfo::getRecentUpdatedAt).reversed());
 		response.setGroupInfoList(groupInfoList);
-		response.setIsNewNotification(user.isNewNotification());
+		response.setNewNotification(user.isNewNotification());
+		response.setNewNotification(user.isNewNotification());
 
 		return response;
 	}
