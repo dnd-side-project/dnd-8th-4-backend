@@ -72,9 +72,10 @@ public class InviteService {
 
 		// 1. 초대 수락한 그룹에 새 멤버 환영 게시물 생성
 		ContentDto.CreateDto contentResponse = contentService.createContent(
-				userDetails, null, groupId, String.format("%s 님이 그룹에 참여했습니다. 댓글로 반갑게 인사해 주세요!🎉", user.getNickName())
+				userDetails, null, groupId, String.format("%s 님이 그룹에 참여했습니다.\n댓글로 반갑게 인사해 주세요!🎉", user.getNickName())
 				, null, null, null
 		);
+
 		Content newGroupMemberContent = contentRepository.findByIdAndDeletedYn(contentResponse.getId(), false);
 		if (newGroupMemberContent == null) {
 			throw new CustomException(NOT_FOUND_CONTENT);
