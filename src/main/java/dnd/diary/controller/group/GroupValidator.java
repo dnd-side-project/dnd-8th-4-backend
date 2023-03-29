@@ -18,16 +18,16 @@ public class GroupValidator {
 	}
 
 	private void checkGroupName(String groupName) {
-		if (groupName.length() < MIN_GROUP_NAME) {
+		if (groupName != null && groupName.length() < MIN_GROUP_NAME) {
 			throw new CustomException(LOW_MIN_GROUP_NAME_LENGTH);
 		}
-		if (groupName.length() > MAX_GROUP_NAME) {
+		if (groupName != null && groupName.length() > MAX_GROUP_NAME) {
 			throw new CustomException(HIGH_MAX_GROUP_NAME_LENGTH);
 		}
 	}
 
 	private void checkGroupNote(String groupNote) {
-		if (groupNote.length() > MAX_GROUP_NOTE) {
+		if (groupNote != null && groupNote.length() > MAX_GROUP_NOTE) {
 			throw new CustomException(HIGH_MAX_GROUP_NOTE_LENGTH);
 		}
 	}
