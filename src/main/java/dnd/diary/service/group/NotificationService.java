@@ -226,6 +226,29 @@ public class NotificationService {
 			.build();
 	}
 
+	@Transactional
+	public UserNotificationInfoResponse readAllNotificationList() {
+		User user = findUser();
+
+		// 새로운 알림 읽음 처리
+		user.updateReadNewNotification();
+
+		List<Notification> notificationList = user.getNotifications();
+		long readCount = 0;
+		for (Notification notification : notificationList) {
+			if (notification.isReadYn()) {
+				readCount += 1;
+			}
+		}
+
+		return UserNotificationInfoResponse.builder()
+			.isNewNotification(user.isNewNotification())
+			.noReadCount(notificationList.size() - readCount)
+			.readCount(readCount)
+			.totalCount(notificationList.size())
+			.build();
+	}
+
 	private User findUser() {
 		UserDto.InfoDto userInfo = userService.findMyListUser();
 		return userRepository.findById(userInfo.getId()).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
