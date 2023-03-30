@@ -229,7 +229,6 @@ public class GroupService {
 		groupInfoList.sort(Comparator.comparing(GroupListResponse.GroupInfo::getRecentUpdatedAt).reversed());
 		response.setGroupInfoList(groupInfoList);
 		response.setNewNotification(user.isNewNotification());
-		response.setNewNotification(user.isNewNotification());
 
 		return response;
 	}

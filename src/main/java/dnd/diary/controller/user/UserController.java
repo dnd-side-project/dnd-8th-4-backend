@@ -6,6 +6,7 @@ import dnd.diary.dto.userDto.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.MissionResponse;
+import dnd.diary.response.notification.UserNotificationInfoResponse;
 import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.mission.MissionService;
 import dnd.diary.service.user.UserService;
@@ -124,4 +125,10 @@ public class UserController {
     public CustomResponseEntity<List<MissionResponse>> getCompleteMissionList() {
         return CustomResponseEntity.success(missionService.getCompleteMissionList());
     }
+
+    // 새로운 알림 & 읽지 않은 알림 조회
+    // @GetMapping("/user/notification")
+    // public CustomResponseEntity<UserNotificationInfoResponse> getUserNotificationInfo() {
+    //
+    // }
 }

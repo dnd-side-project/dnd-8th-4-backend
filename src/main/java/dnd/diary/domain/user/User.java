@@ -153,4 +153,7 @@ public class User extends BaseEntity {
     public void updateNewNotification() {
         this.isNewNotification = true;
     }
+    public void updateReadNewNotification() {
+        this.isNewNotification = false;
+    }
 }
