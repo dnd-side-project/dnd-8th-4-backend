@@ -50,6 +50,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -212,10 +213,19 @@ public class ContentService {
 
         content.updateContent(contentNote, latitude, longitude, location, contentImages);
 
+        List<ContentDto.ImageResponseDto> collect = null;
+
+        if(content.getContentImages() != null){
+            collect = content.getContentImages()
+                    .stream()
+                    .map(ContentDto.ImageResponseDto::response).toList();
+        }
+
         String redisKey = content.getId().toString();
         return ContentDto.UpdateDto.response(
                 content,
-                Integer.parseInt(redisDao.getValues(redisKey))
+                Integer.parseInt(redisDao.getValues(redisKey)),
+                collect
         );
     }
 

@@ -251,7 +251,7 @@ public class ContentDto {
         List<ContentDto.ImageResponseDto> collect;
         private List<deleteImageNameDto> deleteContentImageName;
 
-        public static ContentDto.UpdateDto response(Content content, Integer views) {
+        public static ContentDto.UpdateDto response(Content content, Integer views, List<ContentDto.ImageResponseDto> collect) {
             return UpdateDto.builder()
                     .id(content.getId())
                     .userName(content.getUser().getNickName())
@@ -265,11 +265,7 @@ public class ContentDto {
                     .deletedYn(content.isDeletedYn())
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
-                    .collect(content.getContentImages()
-                            .stream()
-                            .map(ContentDto.ImageResponseDto::response)
-                            .collect(Collectors.toList())
-                    )
+                    .collect(collect)
                     .build();
         }
     }
