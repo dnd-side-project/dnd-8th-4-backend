@@ -231,7 +231,9 @@ public class NotificationService {
 		User user = findUser();
 
 		// 새로운 알림 읽음 처리
-		user.updateReadNewNotification();
+//		user.updateReadNewNotification();
+
+		boolean checkNewNotification = user.isNewNotification();
 
 		List<Notification> notificationList = user.getNotifications();
 		long readCount = 0;
@@ -241,12 +243,29 @@ public class NotificationService {
 			}
 		}
 
+		long noReadCount = notificationList.size() - readCount;
+		if (noReadCount == 0) {
+			checkNewNotification = false;
+		}
+
 		return UserNotificationInfoResponse.builder()
-			.isNewNotification(user.isNewNotification())
-			.noReadCount(notificationList.size() - readCount)
+			.isNewNotification(checkNewNotification)
+			.noReadCount(noReadCount)
 			.readCount(readCount)
 			.totalCount(notificationList.size())
 			.build();
+	}
+
+	// 읽지 않은 알림 개수 체크
+	public long checkNoReadNotificationCount(User user) {
+		List<Notification> notificationList = user.getNotifications();
+		long readCount = 0;
+		for (Notification notification : notificationList) {
+			if (notification.isReadYn()) {
+				readCount += 1;
+			}
+		}
+		return notificationList.size() - readCount;
 	}
 
 	private User findUser() {
