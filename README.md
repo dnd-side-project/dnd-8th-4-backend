@@ -47,7 +47,7 @@
 | Framework | Spring Boot |
 | Database/ORM | MySQL, Redis, AWS RDS, Spring Data JPA |
 | CI/CD | AWS EC2, AWS S3, CodeDeploy, Nginx, Github Actions |
-| ETC | Postman, Slack, Notion, Figama |
+| ETC | Postman, Slack, Notion, Figma |
 
 
 ## 📐 System Architecture
