@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,19 +37,12 @@ public class BookmarkService {
         Bookmark bookmark = bookmarkRepository.findByUserIdAndContentId(
                 getUser(userDetails).getId(), contentId
         );
-
-        String redisUserKey = "bookmark" + userDetails.getUsername();
-        // 이미 북마크를 등록했다면
+        // 이미 북마크를 등록했다면 북마크 취소
         if (bookmark != null){
             bookmarkRepository.delete(bookmark);
-            List<String> valuesList = redisDao.getValuesList(redisUserKey);
-            redisDao.deleteValues(redisUserKey);
-            valuesList.remove(contentId.toString());
-            valuesList.forEach(s -> redisDao.setValuesList(redisUserKey,s));
             return CustomResponseEntity.successDeleteBookmark();
         } else {
             // 북마크 추가
-            redisDao.setValuesList(redisUserKey, String.valueOf(contentId));
             return CustomResponseEntity.success(
                     BookmarkDto.addBookmarkDto.response(
                             bookmarkRepository.save(

@@ -27,4 +27,13 @@ public class Bookmark extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Override
+    public String toString() {
+        return "Bookmark{" +
+                "id=" + id +
+                ", content=" + content +
+                ", user=" + user +
+                '}';
+    }
 }

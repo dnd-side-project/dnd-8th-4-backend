@@ -1,16 +1,12 @@
 package dnd.diary.service.user;
 
-import static dnd.diary.enumeration.Result.*;
-
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
-import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.content.Content;
-import dnd.diary.domain.group.GroupImage;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserImage;
@@ -44,20 +40,18 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.time.Duration;
 import java.util.*;
+
+import static dnd.diary.enumeration.Result.NOT_FOUND_USER_IMAGE;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ContentRepository contentRepository;
@@ -69,10 +63,11 @@ public class UserService {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisDao redisDao;
-
     Authority authority = Authority.builder()
             .authorityName("ROLE_USER")
             .build();
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     @Transactional
     public UserDto.RegisterDto register(UserDto.RegisterDto request) {
@@ -160,15 +155,15 @@ public class UserService {
         );
 
         return pageMyComment.map((Content content) ->
-                        UserDto.myCommentListDto.response(
-                                content,
-                                content.getContentImages()
-                                        .stream()
-                                        .map(ContentDto.ImageResponseDto::response)
-                                        .toList(),
-                                Integer.parseInt(redisDao.getValues(content.getId().toString()))
-                        )
-                );
+                UserDto.myCommentListDto.response(
+                        content,
+                        content.getContentImages()
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList(),
+                        Integer.parseInt(redisDao.getValues(content.getId().toString()))
+                )
+        );
     }
 
     @Transactional
@@ -183,15 +178,15 @@ public class UserService {
         );
 
         return pageMyContent.map((Content content) ->
-                        UserDto.myContentListDto.response(
-                                content,
-                                content.getContentImages()
-                                        .stream()
-                                        .map(ContentDto.ImageResponseDto::response)
-                                        .toList(),
-                                Integer.parseInt(redisDao.getValues(content.getId().toString()))
-                        )
-                );
+                UserDto.myContentListDto.response(
+                        content,
+                        content.getContentImages()
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList(),
+                        Integer.parseInt(redisDao.getValues(content.getId().toString()))
+                )
+        );
     }
 
     @Transactional
@@ -235,8 +230,8 @@ public class UserService {
         } else {
             int sampleGroupImageCount = userImageRepository.findAll().size();
             int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
-            fileUrl  = sampleUserImage.getUserImageUrl();
+            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            fileUrl = sampleUserImage.getUserImageUrl();
         }
 
         String beforeNickname = user.getNickName();
@@ -244,7 +239,7 @@ public class UserService {
             nickName = beforeNickname;
         }
 
-        user.updateUserProfile(nickName,fileUrl);
+        user.updateUserProfile(nickName, fileUrl);
 
         return UserDto.UpdateDto.response(user);
     }
@@ -273,7 +268,7 @@ public class UserService {
         if (request.getProfileImageUrl() == null) {
             int sampleGroupImageCount = userImageRepository.findAll().size();
             int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
             imageUrl = sampleUserImage.getUserImageUrl();
         }
 
@@ -307,7 +302,7 @@ public class UserService {
             // 유저 목록 검색 시 프로필 이미지는 기본 이미지 랜덤 세팅
             int sampleGroupImageCount = userImageRepository.findAll().size();
             int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
             String imageUrl = sampleUserImage.getUserImageUrl();
 
             UserSearchResponse.UserSearchInfo userSearchInfo = UserSearchResponse.UserSearchInfo.builder()
