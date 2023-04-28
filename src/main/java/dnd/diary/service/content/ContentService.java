@@ -5,8 +5,6 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import dnd.diary.config.GeometryUtil;
-import dnd.diary.config.Location;
 import dnd.diary.config.RedisDao;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.ContentImage;
@@ -14,7 +12,6 @@ import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
 import dnd.diary.dto.content.ContentDto;
-import dnd.diary.enumeration.Direction;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.ContentImageRepository;
@@ -26,15 +23,11 @@ import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,7 +37,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -108,12 +100,15 @@ public class ContentService {
                 groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        User user = getUser(userDetails);
-
         return contents.map(
                 (Content content) -> {
-                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), user.getId(), true);
-                    Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
+                    Emotion myEmotionOnContent = content.getEmotions().stream()
+                            .filter(emotion -> emotion.getUser() == getUser(userDetails))
+                            .filter(Emotion::isEmotionYn)
+                            .findFirst()
+                            .orElse(null);
+                    Long emotionStatus = myEmotionOnContent == null ? -1 : myEmotionOnContent.getEmotionStatus();
+
                     Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + userDetails.getUsername())
                             .contains(content.getId().toString());
                     String views = redisDao.getValues(content.getId().toString());
@@ -132,13 +127,11 @@ public class ContentService {
     public ContentDto.CreateDto createContent(
             UserDetails userDetails, List<MultipartFile> multipartFile, Long groupId,
             String contentNote, Double latitude, Double longitude, String location
-    ) throws ParseException {
-
+    ) {
         Group group = getGroup(groupId);
-
         Content content = contentRepository.save(
                 Content.builder()
-                        .content(contentNote)// 이미 삭제된 게시물일 경우
+                        .content(contentNote) // 이미 삭제된 게시물일 경우
                         .latitude(latitude)
                         .longitude(longitude)
                         .location(location)
@@ -164,6 +157,7 @@ public class ContentService {
     @Cacheable(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
     public ContentDto.detailDto detailContent(UserDetails userDetails, Long contentId) {
         Content content = getContent(contentId);
+        User user = getUser(userDetails);
 
         String redisKey = contentId.toString();
         String redisUserKey = getUser(userDetails).getNickName();
@@ -176,17 +170,23 @@ public class ContentService {
             redisDao.setValues(redisKey, String.valueOf(views));
         }
 
-        List<String> bookmarkStatusList = redisDao.getValuesList("bookmark" + userDetails.getUsername());
-        boolean bookmarkAddStatus = bookmarkStatusList.contains(contentId.toString());
+        boolean isBookmarked = user.getBookmarks()
+                .stream()
+                .map(bookmark -> bookmark.getContent().getId())
+                .anyMatch(x -> x.equals(contentId));
 
-        Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), getUser(userDetails).getId(), true);
-        Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
+        Emotion myEmotionOnContent = content.getEmotions().stream()
+                .filter(emotion -> emotion.getUser() == getUser(userDetails))
+                .filter(Emotion::isEmotionYn)
+                .findFirst()
+                .orElse(null);
+        Long emotionStatus = myEmotionOnContent == null ? -1 : myEmotionOnContent.getEmotionStatus();
 
         return ContentDto.detailDto.response(
                 content,
                 views,
                 getContentImageResponse(content),
-                bookmarkAddStatus,
+                isBookmarked,
                 emotionStatus
         );
     }
@@ -215,7 +215,7 @@ public class ContentService {
 
         List<ContentDto.ImageResponseDto> collect = null;
 
-        if(content.getContentImages() != null){
+        if (content.getContentImages() != null) {
             collect = content.getContentImages()
                     .stream()
                     .map(ContentDto.ImageResponseDto::response).toList();
@@ -242,39 +242,50 @@ public class ContentService {
     }
 
     @Transactional
-    public List<ContentDto.mapListContent> listMyMap(UserDetails userDetails, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude) {
+    public List<ContentDto.mapListContent> listMyMap(
+            UserDetails userDetails, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude
+    ) {
+        List<Long> myGroupIdList = getUser(userDetails).getUserJoinGroups().stream()
+                .map(userJoinGroup -> userJoinGroup.getGroup().getId()).toList();
 
-        List<Long> groupIdList = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
-        List<Content> contents = contentRepository.findByMapList(
-                groupIdList, endLatitude, startLatitude, startLongitude, endLongitude);
+        List<Content> myMapContents = contentRepository.findByMapList(
+                myGroupIdList, endLatitude, startLatitude, startLongitude, endLongitude);
 
-        return contents.stream()
+        return myMapContents.stream()
                 .filter(content -> !content.isDeletedYn())
+                .map((Content content) -> {
+                            Long duplicateLocationCount = contentRepository.countByLocationAndGroupIdInAndDeletedYn(
+                                            content.getLocation(), myGroupIdList, false
+                                    );
+                            return ContentDto.mapListContent.response(
+                                    content,
+                                    getContentImageResponse(content),
+                                    duplicateLocationCount
+                            );
+                        }
+                )
+                .toList();
+    }
+
+    @Transactional
+    public List<ContentDto.mapListContentDetail> listDetailMyMap(String location, UserDetails userDetails) {
+        List<Long> myGroupIdList = getUser(userDetails).getUserJoinGroups().stream()
+                .map(userJoinGroup -> userJoinGroup.getGroup().getId()).toList();
+
+        List<Content> contentList = contentRepository.findByLocationAndGroupIdInAndDeletedYn(location, myGroupIdList, false);
+
+        return contentList.stream()
+                .filter(content -> !content.isDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
                 .map((Content content) ->
-                        ContentDto.mapListContent.response(
+                        ContentDto.mapListContentDetail.response(
                                 content,
-                                getContentImageResponse(content),
-                                contentRepository.countByLocationAndGroupIdInAndDeletedYn(content.getLocation(),groupIdList,false)
+                                getContentImageResponse(content)
                         )
                 ).toList();
     }
 
     @Transactional
-    public List<ContentDto.mapListContentDetail> listDetailMyMap(String location, UserDetails userDetails) {
-        List<Long> groupId = userJoinGroupRepository.findGroupIdList(getUser(userDetails).getId());
-        List<Content> contentList = contentRepository.findByLocationAndGroupIdInAndDeletedYn(location, groupId, false);
-        return contentList.stream()
-                .filter(content -> !content.isDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
-                .map((Content content) ->
-                ContentDto.mapListContentDetail.response(
-                        content,
-                        getContentImageResponse(content)
-                )
-        ).toList();
-    }
-
-    @Transactional
-    public CustomResponseEntity<Page<ContentDto.ContentSearchDto>> contentSearch(
+    public Page<ContentDto.ContentSearchDto> contentSearch(
             List<Long> groupId, String word, Integer page
     ) {
         // 삭제 처리되지 않은 게시물만 조회
@@ -283,13 +294,8 @@ public class ContentService {
                         word, groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
                 );
 
-        return CustomResponseEntity.success(
-                contentPage.map((Content content) -> ContentDto.ContentSearchDto.response(
-                                content,
-                                getContentImageResponse(content)
-                        )
-                )
-        );
+        return contentPage.map((Content content) ->
+                ContentDto.ContentSearchDto.response(content, getContentImageResponse(content)));
     }
 
 

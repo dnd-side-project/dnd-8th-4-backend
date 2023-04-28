@@ -45,7 +45,7 @@ public class ContentController {
             @RequestParam final String word,
             @RequestParam final Integer page
     ) {
-        return contentService.contentSearch(groupId, word, page);
+        return CustomResponseEntity.success(contentService.contentSearch(groupId, word, page));
     }
 
     // 피드 작성
@@ -58,7 +58,7 @@ public class ContentController {
             @RequestParam(required = false) final Double latitude,
             @RequestParam(required = false) final Double longitude,
             @RequestParam(required = false) final String location
-    ) throws ParseException {
+    ) {
         return CustomResponseEntity.success(contentService.createContent(
                 userDetails, multipartFile, groupId,
                 content, latitude, longitude, location)
@@ -112,7 +112,7 @@ public class ContentController {
         return CustomResponseEntity.success(contentService.listMyMap(userDetails, startLatitude, startLongitude, endLatitude, endLongitude));
     }
 
-    // 지도 피드 상세보기
+    // (중복되는 장소의) 지도 피드 상세보기
     @GetMapping("content/map/detail")
     public CustomResponseEntity<List<ContentDto.mapListContentDetail>> myMapListDetail(
             @RequestParam final String location, @AuthenticationPrincipal UserDetails userDetails
