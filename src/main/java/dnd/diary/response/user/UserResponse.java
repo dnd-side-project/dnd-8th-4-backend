@@ -48,4 +48,37 @@ public class UserResponse {
         }
     }
 
+    @NoArgsConstructor
+    @Getter
+    public static class Detail {
+        private Long id;
+        private String email;
+        private String password;
+        private String name;
+        private String nickName;
+        private String phoneNumber;
+        private String profileImageUrl;
+
+        @Builder
+        private Detail(Long id, String email, String password, String name, String nickName, String phoneNumber, String profileImageUrl) {
+            this.id = id;
+            this.email = email;
+            this.password = password;
+            this.name = name;
+            this.nickName = nickName;
+            this.phoneNumber = phoneNumber;
+            this.profileImageUrl = profileImageUrl;
+        }
+
+        public static UserResponse.Detail response(User user){
+            return UserResponse.Detail.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .nickName(user.getNickName())
+                    .phoneNumber(user.getPhoneNumber())
+                    .profileImageUrl(user.getProfileImageUrl())
+                    .build();
+        }
+    }
 }

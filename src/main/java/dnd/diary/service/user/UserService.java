@@ -116,12 +116,9 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto.InfoDto findMyListUser() {
-        return UserDto.InfoDto.response(
-                getUser(
-                        SecurityContextHolder.getContext().getAuthentication().getName()
-                )
-        );
+    public UserResponse.Detail findMyListUser(Long userId) {
+        User user = getUser(userId);
+        return UserResponse.Detail.response(user);
     }
 
     @Transactional
@@ -134,10 +131,10 @@ public class UserService {
     }
 
     @Transactional
-    public Page<UserDto.BookmarkDto> listMyBookmark(UserDetails userDetails, Integer page) {
+    public Page<UserDto.BookmarkDto> listMyBookmark(Long userId, Integer page) {
 
         // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
-        List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userDetails.getUsername()).getId());
+        List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userId).getId());
         Page<Content> bookmarkPage = contentRepository.findByIdInAndDeletedYn(
                 contentIdList, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
@@ -157,9 +154,9 @@ public class UserService {
 
     @Transactional
     public Page<UserDto.myCommentListDto> listSearchMyComment(
-            UserDetails userDetails, Integer page
+            Long userId, Integer page
     ) {
-        User user = getUser(userDetails.getUsername());
+        User user = getUser(userId);
         List<Long> distinctContentIdListByUserId = commentRepository.findDistinctContentIdListByUserId(user.getId());
 
         Page<Content> pageMyComment = contentRepository.findByIdInAndDeletedYn(
@@ -214,25 +211,24 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(UserDetails userDetails, String auth) {
+    public void deleteUser(Long userId, String auth) {
         String atk = auth.substring(7);
-        if (redisDao.getValues(userDetails.getUsername()) != null) {
-            redisDao.deleteValues(userDetails.getUsername());
+        User user = getUser(userId);
+
+        if (redisDao.getValues(user.getEmail()) != null) {
+            redisDao.deleteValues(user.getEmail());
         }
-        redisDao.setValues(atk, "logout", Duration.ofMillis(
-                        tokenProvider.getExpiration(atk)
-                )
-        );
-        userRepository.delete(
-                getUser(userDetails.getUsername())
-        );
+
+        redisDao.setValues(atk, "logout", Duration.ofMillis(tokenProvider.getExpiration(atk)));
+
+        userRepository.delete(user);
     }
 
     @Transactional
     public UserDto.UpdateDto userUpdateProfile(
-            UserDetails userDetails, String nickName, MultipartFile file
+            Long userId, String nickName, MultipartFile file
     ) {
-        User user = getUser(userDetails.getUsername());
+        User user = getUser(userId);
         String fileName = null;
         String fileUrl = null;
 
@@ -258,13 +254,12 @@ public class UserService {
 
     // method
 
-    private User getUser(String email) {
-        Optional<User> oneWithAuthoritiesByEmail = userRepository.
-                findOneWithAuthoritiesByEmail(email);
-        return oneWithAuthoritiesByEmail.orElseThrow(
-                () -> new CustomException(Result.FAIL)
+    public User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(NOT_FOUND_USER)
         );
     }
+
     private Authentication getAuthentication(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);

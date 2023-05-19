@@ -74,7 +74,21 @@ class UserServiceTest {
         assertThat(response.getProfileImageUrl()).isNotBlank();
         assertThat(response.getAtk()).isNotBlank();
         assertThat(response.getRtk()).isNotBlank();
+    }
 
+    @DisplayName("유저가 자신의 정보를 조회한다.")
+    @Test
+    void findMyListUser() {
+        // given
+        User user = getUserAndSave();
+
+        // when
+        UserResponse.Detail response = userService.findMyListUser(user.getId());
+
+        // then
+        assertThat(response)
+                .extracting("email", "name", "nickName", "phoneNumber")
+                .contains("test@test.com", "테스트 계정", "테스트 닉네임", "010-1234-5678");
     }
 
     // method
