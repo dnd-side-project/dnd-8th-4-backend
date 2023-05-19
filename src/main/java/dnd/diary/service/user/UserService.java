@@ -1,9 +1,5 @@
 package dnd.diary.service.user;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
 import dnd.diary.domain.content.Content;
@@ -26,7 +22,6 @@ import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -43,8 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityManager;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.util.*;
 
@@ -185,15 +178,16 @@ public class UserService {
     }
 
     @Transactional
-    public void logout(UserDetails userDetails, String auth) {
-        String atk = auth.substring(7);
-        if (redisDao.getValues(userDetails.getUsername()) != null) {
-            redisDao.deleteValues(userDetails.getUsername());
+    public Void logout(Long userId, String accessToken) {
+        String email = getUser(userId).getEmail();
+        Long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
+        if (redisDao.getValues(email) == null || redisDao.getValues(email).isEmpty()) {
+            throw new CustomException(Result.FAIL);
         }
-        redisDao.setValues(atk, "logout", Duration.ofMillis(
-                        tokenProvider.getExpiration(atk)
-                )
-        );
+
+        redisDao.deleteValues(email);
+        redisDao.setValues(accessToken, "logout", Duration.ofMillis(accessTokenExpiration));
+        return null;
     }
 
     @Transactional

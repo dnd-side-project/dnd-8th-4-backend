@@ -1,9 +1,10 @@
 package dnd.diary.service.user;
 
+import dnd.diary.config.Jwt.TokenProvider;
+import dnd.diary.config.RedisDao;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
 import dnd.diary.repository.user.UserRepository;
-import dnd.diary.request.UserDto;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.user.UserResponse;
 import dnd.diary.service.s3.S3Service;
@@ -13,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +28,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
@@ -36,6 +40,15 @@ class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TokenProvider tokenProvider;
+
+    @Autowired
+    private AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    @Autowired
+    private RedisDao redisDao;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -119,6 +132,24 @@ class UserServiceTest {
                 .contains("업데이트 계정","updateImage");
     }
 
+    @DisplayName("유저가 로그아웃을 하면 액세스 토큰이 블랙리스트로 redis 에 저장된다.")
+    @Test
+    void logoutUser() {
+        // given
+        User user = getUserAndSave();
+        Authentication authentication = saveSecurityContextHolderAndGetAuthentication();
+
+        String testAccessToken = tokenProvider.createToken(user.getId(), authentication);
+        redisDao.setValues(user.getEmail(), "testRefreshToken");
+
+        // when
+        userService.logout(user.getId(), testAccessToken);
+
+        // then
+        assertThat(redisDao.getValues(user.getEmail())).isNull();
+        assertThat(redisDao.getValues(testAccessToken)).isEqualTo("logout");
+    }
+
     // method
     private User getUserAndSave() {
         User user = User.builder()
@@ -142,5 +173,14 @@ class UserServiceTest {
         return Collections.singleton(Authority.builder()
                 .authorityName("ROLE_USER")
                 .build());
+    }
+
+    private Authentication saveSecurityContextHolderAndGetAuthentication() {
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken("test@test.com", "abc123!");
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return authentication;
     }
 }

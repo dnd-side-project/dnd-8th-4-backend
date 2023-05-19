@@ -64,11 +64,10 @@ public class UserController {
     // 로그아웃
     @PostMapping("auth/logout")
     public CustomResponseEntity<Void> login(
-            @AuthenticationPrincipal final UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestHeader(value = "Authorization") String auth
     ) {
-        userService.logout(userDetails, auth);
-        return CustomResponseEntity.successLogout();
+        return CustomResponseEntity.success(userService.logout(userId, auth.substring(7)));
     }
 
     // 회원 탈퇴
