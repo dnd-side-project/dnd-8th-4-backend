@@ -1,4 +1,4 @@
-package dnd.diary.dto.content;
+package dnd.diary.request.content;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dnd.diary.domain.comment.Comment;
@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public class CommentDto {

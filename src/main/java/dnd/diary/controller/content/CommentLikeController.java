@@ -1,6 +1,6 @@
 package dnd.diary.controller.content;
 
-import dnd.diary.dto.content.CommentLikeDto;
+import dnd.diary.request.content.CommentLikeDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.content.CommentLikeService;
 import lombok.RequiredArgsConstructor;

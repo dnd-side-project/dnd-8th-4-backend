@@ -15,7 +15,7 @@ import dnd.diary.domain.group.GroupImage;
 import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.sticker.StickerGroup;
 import dnd.diary.domain.user.UserImage;
-import dnd.diary.dto.mission.StickerGroupCreateRequest;
+import dnd.diary.request.mission.StickerGroupCreateRequest;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupImageRepository;
 import dnd.diary.repository.mission.StickerGroupRepository;

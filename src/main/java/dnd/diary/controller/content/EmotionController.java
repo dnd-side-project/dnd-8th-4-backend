@@ -1,6 +1,6 @@
 package dnd.diary.controller.content;
 
-import dnd.diary.dto.content.EmotionDto;
+import dnd.diary.request.content.EmotionDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.content.EmotionService;
 import lombok.RequiredArgsConstructor;

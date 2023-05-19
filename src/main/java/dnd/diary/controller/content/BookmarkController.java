@@ -1,6 +1,6 @@
 package dnd.diary.controller.content;
 
-import dnd.diary.dto.content.BookmarkDto;
+import dnd.diary.request.content.BookmarkDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.content.BookmarkService;
 import lombok.RequiredArgsConstructor;

@@ -2,10 +2,12 @@ package dnd.diary.controller.user;
 
 import java.util.List;
 
-import dnd.diary.dto.userDto.UserDto;
+import dnd.diary.request.UserDto;
 import dnd.diary.enumeration.Result;
+import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.MissionResponse;
+import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.notification.UserNotificationInfoResponse;
 import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.mission.MissionService;
@@ -28,10 +30,10 @@ public class UserController {
 
     // 회원가입
     @PostMapping("auth")
-    public CustomResponseEntity<UserDto.RegisterDto> register(
-            @Valid @RequestBody final UserDto.RegisterDto request
+    public CustomResponseEntity<UserResponse.CreateUser> createUserAccount(
+            @Valid @RequestBody final UserRequest.CreateUser request
     ) {
-        return CustomResponseEntity.success(userService.register(request));
+        return CustomResponseEntity.success(userService.createUserAccount(request.toServiceRequest()));
     }
 
     // 프로필 수정

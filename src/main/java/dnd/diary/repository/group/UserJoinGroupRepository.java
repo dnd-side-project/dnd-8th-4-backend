@@ -10,8 +10,6 @@ import java.util.List;
 
 @Repository
 public interface UserJoinGroupRepository extends JpaRepository<UserJoinGroup, Long> {
-    @Query(value = "SELECT c.group_id FROM user_join_group AS c WHERE user_id = :user_id", nativeQuery = true)
-    List<Long> findGroupIdList(@Param("user_id") Long userId);
-
+    List<UserJoinGroup> findByUserId(Long userId);
     UserJoinGroup findUserJoinGroupByUserIdAndGroupId(Long userId, Long groupId);
 }

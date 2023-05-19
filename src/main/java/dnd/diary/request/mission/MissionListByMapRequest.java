@@ -1,7 +1,6 @@
-package dnd.diary.dto.mission;
+package dnd.diary.request.mission;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 
 @Getter

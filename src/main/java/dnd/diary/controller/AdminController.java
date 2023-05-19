@@ -6,7 +6,7 @@ import dnd.diary.response.mission.StickerPerResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import dnd.diary.dto.mission.StickerGroupCreateRequest;
+import dnd.diary.request.mission.StickerGroupCreateRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.StickerGroupResponse;
 import dnd.diary.response.mission.StickerResponse;

@@ -1,21 +1,17 @@
 package dnd.diary.service.user;
 
-import static dnd.diary.enumeration.Result.*;
-
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.RedisDao;
-import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.content.Content;
-import dnd.diary.domain.group.GroupImage;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserImage;
-import dnd.diary.dto.content.ContentDto;
-import dnd.diary.dto.userDto.UserDto;
+import dnd.diary.request.content.ContentDto;
+import dnd.diary.request.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.BookmarkRepository;
@@ -23,7 +19,9 @@ import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.user.UserImageRepository;
 import dnd.diary.repository.user.UserRepository;
+import dnd.diary.request.service.UserServiceRequest;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.user.UserSearchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,20 +42,18 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.time.Duration;
 import java.util.*;
+
+import static dnd.diary.enumeration.Result.NOT_FOUND_USER_IMAGE;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
     private final UserRepository userRepository;
     private final BookmarkRepository bookmarkRepository;
     private final ContentRepository contentRepository;
@@ -69,26 +65,36 @@ public class UserService {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisDao redisDao;
-
-    Authority authority = Authority.builder()
-            .authorityName("ROLE_USER")
-            .build();
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     @Transactional
-    public UserDto.RegisterDto register(UserDto.RegisterDto request) {
+    public UserResponse.CreateUser createUserAccount(UserServiceRequest.CreateUser request) {
         validateRegister(request);
 
-        return UserDto.RegisterDto.response(
-                userRepository.save(
-                        addUserFromRequest(request)
-                ),
-                tokenProvider.createToken(
-                        getAuthentication(request.getEmail(), request.getPassword())
-                ),
-                getRtk(
-                        request.getEmail()
-                )
+        // 사용자 기본 프로필 추가
+        User user = userRepository.save(
+                createEntityUserFromDto(request)
         );
+
+        // 토큰 발급
+        String accessToken = tokenProvider.createToken(getAuthentication(request.getEmail(), request.getPassword()));
+        String refreshToken = tokenProvider.createRefreshToken(request.getEmail());
+
+        return UserResponse.CreateUser.response(user, accessToken, refreshToken);
+    }
+
+    private String setDefaultProfileImage(String profileImageUrl) {
+        String imageUrl = "";
+
+        if (profileImageUrl.isBlank()) {
+            int sampleGroupImageCount = userImageRepository.findAll().size();
+            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
+            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            imageUrl = sampleUserImage.getUserImageUrl();
+        }
+
+        return imageUrl;
     }
 
     @Transactional
@@ -102,9 +108,7 @@ public class UserService {
                 tokenProvider.createToken(
                         getAuthentication(request.getEmail(), request.getPassword())
                 ),
-                getRtk(
-                        request.getEmail()
-                )
+                tokenProvider.createRefreshToken(request.getEmail())
         );
     }
 
@@ -160,15 +164,15 @@ public class UserService {
         );
 
         return pageMyComment.map((Content content) ->
-                        UserDto.myCommentListDto.response(
-                                content,
-                                content.getContentImages()
-                                        .stream()
-                                        .map(ContentDto.ImageResponseDto::response)
-                                        .toList(),
-                                Integer.parseInt(redisDao.getValues(content.getId().toString()))
-                        )
-                );
+                UserDto.myCommentListDto.response(
+                        content,
+                        content.getContentImages()
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList(),
+                        Integer.parseInt(redisDao.getValues(content.getId().toString()))
+                )
+        );
     }
 
     @Transactional
@@ -183,15 +187,15 @@ public class UserService {
         );
 
         return pageMyContent.map((Content content) ->
-                        UserDto.myContentListDto.response(
-                                content,
-                                content.getContentImages()
-                                        .stream()
-                                        .map(ContentDto.ImageResponseDto::response)
-                                        .toList(),
-                                Integer.parseInt(redisDao.getValues(content.getId().toString()))
-                        )
-                );
+                UserDto.myContentListDto.response(
+                        content,
+                        content.getContentImages()
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList(),
+                        Integer.parseInt(redisDao.getValues(content.getId().toString()))
+                )
+        );
     }
 
     @Transactional
@@ -235,8 +239,8 @@ public class UserService {
         } else {
             int sampleGroupImageCount = userImageRepository.findAll().size();
             int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
-            fileUrl  = sampleUserImage.getUserImageUrl();
+            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            fileUrl = sampleUserImage.getUserImageUrl();
         }
 
         String beforeNickname = user.getNickName();
@@ -244,12 +248,13 @@ public class UserService {
             nickName = beforeNickname;
         }
 
-        user.updateUserProfile(nickName,fileUrl);
+        user.updateUserProfile(nickName, fileUrl);
 
         return UserDto.UpdateDto.response(user);
     }
 
     // method
+
     private User getUser(String email) {
         Optional<User> oneWithAuthoritiesByEmail = userRepository.
                 findOneWithAuthoritiesByEmail(email);
@@ -257,45 +262,12 @@ public class UserService {
                 () -> new CustomException(Result.FAIL)
         );
     }
-
     private Authentication getAuthentication(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
-    }
-
-    private User addUserFromRequest(UserDto.RegisterDto request) {
-
-        // 사용자 기본 프로필 추가
-        String imageUrl = "";
-        if (request.getProfileImageUrl() == null) {
-            int sampleGroupImageCount = userImageRepository.findAll().size();
-            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
-            imageUrl = sampleUserImage.getUserImageUrl();
-        }
-
-        return User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .name(request.getName())
-                .nickName(request.getNickName())
-                .phoneNumber(request.getPhoneNumber())
-                .profileImageUrl(imageUrl)
-                .authorities(Collections.singleton(authority))
-                .mainLevel(1L)
-                .subLevel(0.0)
-                .build();
-    }
-
-    private String getRtk(String email) {
-        String rtk = tokenProvider.createRefreshToken(
-                email
-        );
-        redisDao.setValues(email, rtk, Duration.ofDays(14));
-        return rtk;
     }
 
     public UserSearchResponse searchUserList(String keyword) {
@@ -307,7 +279,7 @@ public class UserService {
             // 유저 목록 검색 시 프로필 이미지는 기본 이미지 랜덤 세팅
             int sampleGroupImageCount = userImageRepository.findAll().size();
             int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long)randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
             String imageUrl = sampleUserImage.getUserImageUrl();
 
             UserSearchResponse.UserSearchInfo userSearchInfo = UserSearchResponse.UserSearchInfo.builder()
@@ -325,9 +297,9 @@ public class UserService {
                 .build();
     }
 
-    // Validate
 
-    private void validateRegister(UserDto.RegisterDto request) {
+    // Validate
+    private void validateRegister(UserServiceRequest.CreateUser request) {
         Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
         Boolean existsByNickName = userRepository.existsByNickName(request.getNickName());
         if (existsByEmail) {
@@ -386,5 +358,29 @@ public class UserService {
 
     private int getRandomNumber(int min, int max) {
         return (int) ((Math.random() * (max - min)) + min);
+    }
+
+    private User createEntityUserFromDto(UserServiceRequest.CreateUser request) {
+        return User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .name(request.getName())
+                .nickName(request.getNickName())
+                .phoneNumber(request.getPhoneNumber())
+                .profileImageUrl(
+                        setDefaultProfileImage(request.getProfileImageUrl())
+                )
+                .authorities(
+                        getAuthorities()
+                )
+                .mainLevel(1L)
+                .subLevel(0.0)
+                .build();
+    }
+
+    private static Set<Authority> getAuthorities() {
+        return Collections.singleton(Authority.builder()
+                .authorityName("ROLE_USER")
+                .build());
     }
 }

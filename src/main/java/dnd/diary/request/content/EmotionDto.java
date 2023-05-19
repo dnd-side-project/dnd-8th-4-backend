@@ -1,9 +1,7 @@
-package dnd.diary.dto.content;
+package dnd.diary.request.content;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.Emotion;
-import dnd.diary.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

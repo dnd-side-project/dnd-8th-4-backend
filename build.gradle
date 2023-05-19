@@ -19,29 +19,37 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// AWS
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	// Hibernate
 	implementation group: 'org.hibernate', name: 'hibernate-spatial', version: '5.6.9.Final'
 
-	compileOnly 'org.projectlombok:lombok'
+	// H2
+	runtimeOnly 'com.h2database:h2'
 
+	// MySQL
 	runtimeOnly 'mysql:mysql-connector-java'
+
+	// JWT
+	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
 
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
 	testImplementation 'org.springframework.security:spring-security-test'
-
-	testCompileOnly 'org.projectlombok:lombok' // 테스트 의존성 추가
-	testAnnotationProcessor 'org.projectlombok:lombok' // 테스트 의존성 추가
 
 
 

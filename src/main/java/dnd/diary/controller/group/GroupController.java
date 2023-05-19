@@ -1,6 +1,6 @@
 package dnd.diary.controller.group;
 
-import dnd.diary.dto.group.GroupInviteRequest;
+import dnd.diary.request.group.GroupInviteRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.group.*;
 import dnd.diary.response.group.GroupInviteResponse;

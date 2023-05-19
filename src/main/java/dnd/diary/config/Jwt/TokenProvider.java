@@ -1,5 +1,6 @@
 package dnd.diary.config.Jwt;
 
+import dnd.diary.config.RedisDao;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -28,18 +30,20 @@ public class TokenProvider implements InitializingBean {
     private final String auth;
     private final long tokenValidityInMilliseconds;
     private final long refreshTokenValidityInMilliseconds;
+    private final RedisDao redisDao;
     private Key key;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
             @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInSeconds,
-            @Value("${jwt.auth.secret}") String auth
-    ) {
+            @Value("${jwt.auth.secret}") String auth,
+            RedisDao redisDao) {
         this.secret = secret;
         this.auth = auth;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
         this.refreshTokenValidityInMilliseconds = refreshTokenValidityInSeconds * 1000;
+        this.redisDao = redisDao;
     }
 
     @Override
@@ -92,14 +96,19 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
-    public String createRefreshToken(String username) {
+    public String createRefreshToken(String email) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);
-        return Jwts.builder()
-                .setSubject(username)
+
+        String refreshToken = Jwts.builder()
+                .setSubject(email)
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
+
+        redisDao.setValues(email, refreshToken, Duration.ofDays(14));
+
+        return  refreshToken;
     }
 
     public Long getExpiration(String accessToken) {

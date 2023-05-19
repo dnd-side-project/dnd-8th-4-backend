@@ -5,7 +5,7 @@ import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
-import dnd.diary.dto.content.EmotionDto;
+import dnd.diary.request.content.EmotionDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.NotificationRepository;
@@ -19,11 +19,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
-
-import static dnd.diary.enumeration.Result.FAIL;
-import static dnd.diary.enumeration.Result.NOT_SAVE_EMOTION_DELETE;
 
 @Service
 @RequiredArgsConstructor

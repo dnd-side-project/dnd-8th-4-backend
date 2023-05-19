@@ -4,7 +4,7 @@ import static dnd.diary.enumeration.Result.*;
 
 import org.springframework.stereotype.Component;
 
-import dnd.diary.dto.group.MissionCreateRequest;
+import dnd.diary.request.group.MissionCreateRequest;
 import dnd.diary.exception.CustomException;
 
 @Component

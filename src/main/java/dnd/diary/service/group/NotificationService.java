@@ -10,7 +10,7 @@ import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
-import dnd.diary.dto.userDto.UserDto;
+import dnd.diary.request.UserDto;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;

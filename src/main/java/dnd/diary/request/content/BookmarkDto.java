@@ -1,4 +1,4 @@
-package dnd.diary.dto.content;
+package dnd.diary.request.content;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dnd.diary.domain.bookmark.Bookmark;
