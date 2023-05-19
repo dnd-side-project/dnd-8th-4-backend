@@ -1,11 +1,9 @@
-package dnd.diary.dto.userDto;
+package dnd.diary.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import dnd.diary.domain.bookmark.Bookmark;
-import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.User;
-import dnd.diary.dto.content.ContentDto;
+import dnd.diary.request.content.ContentDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,40 +14,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class UserDto {
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Builder
-    public static class RegisterDto {
-        private Long id;
-        @NotNull(message = "이메일이 입력되지 않았습니다.")
-        private String email;
-        @NotNull(message = "비밀번호가 입력되지 않았습니다.")
-        private String password;
-        @NotNull(message = "이름이 입력되지 않았습니다.")
-        private String name;
-        @NotNull(message = "닉네임이 입력되지 않았습니다.")
-        private String nickName;
-        private String phoneNumber;
-        private String profileImageUrl;
-        private String atk;
-        private String rtk;
-
-        public static RegisterDto response(User user, String atk, String rtk) {
-            return RegisterDto.builder()
-                    .id(user.getId())
-                    .email(user.getEmail())
-                    .password("암호화 되었습니다.")
-                    .name(user.getName())
-                    .nickName(user.getNickName())
-                    .phoneNumber(user.getPhoneNumber())
-                    .profileImageUrl(user.getProfileImageUrl())
-                    .atk(atk)
-                    .rtk(rtk)
-                    .build();
-        }
-    }
 
     @AllArgsConstructor
     @NoArgsConstructor
