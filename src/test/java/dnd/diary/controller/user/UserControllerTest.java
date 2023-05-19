@@ -1,5 +1,6 @@
 package dnd.diary.controller.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dnd.diary.controller.ControllerTestSupport;
 import dnd.diary.request.controller.user.UserRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +19,7 @@ class UserControllerTest extends ControllerTestSupport {
         // given
         UserRequest.CreateUser request = new UserRequest.CreateUser(".", ".", ".", ".", " ", " ");
 
-        // when
+        // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/auth")
                                 .content(objectMapper.writeValueAsString(request))
@@ -26,6 +27,33 @@ class UserControllerTest extends ControllerTestSupport {
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
-        // then
     }
+
+    @DisplayName("로그인 API")
+    @Test
+    void loginUser() throws Exception {
+        // given
+        UserRequest.Login request = new UserRequest.Login(".", ".");
+
+        // when // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/auth/login")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("정보조회 API")
+    @Test
+    void findMyListUser() throws Exception {
+        // when // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/auth/my/info")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
 }
