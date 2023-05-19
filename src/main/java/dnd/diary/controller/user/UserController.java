@@ -53,7 +53,7 @@ public class UserController {
 
     // 프로필 수정
     @PatchMapping("auth")
-    public CustomResponseEntity<UserDto.UpdateDto> updateProfileUser(
+    public CustomResponseEntity<UserResponse.Update> updateProfileUser(
             @AuthenticationPrincipal final Long userId,
             @RequestParam(required = false) final String nickName,
             @RequestPart(required = false) final MultipartFile file

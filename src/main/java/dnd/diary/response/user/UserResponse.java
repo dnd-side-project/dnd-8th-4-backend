@@ -81,4 +81,24 @@ public class UserResponse {
                     .build();
         }
     }
+
+    @NoArgsConstructor
+    @Getter
+    public static class Update {
+        private String nickName;
+        private String profileImageUrl;
+
+        @Builder
+        private Update(String nickName, String profileImageUrl) {
+            this.nickName = nickName;
+            this.profileImageUrl = profileImageUrl;
+        }
+
+        public static UserResponse.Update response(User user) {
+            return UserResponse.Update.builder()
+                    .nickName(user.getNickName())
+                    .profileImageUrl(user.getProfileImageUrl())
+                    .build();
+        }
+    }
 }

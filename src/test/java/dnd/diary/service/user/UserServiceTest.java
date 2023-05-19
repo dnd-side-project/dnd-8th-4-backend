@@ -6,23 +6,33 @@ import dnd.diary.repository.user.UserRepository;
 import dnd.diary.request.UserDto;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.user.UserResponse;
+import dnd.diary.service.s3.S3Service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 class UserServiceTest {
+
+    @MockBean
+    private S3Service s3Service;
 
     @Autowired
     private UserService userService;
@@ -89,6 +99,24 @@ class UserServiceTest {
         assertThat(response)
                 .extracting("email", "name", "nickName", "phoneNumber")
                 .contains("test@test.com", "테스트 계정", "테스트 닉네임", "010-1234-5678");
+    }
+
+    @DisplayName("유저가 자신의 정보를 수정한다.")
+    @Test
+    void userUpdateProfile() {
+        // given
+        User user = getUserAndSave();
+        MultipartFile file = new MockMultipartFile("file", "text", "text/plain", "Spring Framework".getBytes());
+
+        given(s3Service.saveProfileImage(any(MultipartFile.class)))
+                .willReturn("updateImage");
+        // when
+        UserResponse.Update response = userService.userUpdateProfile(user.getId(), "업데이트 계정", file);
+
+        // then
+        assertThat(response)
+                .extracting("nickName","profileImageUrl")
+                .contains("업데이트 계정","updateImage");
     }
 
     // method

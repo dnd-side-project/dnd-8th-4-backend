@@ -23,6 +23,7 @@ import dnd.diary.request.service.UserServiceRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.user.UserSearchResponse;
+import dnd.diary.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,12 +63,10 @@ public class UserService {
     private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager em;
-    private final AmazonS3Client amazonS3Client;
+    private final S3Service s3Service;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisDao redisDao;
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
 
     @Transactional
     public UserResponse.Login createUserAccount(UserServiceRequest.CreateUser request) {
@@ -83,19 +82,6 @@ public class UserService {
         String refreshToken = tokenProvider.createRefreshToken(request.getEmail());
 
         return UserResponse.Login.response(user, accessToken, refreshToken);
-    }
-
-    private String setDefaultProfileImage(String profileImageUrl) {
-        String imageUrl = "";
-
-        if (profileImageUrl.isBlank()) {
-            int sampleGroupImageCount = userImageRepository.findAll().size();
-            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
-            imageUrl = sampleUserImage.getUserImageUrl();
-        }
-
-        return imageUrl;
     }
 
     @Transactional
@@ -225,35 +211,20 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto.UpdateDto userUpdateProfile(
+    public UserResponse.Update userUpdateProfile(
             Long userId, String nickName, MultipartFile file
     ) {
         User user = getUser(userId);
-        String fileName = null;
-        String fileUrl = null;
 
-        if (file != null) {
-            fileName = saveImage(file);
-            fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
-        } else {
-            int sampleGroupImageCount = userImageRepository.findAll().size();
-            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
-            fileUrl = sampleUserImage.getUserImageUrl();
-        }
-
-        String beforeNickname = user.getNickName();
-        if (nickName == null || "".equals(nickName)) {
-            nickName = beforeNickname;
-        }
-
+        // 이미지 설정
+        String fileUrl = (file != null) ? s3Service.saveProfileImage(file) : setDefaultProfileImage("");
         user.updateUserProfile(nickName, fileUrl);
 
-        return UserDto.UpdateDto.response(user);
+        return UserResponse.Update.response(user);
     }
 
-    // method
 
+    // method
     public User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_USER)
@@ -297,6 +268,7 @@ public class UserService {
 
 
     // Validate
+
     private void validateRegister(UserServiceRequest.CreateUser request) {
         Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
         Boolean existsByNickName = userRepository.existsByNickName(request.getNickName());
@@ -307,7 +279,6 @@ public class UserService {
             throw new CustomException(Result.DUPLICATION_NICKNAME);
         }
     }
-
     private void validateLogin(
             UserServiceRequest.Login request
     ) {
@@ -324,22 +295,6 @@ public class UserService {
         ) {
             throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
         }
-    }
-
-    private String saveImage(MultipartFile file) {
-        String fileName = createFileName(file.getOriginalFilename());
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentLength(file.getSize());
-        objectMetadata.setContentType(file.getContentType());
-
-        try (InputStream inputStream = file.getInputStream()) {
-            amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
-
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
-        }
-        return fileName;
     }
 
     private String getFileExtension(String fileName) {
@@ -381,5 +336,18 @@ public class UserService {
         return Collections.singleton(Authority.builder()
                 .authorityName("ROLE_USER")
                 .build());
+    }
+
+    private String setDefaultProfileImage(String profileImageUrl) {
+        String imageUrl = "";
+
+        if (profileImageUrl.isBlank()) {
+            int sampleGroupImageCount = userImageRepository.findAll().size();
+            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
+            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+            imageUrl = sampleUserImage.getUserImageUrl();
+        }
+
+        return imageUrl;
     }
 }
