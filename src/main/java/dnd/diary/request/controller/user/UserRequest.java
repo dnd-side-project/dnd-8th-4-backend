@@ -1,19 +1,29 @@
 package dnd.diary.request.controller.user;
 
-import dnd.diary.request.UserDto;
 import dnd.diary.request.service.UserServiceRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotBlank;
 
 public class UserRequest {
 
     @NoArgsConstructor
     @Getter
     public static class CreateUser {
+
+        @NotBlank(message = "이메일은 필수입니다.")
         private String email;
+
+        @NotBlank(message = "비밀번호는 필수입니다.")
         private String password;
+
+        @NotBlank(message = "이름은 필수입니다.")
         private String name;
+
+        @NotBlank(message = "닉네임은 필수입니다.")
         private String nickName;
+
         private String phoneNumber;
         private String profileImageUrl;
 
