@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "users")
 @Builder
@@ -74,33 +71,27 @@ public class User extends BaseEntity {
 
     // 사용자가 가입한 그룹 목록
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<UserJoinGroup> userJoinGroups = new ArrayList<>();
+    private List<UserJoinGroup> userJoinGroups;
 
     // 사용자가 즐겨찾기 한 그룹 목록
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<GroupStar> groupStars = new ArrayList<>();
+    private List<GroupStar> groupStars;
 
     // 사용자가 초대된 그룹 목록
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<Invite> invites = new ArrayList<>();
+    private List<Invite> invites;
 
     // 사용자가 작성한 게시물
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<Content> contents = new ArrayList<>();
+    private List<Content> contents;
 
     // 사용자가 남긴 게시물 공감
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<Emotion> emotions = new ArrayList<>();
+    private List<Emotion> emotions;
 
     // 사용자가 북마크한 게시물 정보
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<Bookmark> bookmarks = new ArrayList<>();
+    private List<Bookmark> bookmarks;
 
     // 사용자의 모아보기 페이지
     @OneToOne(mappedBy = "user")
@@ -108,33 +99,58 @@ public class User extends BaseEntity {
 
     // 사용자의 모아보기 폴더 목록
     @OneToMany(mappedBy = "user")
-    @Builder.Default
-    private final List<DocumentFolder> documentFolders = new ArrayList<>();
+    private List<DocumentFolder> documentFolders;
 
     // 사용자가 작성한 댓글
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments;
 
     // 사용자가 가진 댓글 스티커
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<UserStickerGroup> userStickerGroups = new ArrayList<>();
+    private List<UserStickerGroup> userStickerGroups;
 
     // 사용자가 남긴 댓글 좋아요
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<CommentLike> commentLikes = new ArrayList<>();
+    private List<CommentLike> commentLikes;
 
     // 사용자에게 할당된 미션 목록 -> 그룹 구성원 모두에게 미션 할당
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private List<UserAssignMission> userAssignMissions = new ArrayList<>();
+    private List<UserAssignMission> userAssignMissions;
 
     // 사용자 알림 목록 - 그룹 초대 + a
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @Builder.Default
-    private final List<Notification> notifications = new ArrayList<>();
+    private List<Notification> notifications;
+
+    protected User() {}
+
+    @Builder
+    private User(Long id, String email, String password, String name, String nickName, String phoneNumber, String profileImageUrl, Long mainLevel, Double subLevel, LocalDateTime deleteAt, boolean isNewNotification, Set<Authority> authorities, List<UserJoinGroup> userJoinGroups, List<GroupStar> groupStars, List<Invite> invites, List<Content> contents, List<Emotion> emotions, List<Bookmark> bookmarks, Document document, List<DocumentFolder> documentFolders, List<Comment> comments, List<UserStickerGroup> userStickerGroups, List<CommentLike> commentLikes, List<UserAssignMission> userAssignMissions, List<Notification> notifications) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+        this.nickName = nickName;
+        this.phoneNumber = phoneNumber;
+        this.profileImageUrl = profileImageUrl;
+        this.mainLevel = mainLevel;
+        this.subLevel = subLevel;
+        this.deleteAt = deleteAt;
+        this.isNewNotification = isNewNotification;
+        this.authorities = authorities;
+        this.document = document;
+        this.userJoinGroups = new ArrayList<>();
+        this.groupStars = new ArrayList<>();
+        this.invites = new ArrayList<>();
+        this.contents = new ArrayList<>();
+        this.emotions = new ArrayList<>();
+        this.bookmarks = new ArrayList<>();
+        this.documentFolders = new ArrayList<>();
+        this.comments = new ArrayList<>();
+        this.userStickerGroups = new ArrayList<>();
+        this.commentLikes = new ArrayList<>();
+        this.userAssignMissions = new ArrayList<>();
+        this.notifications = new ArrayList<>();
+    }
 
     public void updateLevel() {
         this.mainLevel += 1;
