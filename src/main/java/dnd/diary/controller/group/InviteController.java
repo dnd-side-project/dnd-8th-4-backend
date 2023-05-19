@@ -21,18 +21,19 @@ public class InviteController {
 
     @GetMapping("/accept")
     public CustomResponseEntity<InviteNotificationResponse.InviteNotificationInfo> acceptInvite(
-            @AuthenticationPrincipal final UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestParam Long groupId,
             @RequestParam Long notificationId
     ) throws ParseException {
-        return CustomResponseEntity.success(inviteService.acceptInvite(userDetails, groupId, notificationId));
+        return CustomResponseEntity.success(inviteService.acceptInvite(userId, groupId, notificationId));
     }
 
     @GetMapping("/reject")
     public CustomResponseEntity<InviteNotificationResponse.InviteNotificationInfo> rejectInvite(
+            @AuthenticationPrincipal Long userId,
             @RequestParam Long groupId,
             @RequestParam Long notificationId
     ) {
-        return CustomResponseEntity.success(inviteService.rejectInvite(groupId, notificationId));
+        return CustomResponseEntity.success(inviteService.rejectInvite(userId, groupId, notificationId));
     }
 }

@@ -4,7 +4,6 @@ import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.sticker.StickerGroup;
 import dnd.diary.domain.sticker.UserStickerGroup;
 import dnd.diary.domain.user.User;
-import dnd.diary.request.UserDto;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.mission.StickerGroupRepository;
 import dnd.diary.repository.mission.StickerRepository;
@@ -60,8 +59,8 @@ public class StickerService {
     }
 
     // 미션 > 스티커 화면 정보 조회
-    public StickerMainResponse getSickerMain() {
-        User user = findUser();
+    public StickerMainResponse getSickerMain(Long userId) {
+        User user = userService.getUser(userId);
 
         long progressBarRange = 0;
         if (user.getSubLevel() < 1.5) {
@@ -101,8 +100,8 @@ public class StickerService {
     }
 
     // 유저가 보유한 스티커 그룹 조회
-    public List<StickerResponse> getMyStickerGroupList() {
-        User user = findUser();
+    public List<StickerResponse> getMyStickerGroupList(Long userId) {
+        User user = userService.getUser(userId);
         List<StickerResponse> myStickerList = new ArrayList<>();
         List<UserStickerGroup> userStickerGroupList = user.getUserStickerGroups();
         for (UserStickerGroup userStickerGroup : userStickerGroupList) {
@@ -120,8 +119,8 @@ public class StickerService {
     }
 
     // 유저가 보유한 스티커 그룹 별 전체 스티커 조회
-    public StickerResponse getMyStickerListByGroup(Long stickerGroupId) {
-        User user = findUser();
+    public StickerResponse getMyStickerListByGroup(Long stickerGroupId, Long userId) {
+        User user = userService.getUser(userId);
 
         UserStickerGroup userStickerGroup = userStickerGroupRepository.findByUserIdAndStickerGroupId(user.getId(), stickerGroupId);
         if (userStickerGroup == null) {
@@ -152,9 +151,9 @@ public class StickerService {
     }
 
     // 유저가 보유한 스티커 그룹 별 개별 스티커 목록 전체 조회
-    public List<StickerResponse> getMyStickerList() {
+    public List<StickerResponse> getMyStickerList(Long userId) {
 
-        User user = findUser();
+        User user = userService.getUser(userId);
 
         List<StickerResponse> stickerResponses = new ArrayList<>();
 
@@ -182,10 +181,5 @@ public class StickerService {
             );
         }
         return stickerResponses;
-    }
-
-    private User findUser() {
-        UserDto.InfoDto userInfo = userService.findMyListUser();
-        return userRepository.findById(userInfo.getId()).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
     }
 }

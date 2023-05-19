@@ -21,6 +21,7 @@ import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,21 +48,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class ContentService {
+    private final UserService userService;
     private final RedisDao redisDao;
     private final ContentRepository contentRepository;
-    private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final ContentImageRepository contentImageRepository;
     private final EmotionRepository emotionRepository;
-    private final UserJoinGroupRepository userJoinGroupRepository;
     private final AmazonS3Client amazonS3Client;
-    private final EntityManager em;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     @Transactional
     public Page<ContentDto.groupListPagePostsDto> groupListContent(
-            UserDetails userDetails, Long groupId, Integer page
+            Long userId, Long groupId, Integer page
     ) {
         validateGroupListContent(groupId);
 
@@ -69,13 +68,13 @@ public class ContentService {
                 groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        User user = getUser(userDetails);
+        User user = userService.getUser(userId);
 
         return contents.map(
                 (Content content) -> {
                     Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), user.getId(), true);
                     Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
-                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + userDetails.getUsername())
+                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + user.getEmail())
                             .contains(content.getId().toString());
                     String views = redisDao.getValues(content.getId().toString());
 
@@ -91,7 +90,7 @@ public class ContentService {
 
     @Transactional
     public Page<ContentDto.groupListPagePostsDto> groupAllListContent(
-            UserDetails userDetails, List<Long> groupId, Integer page
+            Long userId, List<Long> groupId, Integer page
     ) {
         validateGroupAllListContent(groupId);
 
@@ -99,16 +98,17 @@ public class ContentService {
                 groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
+        User user = userService.getUser(userId);
         return contents.map(
                 (Content content) -> {
                     Emotion myEmotionOnContent = content.getEmotions().stream()
-                            .filter(emotion -> emotion.getUser() == getUser(userDetails))
+                            .filter(emotion -> emotion.getUser() == user)
                             .filter(Emotion::isEmotionYn)
                             .findFirst()
                             .orElse(null);
                     Long emotionStatus = myEmotionOnContent == null ? -1 : myEmotionOnContent.getEmotionStatus();
 
-                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + userDetails.getUsername())
+                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + user)
                             .contains(content.getId().toString());
                     String views = redisDao.getValues(content.getId().toString());
 
@@ -124,9 +124,10 @@ public class ContentService {
 
     @Transactional
     public ContentDto.CreateDto createContent(
-            UserDetails userDetails, List<MultipartFile> multipartFile, Long groupId,
+            Long userId, List<MultipartFile> multipartFile, Long groupId,
             String contentNote, Double latitude, Double longitude, String location
     ) {
+        User user = userService.getUser(userId);
         Group group = getGroup(groupId);
         Content content = contentRepository.save(
                 Content.builder()
@@ -137,7 +138,7 @@ public class ContentService {
                         .views(0L)
                         .contentLink("test")
                         .deletedYn(false)
-                        .user(getUser(userDetails))
+                        .user(user)
                         .group(group)
                         .build()
         );
@@ -154,12 +155,12 @@ public class ContentService {
 
     @Transactional
     @Cacheable(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
-    public ContentDto.detailDto detailContent(UserDetails userDetails, Long contentId) {
+    public ContentDto.detailDto detailContent(Long userId, Long contentId) {
         Content content = getContent(contentId);
-        User user = getUser(userDetails);
+        User user = userService.getUser(userId);
 
         String redisKey = contentId.toString();
-        String redisUserKey = getUser(userDetails).getNickName();
+        String redisUserKey = user.getNickName();
         String values = redisDao.getValues(redisKey);
         int views = Integer.parseInt(values);
 
@@ -175,7 +176,7 @@ public class ContentService {
                 .anyMatch(x -> x.equals(contentId));
 
         Emotion myEmotionOnContent = content.getEmotions().stream()
-                .filter(emotion -> emotion.getUser() == getUser(userDetails))
+                .filter(emotion -> emotion.getUser() == user)
                 .filter(Emotion::isEmotionYn)
                 .findFirst()
                 .orElse(null);
@@ -193,13 +194,11 @@ public class ContentService {
     @Transactional
     @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
     public ContentDto.UpdateDto updateContent(
-            UserDetails userDetails, List<MultipartFile> multipartFile, Long contentId,
+            Long userId, List<MultipartFile> multipartFile, Long contentId,
             String contentNote, Double latitude, Double longitude, String location
     ) {
         validateUpdateContent(contentId);
-        Content content = existsContentAndUser(
-                contentId, getUser(userDetails).getId()
-        );
+        Content content = existsContentAndUser(contentId, userId);
 
         // 이미 삭제 처리된 게시물일 경우
         if (content.isDeletedYn()) {
@@ -230,21 +229,22 @@ public class ContentService {
 
     @Transactional
     public CustomResponseEntity<ContentDto.deleteContent> deleteContent(
-            UserDetails userDetails, Long contentId
+            Long userId, Long contentId
     ) {
 //        contentRepository.delete(
 //                existsContentAndUser(contentId, getUser(userDetails).getId())
 //        );
-        Content content = existsContentAndUser(contentId, getUser(userDetails).getId());
+        Content content = existsContentAndUser(contentId, userId);
         content.deleteContent();   // 게시물 삭제 시 상태값만 변경
         return CustomResponseEntity.successDeleteContent();
     }
 
     @Transactional
     public List<ContentDto.mapListContent> listMyMap(
-            UserDetails userDetails, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude
+            Long userId, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude
     ) {
-        List<Long> myGroupIdList = getUser(userDetails).getUserJoinGroups().stream()
+        User user = userService.getUser(userId);
+        List<Long> myGroupIdList = user.getUserJoinGroups().stream()
                 .map(userJoinGroup -> userJoinGroup.getGroup().getId()).toList();
 
         List<Content> myMapContents = contentRepository.findByMapList(
@@ -267,8 +267,9 @@ public class ContentService {
     }
 
     @Transactional
-    public List<ContentDto.mapListContentDetail> listDetailMyMap(String location, UserDetails userDetails) {
-        List<Long> myGroupIdList = getUser(userDetails).getUserJoinGroups().stream()
+    public List<ContentDto.mapListContentDetail> listDetailMyMap(String location, Long userId) {
+        User user = userService.getUser(userId);
+        List<Long> myGroupIdList = user.getUserJoinGroups().stream()
                 .map(userJoinGroup -> userJoinGroup.getGroup().getId()).toList();
 
         List<Content> contentList = contentRepository.findByLocationAndGroupIdInAndDeletedYn(location, myGroupIdList, false);
@@ -367,14 +368,6 @@ public class ContentService {
                 .orElseThrow(
                         () -> new CustomException(Result.NOT_FOUND_GROUP)
                 );
-    }
-
-    private User getUser(UserDetails userDetails) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
-        return user;
     }
 
     private Content getContent(Long contentId) {

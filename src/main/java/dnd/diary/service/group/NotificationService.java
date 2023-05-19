@@ -10,7 +10,6 @@ import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
-import dnd.diary.request.UserDto;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;
@@ -35,8 +34,8 @@ public class NotificationService {
 
 	private final UserService userService;
 
-	public InviteNotificationResponse getInviteNotification() {
-		User user = findUser();
+	public InviteNotificationResponse getInviteNotification(Long userId) {
+		User user = userService.getUser(userId);
 		List<Notification> notificationList = user.getNotifications();
 		
 		long notificationCount = 0;
@@ -70,8 +69,8 @@ public class NotificationService {
 	}
 
 	// 전체 알림 목록 조회
-	public AllNotificationListResponse getAllNotificationList() {
-		User user = findUser();
+	public AllNotificationListResponse getAllNotificationList(Long userId) {
+		User user = userService.getUser(userId);
 
 		List<AllNotificationListResponse.NotificationInfo> notificationInfoList = getContentCommentNotificationList(user);
 		notificationInfoList.addAll(getContentEmotionNotificationList(user));
@@ -227,8 +226,8 @@ public class NotificationService {
 	}
 
 	@Transactional
-	public UserNotificationInfoResponse readAllNotificationList() {
-		User user = findUser();
+	public UserNotificationInfoResponse readAllNotificationList(Long userId) {
+		User user = userService.getUser(userId);
 
 		// 새로운 알림 읽음 처리
 //		user.updateReadNewNotification();
@@ -266,10 +265,5 @@ public class NotificationService {
 			}
 		}
 		return notificationList.size() - readCount;
-	}
-
-	private User findUser() {
-		UserDto.InfoDto userInfo = userService.findMyListUser();
-		return userRepository.findById(userInfo.getId()).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 	}
 }

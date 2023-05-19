@@ -20,21 +20,21 @@ public class ContentController {
     // 그룹 피드 리스트 조회
     @GetMapping("content/group")
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupList(
-            @AuthenticationPrincipal final UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestParam final Long groupId,
             @RequestParam final Integer page
     ) {
-        return CustomResponseEntity.success(contentService.groupListContent(userDetails, groupId, page));
+        return CustomResponseEntity.success(contentService.groupListContent(userId, groupId, page));
     }
 
     // 그룹 전체 피드 리스트 조회
     @GetMapping("content/group/all")
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupAllList(
-            @AuthenticationPrincipal final UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestParam final List<Long> groupId,
             @RequestParam final Integer page
     ) {
-        return CustomResponseEntity.success(contentService.groupAllListContent(userDetails, groupId, page));
+        return CustomResponseEntity.success(contentService.groupAllListContent(userId, groupId, page));
     }
 
     // 피드 검색 조회
@@ -50,7 +50,7 @@ public class ContentController {
     // 피드 작성
     @PostMapping("content")
     public CustomResponseEntity<ContentDto.CreateDto> contentCreate(
-            @AuthenticationPrincipal final UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestPart(required = false) final List<MultipartFile> multipartFile,
             @RequestParam final Long groupId,
             @RequestParam final String content,
@@ -59,7 +59,7 @@ public class ContentController {
             @RequestParam(required = false) final String location
     ) {
         return CustomResponseEntity.success(contentService.createContent(
-                userDetails, multipartFile, groupId,
+                userId, multipartFile, groupId,
                 content, latitude, longitude, location)
         );
     }
@@ -67,16 +67,16 @@ public class ContentController {
     // 피드 조회
     @GetMapping("content")
     public CustomResponseEntity<ContentDto.detailDto> contentDetail(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestParam final Long contentId
     ) {
-        return CustomResponseEntity.success(contentService.detailContent(userDetails, contentId));
+        return CustomResponseEntity.success(contentService.detailContent(userId, contentId));
     }
 
     // 피드 수정
     @PutMapping("content")
     public CustomResponseEntity<ContentDto.UpdateDto> contentUpdate(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestPart(required = false) final List<MultipartFile> multipartFile,
             @RequestParam final Long contentId,
             @RequestParam final String content,
@@ -85,7 +85,7 @@ public class ContentController {
             @RequestParam(required = false) final String location
     ) {
         return CustomResponseEntity.success(contentService.updateContent(
-                userDetails, multipartFile, contentId,
+                userId, multipartFile, contentId,
                 content, latitude, longitude, location)
         );
     }
@@ -93,29 +93,29 @@ public class ContentController {
     // 피드 삭제
     @DeleteMapping("content")
     public CustomResponseEntity<ContentDto.deleteContent> contentDelete(
-            @AuthenticationPrincipal final UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestParam final Long contentId
     ) {
-        return contentService.deleteContent(userDetails, contentId);
+        return contentService.deleteContent(userId, contentId);
     }
 
     // 지도 포함 검색
     @GetMapping("content/map")
     public CustomResponseEntity<List<ContentDto.mapListContent>> myMapList(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestParam final Double startLatitude,
             @RequestParam final Double startLongitude,
             @RequestParam final Double endLatitude,
             @RequestParam final Double endLongitude
     ) {
-        return CustomResponseEntity.success(contentService.listMyMap(userDetails, startLatitude, startLongitude, endLatitude, endLongitude));
+        return CustomResponseEntity.success(contentService.listMyMap(userId, startLatitude, startLongitude, endLatitude, endLongitude));
     }
 
     // (중복되는 장소의) 지도 피드 상세보기
     @GetMapping("content/map/detail")
     public CustomResponseEntity<List<ContentDto.mapListContentDetail>> myMapListDetail(
-            @RequestParam final String location, @AuthenticationPrincipal UserDetails userDetails
+            @RequestParam final String location, @AuthenticationPrincipal final Long userId
     ) {
-        return CustomResponseEntity.success(contentService.listDetailMyMap(location, userDetails));
+        return CustomResponseEntity.success(contentService.listDetailMyMap(location, userId));
     }
 }
