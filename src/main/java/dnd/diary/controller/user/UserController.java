@@ -8,7 +8,6 @@ import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.MissionResponse;
 import dnd.diary.response.user.UserResponse;
-import dnd.diary.response.notification.UserNotificationInfoResponse;
 import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.mission.MissionService;
 import dnd.diary.service.user.UserService;
@@ -31,7 +30,7 @@ public class UserController {
     // 회원가입
     @PostMapping("auth")
     public CustomResponseEntity<UserResponse.CreateUser> createUserAccount(
-            @Valid @RequestBody final UserRequest.CreateUser request
+             @RequestBody @Valid final UserRequest.CreateUser request
     ) {
         return CustomResponseEntity.success(userService.createUserAccount(request.toServiceRequest()));
     }
@@ -49,7 +48,7 @@ public class UserController {
     // 로그인
     @PostMapping("auth/login")
     public CustomResponseEntity<UserDto.LoginDto> login(
-            @Valid @RequestBody final UserDto.LoginDto request
+            @RequestBody final UserDto.LoginDto request
     ) {
         return CustomResponseEntity.success(userService.login(request));
     }
