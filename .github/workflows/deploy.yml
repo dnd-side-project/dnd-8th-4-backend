@@ -33,6 +33,17 @@ jobs:
     - run : echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yml
     - run : cat ./src/main/resources/application.yml
 
+      # 테스트 코드 관련
+    - run : touch ./src/test/resources/application.yml
+    - run : echo "${{ secrets.TEST_APPLICATION }}" > ./src/test/resources/application.yml
+    - run : cat ./src/test/resources/application.yml
+
+      # 테스트 data.sql 관련
+    - run : mkdir -p ./src/main/resources/db/h2
+    - run : touch ./src/main/resources/db/h2/data.sql
+    - run : echo "${{ secrets.TEST_DATA }}" > ./src/main/resources/db/h2/data.sql
+    - run : cat ./src/main/resources/db/h2/data.sql
+
       shell: bash
 
     - name: Build with Gradle
