@@ -47,6 +47,7 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.util.*;
 
+import static dnd.diary.enumeration.Result.NOT_FOUND_USER;
 import static dnd.diary.enumeration.Result.NOT_FOUND_USER_IMAGE;
 
 @Service
@@ -69,7 +70,7 @@ public class UserService {
     private String bucket;
 
     @Transactional
-    public UserResponse.CreateUser createUserAccount(UserServiceRequest.CreateUser request) {
+    public UserResponse.Login createUserAccount(UserServiceRequest.CreateUser request) {
         validateRegister(request);
 
         User user = userRepository.save(
@@ -81,7 +82,7 @@ public class UserService {
                 user.getId(), getAuthentication(request.getEmail(), request.getPassword()));
         String refreshToken = tokenProvider.createRefreshToken(request.getEmail());
 
-        return UserResponse.CreateUser.response(user, accessToken, refreshToken);
+        return UserResponse.Login.response(user, accessToken, refreshToken);
     }
 
     private String setDefaultProfileImage(String profileImageUrl) {
@@ -98,21 +99,20 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto.LoginDto login(UserDto.LoginDto request) {
+    public UserResponse.Login login(UserServiceRequest.Login request) {
         validateLogin(request);
 
-        User user = getUser(request.getEmail());
+        User user = userRepository.findOneWithAuthoritiesByEmail(request.getEmail())
+                .orElseThrow(
+                        () -> new CustomException(NOT_FOUND_USER)
+                );
 
         // 토큰 발급
         String accessToken = tokenProvider.createToken(
                 user.getId(), getAuthentication(request.getEmail(), request.getPassword()));
         String refreshToken = tokenProvider.createRefreshToken(request.getEmail());
 
-        return UserDto.LoginDto.response(
-                user,
-                accessToken,
-                refreshToken
-        );
+        return UserResponse.Login.response(user, accessToken, refreshToken);
     }
 
     @Transactional
@@ -314,7 +314,7 @@ public class UserService {
     }
 
     private void validateLogin(
-            UserDto.LoginDto request
+            UserServiceRequest.Login request
     ) {
         if (!userRepository.existsByEmail(request.getEmail())) {
             throw new CustomException(Result.NOT_FOUND_USER);

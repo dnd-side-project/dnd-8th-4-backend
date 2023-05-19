@@ -29,10 +29,18 @@ public class UserController {
 
     // 회원가입
     @PostMapping("auth")
-    public CustomResponseEntity<UserResponse.CreateUser> createUserAccount(
+    public CustomResponseEntity<UserResponse.Login> createUserAccount(
              @RequestBody @Valid final UserRequest.CreateUser request
     ) {
         return CustomResponseEntity.success(userService.createUserAccount(request.toServiceRequest()));
+    }
+
+    // 로그인
+    @PostMapping("auth/login")
+    public CustomResponseEntity<UserResponse.Login> login(
+            @RequestBody final UserRequest.Login request
+    ) {
+        return CustomResponseEntity.success(userService.login(request.toServiceRequest()));
     }
 
     // 프로필 수정
@@ -43,14 +51,6 @@ public class UserController {
             @RequestPart(required = false) final MultipartFile file
     ) {
         return CustomResponseEntity.success(userService.userUpdateProfile(userDetails,nickName,file));
-    }
-
-    // 로그인
-    @PostMapping("auth/login")
-    public CustomResponseEntity<UserDto.LoginDto> login(
-            @RequestBody final UserDto.LoginDto request
-    ) {
-        return CustomResponseEntity.success(userService.login(request));
     }
 
     // 로그아웃
