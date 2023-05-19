@@ -1,7 +1,7 @@
 package dnd.diary.controller.content;
 
-import dnd.diary.dto.content.CommentDto;
-import dnd.diary.dto.content.ContentDto;
+import dnd.diary.request.content.CommentDto;
+import dnd.diary.request.content.ContentDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.content.CommentService;
 import lombok.RequiredArgsConstructor;

@@ -5,7 +5,7 @@ import dnd.diary.domain.comment.CommentLike;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
-import dnd.diary.dto.content.CommentLikeDto;
+import dnd.diary.request.content.CommentLikeDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.NotificationRepository;

@@ -4,7 +4,7 @@ import dnd.diary.config.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.User;
-import dnd.diary.dto.content.BookmarkDto;
+import dnd.diary.request.content.BookmarkDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.user.UserRepository;
@@ -13,13 +13,9 @@ import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

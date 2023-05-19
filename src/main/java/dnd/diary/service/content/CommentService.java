@@ -1,7 +1,6 @@
 package dnd.diary.service.content;
 
 import dnd.diary.domain.comment.Comment;
-import dnd.diary.domain.comment.CommentLike;
 import dnd.diary.domain.content.Content;
 
 import dnd.diary.domain.content.Emotion;
@@ -10,8 +9,8 @@ import dnd.diary.domain.group.NotificationType;
 
 import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.user.User;
-import dnd.diary.dto.content.CommentDto;
-import dnd.diary.dto.content.ContentDto;
+import dnd.diary.request.content.CommentDto;
+import dnd.diary.request.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.CommentLikeRepository;

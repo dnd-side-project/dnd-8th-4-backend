@@ -1,10 +1,9 @@
 package dnd.diary.controller.content;
 
-import dnd.diary.dto.content.ContentDto;
+import dnd.diary.request.content.ContentDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.service.content.ContentService;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.io.ParseException;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -2,9 +2,8 @@ package dnd.diary.controller.mission;
 
 import java.util.List;
 
-import dnd.diary.dto.mission.MissionCheckContentRequest;
-import dnd.diary.dto.mission.MissionCheckLocationRequest;
-import dnd.diary.dto.mission.MissionListByMapRequest;
+import dnd.diary.request.mission.MissionCheckLocationRequest;
+import dnd.diary.request.mission.MissionListByMapRequest;
 import dnd.diary.response.mission.MissionCheckContentResponse;
 import dnd.diary.response.mission.MissionCheckLocationResponse;
 import org.locationtech.jts.io.ParseException;
@@ -12,7 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import dnd.diary.dto.group.MissionCreateRequest;
+import dnd.diary.request.group.MissionCreateRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.MissionResponse;
 import dnd.diary.service.mission.MissionService;

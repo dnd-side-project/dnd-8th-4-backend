@@ -1,4 +1,4 @@
-package dnd.diary.dto.content;
+package dnd.diary.request.content;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import dnd.diary.domain.content.Content;
@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

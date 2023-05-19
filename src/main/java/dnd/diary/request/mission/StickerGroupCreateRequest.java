@@ -1,4 +1,4 @@
-package dnd.diary.dto.mission;
+package dnd.diary.request.mission;
 
 import lombok.Getter;
 

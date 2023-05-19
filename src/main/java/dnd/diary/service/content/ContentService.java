@@ -11,7 +11,7 @@ import dnd.diary.domain.content.ContentImage;
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
-import dnd.diary.dto.content.ContentDto;
+import dnd.diary.request.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.ContentImageRepository;
@@ -42,7 +42,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

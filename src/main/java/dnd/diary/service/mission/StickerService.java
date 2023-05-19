@@ -4,7 +4,7 @@ import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.sticker.StickerGroup;
 import dnd.diary.domain.sticker.UserStickerGroup;
 import dnd.diary.domain.user.User;
-import dnd.diary.dto.userDto.UserDto;
+import dnd.diary.request.UserDto;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.mission.StickerGroupRepository;
 import dnd.diary.repository.mission.StickerRepository;

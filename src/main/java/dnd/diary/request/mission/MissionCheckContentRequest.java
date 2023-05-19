@@ -1,10 +1,8 @@
-package dnd.diary.dto.mission;
+package dnd.diary.request.mission;
 
-import dnd.diary.dto.content.ContentDto;
 import lombok.Getter;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Getter
 public class MissionCheckContentRequest {
