@@ -72,13 +72,13 @@ public class UserService {
     public UserResponse.CreateUser createUserAccount(UserServiceRequest.CreateUser request) {
         validateRegister(request);
 
-        // 사용자 기본 프로필 추가
         User user = userRepository.save(
                 createEntityUserFromDto(request)
         );
 
         // 토큰 발급
-        String accessToken = tokenProvider.createToken(getAuthentication(request.getEmail(), request.getPassword()));
+        String accessToken = tokenProvider.createToken(
+                user.getId(), getAuthentication(request.getEmail(), request.getPassword()));
         String refreshToken = tokenProvider.createRefreshToken(request.getEmail());
 
         return UserResponse.CreateUser.response(user, accessToken, refreshToken);
@@ -101,14 +101,17 @@ public class UserService {
     public UserDto.LoginDto login(UserDto.LoginDto request) {
         validateLogin(request);
 
+        User user = getUser(request.getEmail());
+
+        // 토큰 발급
+        String accessToken = tokenProvider.createToken(
+                user.getId(), getAuthentication(request.getEmail(), request.getPassword()));
+        String refreshToken = tokenProvider.createRefreshToken(request.getEmail());
+
         return UserDto.LoginDto.response(
-                getUser(
-                        request.getEmail()
-                ),
-                tokenProvider.createToken(
-                        getAuthentication(request.getEmail(), request.getPassword())
-                ),
-                tokenProvider.createRefreshToken(request.getEmail())
+                user,
+                accessToken,
+                refreshToken
         );
     }
 
@@ -368,6 +371,7 @@ public class UserService {
                 .nickName(request.getNickName())
                 .phoneNumber(request.getPhoneNumber())
                 .profileImageUrl(
+                        // 사용자 기본 프로필 추가
                         setDefaultProfileImage(request.getProfileImageUrl())
                 )
                 .authorities(
