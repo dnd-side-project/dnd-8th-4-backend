@@ -29,11 +29,13 @@ jobs:
       run: chmod +x ./gradlew
 
     - uses: actions/checkout@v2
+    - run : mkdir -p ./src/main/resources
     - run : touch ./src/main/resources/application.yml
     - run : echo "${{ secrets.APPLICATION_PROPERTIES }}" > ./src/main/resources/application.yml
     - run : cat ./src/main/resources/application.yml
 
       # 테스트 코드 관련
+    - run : mkdir -p ./src/test/resources
     - run : touch ./src/test/resources/application.yml
     - run : echo "${{ secrets.TEST_APPLICATION }}" > ./src/test/resources/application.yml
     - run : cat ./src/test/resources/application.yml
