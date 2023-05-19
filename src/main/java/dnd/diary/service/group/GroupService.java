@@ -50,6 +50,7 @@ public class GroupService {
 
 	private final UserService userService;
 	private final S3Service s3Service;
+	private final NotificationService notificationService;
 
 	private final int MAX_GROUP_MEMBER_COUNT = 50;
 
@@ -228,8 +229,13 @@ public class GroupService {
 
 		groupInfoList.sort(Comparator.comparing(GroupListResponse.GroupInfo::getRecentUpdatedAt).reversed());
 		response.setGroupInfoList(groupInfoList);
-		response.setNewNotification(user.isNewNotification());
-		response.setNewNotification(user.isNewNotification());
+
+		boolean checkNewNotification = user.isNewNotification();
+		long noReadNotificationCount = notificationService.checkNoReadNotificationCount(user);
+		if (noReadNotificationCount == 0) {
+			checkNewNotification = false;
+		}
+		response.setNewNotification(checkNewNotification);
 
 		return response;
 	}
