@@ -128,7 +128,7 @@ public class ContentService {
 
     @Transactional
     @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
-    public ContentDto.UpdateDto updateContent(
+    public ContentResponse.Update updateContent(
             Long userId, List<MultipartFile> multipartFile, Long contentId,
             String contentNote, Double latitude, Double longitude, String location
     ) {
@@ -140,12 +140,21 @@ public class ContentService {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
 
-        List<ContentImage> contentImages = deleteAndSaveContentImage(
-                multipartFile, contentImageRepository.findImageNameList(contentId), content
-        );
-
+        List<String> imageNameList = contentImageRepository.findImageNameList(contentId);
+        List<ContentImage> contentImages = deleteAndSaveContentImage(multipartFile, imageNameList, content);
         content.updateContent(contentNote, latitude, longitude, location, contentImages);
 
+        List<ContentDto.ImageResponseDto> imageList = getImageResponseDtos(content);
+        int views = Integer.parseInt(redisService.getValues(content.getId().toString()));
+
+        return ContentResponse.Update.response(
+                content,
+                views,
+                imageList
+        );
+    }
+
+    private static List<ContentDto.ImageResponseDto> getImageResponseDtos(Content content) {
         List<ContentDto.ImageResponseDto> collect = null;
 
         if (content.getContentImages() != null) {
@@ -154,12 +163,7 @@ public class ContentService {
                     .map(ContentDto.ImageResponseDto::response).toList();
         }
 
-        String redisKey = content.getId().toString();
-        return ContentDto.UpdateDto.response(
-                content,
-                Integer.parseInt(redisDao.getValues(redisKey)),
-                collect
-        );
+        return collect;
     }
 
     @Transactional

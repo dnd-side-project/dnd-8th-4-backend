@@ -166,6 +166,26 @@ class ContentServiceTest {
                 );
     }
 
+    @DisplayName("유저가 자신이 작성한 글을 수정한다.")
+    @Test
+    void contentUpdate() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+
+        given(redisService.getValues(anyString()))
+                .willReturn("23");
+
+        // when
+        ContentResponse.Update response = contentService.updateContent(user.getId(), null, content.getId(), "하이", 2.0, 2.0, "명륜진사갈비");
+
+        // then
+        assertThat(response)
+                .extracting("userName", "content", "location", "latitude", "longitude")
+                .contains("테스트 닉네임", "하이", "명륜진사갈비", 2.0, 2.0);
+    }
+
     // method
     private User getUserAndSave() {
         User user = User.builder()

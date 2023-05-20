@@ -199,4 +199,44 @@ public class ContentResponse {
                     .build();
         }
     }
+
+    @NoArgsConstructor
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Getter
+    @Builder
+    public static class Update {
+        private Long id;
+        private String userName;
+        private String profileImageUrl;
+        @NotNull(message = "내용을 입력하지 않았습니다.")
+        private String content;
+        private Double latitude;
+        private Double longitude;
+        private String location;
+        private long views;
+        private String contentLink;
+        private boolean deletedYn;
+        private Long userId;
+        private Long groupId;
+        List<ContentDto.ImageResponseDto> collect;
+        private List<ContentDto.deleteImageNameDto> deleteContentImageName;
+
+        public static ContentResponse.Update response(Content content, Integer views, List<ContentDto.ImageResponseDto> collect) {
+            return ContentResponse.Update.builder()
+                    .id(content.getId())
+                    .userName(content.getUser().getNickName())
+                    .profileImageUrl(content.getUser().getProfileImageUrl())
+                    .content(content.getContent())
+                    .latitude(content.getLatitude())
+                    .longitude(content.getLongitude())
+                    .location(content.getLocation())
+                    .views(views)
+                    .contentLink(content.getContentLink())
+                    .deletedYn(content.isDeletedYn())
+                    .userId(content.getUser().getId())
+                    .groupId(content.getGroup().getId())
+                    .collect(collect)
+                    .build();
+        }
+    }
 }

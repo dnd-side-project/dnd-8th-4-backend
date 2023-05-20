@@ -77,7 +77,7 @@ public class ContentController {
 
     // 피드 수정
     @PutMapping("content")
-    public CustomResponseEntity<ContentDto.UpdateDto> contentUpdate(
+    public CustomResponseEntity<ContentResponse.Update> contentUpdate(
             @AuthenticationPrincipal final Long userId,
             @RequestPart(required = false) final List<MultipartFile> multipartFile,
             @RequestParam final Long contentId,
