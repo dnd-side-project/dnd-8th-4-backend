@@ -3,14 +3,17 @@ package dnd.diary.service.user;
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.redis.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
+import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
 import dnd.diary.repository.content.BookmarkRepository;
+import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.user.UserRepository;
+import dnd.diary.request.UserDto;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.user.UserSearchResponse;
@@ -77,6 +80,9 @@ class UserServiceTest {
 
     @Autowired
     private GroupRepository groupRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @DisplayName("유저가 회원가입을 하고 토큰을 발급 받는다.")
     @Test
@@ -285,7 +291,29 @@ class UserServiceTest {
                 .contains("테스트 내용");
     }
 
+    @DisplayName("유저가 자신이 댓글을 단 게시글을 조회한다.")
+    @Test
+    void searchMyCommentList() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+        getCommentAndSave(user, content);
+
+        given(redisService.getValues(anyString()))
+                .willReturn("1");
+
+        // when
+        Page<UserResponse.ContentList> response = userService.listSearchMyComment(user.getId(), 1);
+
+        // then
+        assertThat(response).hasSize(1)
+                .extracting(UserResponse.ContentList::getContent)
+                .contains("테스트 내용");
+    }
+
     // method
+
     private User getUserAndSave() {
         User user = User.builder()
                 .authorities(getAuthorities())
@@ -302,7 +330,6 @@ class UserServiceTest {
 
         return userRepository.save(user);
     }
-
     private User getUserAndSave(String email, String nickName) {
         User user = User.builder()
                 .authorities(getAuthorities())
@@ -361,5 +388,15 @@ class UserServiceTest {
 
         groupRepository.save(group);
         return group;
+    }
+
+    private Comment getCommentAndSave(User user, Content content) {
+        Comment comment = Comment.builder()
+                .user(user)
+                .content(content)
+                .commentNote("테스트 내용")
+                .build();
+
+        return commentRepository.save(comment);
     }
 }

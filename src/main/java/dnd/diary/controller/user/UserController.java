@@ -107,7 +107,7 @@ public class UserController {
     
     // 작성한 댓글 조회
     @GetMapping("auth/my/comment")
-    public CustomResponseEntity<Page<UserDto.myCommentListDto>> searchMyCommentList(
+    public CustomResponseEntity<Page<UserResponse.ContentList>> searchMyCommentList(
             @AuthenticationPrincipal Long userId,
             @RequestParam final Integer page
     ) {

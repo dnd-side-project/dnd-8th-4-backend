@@ -110,46 +110,17 @@ public class UserService {
 
         // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
         List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userId).getId());
-        Page<Content> bookmarkPage = contentRepository.findByIdInAndDeletedYn(
-                contentIdList, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        return bookmarkPage.map((Content content) -> UserResponse.ContentList.response(
-                        content
-                        , content.getContentImages()
-                                .stream()
-                                .map(ContentDto.ImageResponseDto::response)
-                                .toList()
-                        , Integer.parseInt(
-                                redisService.getValues(content.getId().toString())
-                        )
-                )
-        );
+        return getContentLists(page, contentIdList);
     }
 
     @Transactional
-    public Page<UserDto.myCommentListDto> listSearchMyComment(
+    public Page<UserResponse.ContentList> listSearchMyComment(
             Long userId, Integer page
     ) {
         User user = getUser(userId);
         List<Long> distinctContentIdListByUserId = commentRepository.findDistinctContentIdListByUserId(user.getId());
 
-        Page<Content> pageMyComment = contentRepository.findByIdInAndDeletedYn(
-                distinctContentIdListByUserId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        return pageMyComment.map((Content content) ->
-                UserDto.myCommentListDto.response(
-                        content,
-                        content.getContentImages()
-                                .stream()
-                                .map(ContentDto.ImageResponseDto::response)
-                                .toList(),
-                        Integer.parseInt(
-                                redisService.getValues(content.getId().toString())
-                        )
-                )
-        );
+        return getContentLists(page, distinctContentIdListByUserId);
     }
 
     @Transactional
@@ -204,12 +175,12 @@ public class UserService {
 
 
     // method
+
     public User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_USER)
         );
     }
-
     private Authentication getAuthentication(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
@@ -246,8 +217,8 @@ public class UserService {
     }
 
 
-    // Validate
 
+    // Validate
     private void validateRegister(UserServiceRequest.CreateUser request) {
         Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
         Boolean existsByNickName = userRepository.existsByNickName(request.getNickName());
@@ -329,5 +300,24 @@ public class UserService {
         }
 
         return imageUrl;
+    }
+
+    private Page<UserResponse.ContentList> getContentLists(Integer page, List<Long> distinctContentIdListByUserId) {
+        Page<Content> pageMyComment = contentRepository.findByIdInAndDeletedYn(
+                distinctContentIdListByUserId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        return pageMyComment.map((Content content) ->
+                UserResponse.ContentList.response(
+                        content,
+                        content.getContentImages()
+                                .stream()
+                                .map(ContentDto.ImageResponseDto::response)
+                                .toList(),
+                        Integer.parseInt(
+                                redisService.getValues(content.getId().toString())
+                        )
+                )
+        );
     }
 }
