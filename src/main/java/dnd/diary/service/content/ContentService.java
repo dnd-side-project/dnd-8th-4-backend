@@ -19,6 +19,8 @@ import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.content.ContentResponse;
+import dnd.diary.service.s3.S3Service;
 import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,13 +48,11 @@ import java.util.UUID;
 public class ContentService {
     private final UserService userService;
     private final RedisDao redisDao;
+    private final S3Service s3Service;
     private final ContentRepository contentRepository;
     private final GroupRepository groupRepository;
     private final ContentImageRepository contentImageRepository;
     private final EmotionRepository emotionRepository;
-    private final AmazonS3Client amazonS3Client;
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
 
     @Transactional
     public Page<ContentDto.groupListPagePostsDto> groupListContent(
@@ -119,7 +119,7 @@ public class ContentService {
     }
 
     @Transactional
-    public ContentDto.CreateDto createContent(
+    public ContentResponse.Create createContent(
             Long userId, List<MultipartFile> multipartFile, Long groupId,
             String contentNote, Double latitude, Double longitude, String location
     ) {
@@ -127,7 +127,7 @@ public class ContentService {
         Group group = getGroup(groupId);
         Content content = contentRepository.save(
                 Content.builder()
-                        .content(contentNote) // 이미 삭제된 게시물일 경우
+                        .content(contentNote)
                         .latitude(latitude)
                         .longitude(longitude)
                         .location(location)
@@ -140,13 +140,14 @@ public class ContentService {
         );
 
         if (multipartFile != null) {
-            content.updateContentImages(uploadFiles(multipartFile, content));
+            List<ContentImage> contentImages = s3Service.uploadFiles(multipartFile, content);
+            content.updateContentImages(contentImages);
         }
 
         group.updateRecentModifiedAt();
         redisDao.setValues(content.getId().toString(), "0");
 
-        return ContentDto.CreateDto.response(content);
+        return ContentResponse.Create.response(content);
     }
 
     @Transactional
@@ -281,7 +282,7 @@ public class ContentService {
     }
 
     @Transactional
-    public Page<ContentDto.ContentSearchDto> contentSearch(
+    public Page<ContentResponse.Create> contentSearch(
             List<Long> groupId, String word, Integer page
     ) {
         // 삭제 처리되지 않은 게시물만 조회
@@ -290,8 +291,7 @@ public class ContentService {
                         word, groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
                 );
 
-        return contentPage.map((Content content) ->
-                ContentDto.ContentSearchDto.response(content, getContentImageResponse(content)));
+        return contentPage.map(ContentResponse.Create::response);
     }
 
 
@@ -303,60 +303,11 @@ public class ContentService {
                 .toList();
     }
 
-    private List<ContentImage> uploadFiles(List<MultipartFile> multipartFile, Content content) {
-        List<ContentImage> contentImages = new ArrayList<>();
-
-        multipartFile.forEach(file -> {
-            String fileName = saveImage(file);
-            ContentImage contentSaveImage = contentImageRepository.save(
-                    ContentImage.builder()
-                            .content(content)
-                            .imageName(fileName)
-                            .imageUrl(amazonS3Client.getUrl(bucket, fileName).toString())
-                            .build()
-            );
-            contentImages.add(contentSaveImage);
-        });
-        return contentImages;
-    }
-
     private Content existsContentAndUser(Long contentId, Long userId) {
         return contentRepository.findByIdAndUserIdAndDeletedYn(contentId, userId, false)
                 .orElseThrow(
                         () -> new CustomException(Result.NOT_MATCHED_USER_CONTENT)
                 );
-    }
-
-    private String saveImage(MultipartFile file) {
-        String fileName = createFileName(file.getOriginalFilename());
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentLength(file.getSize());
-        objectMetadata.setContentType(file.getContentType());
-
-        try (InputStream inputStream = file.getInputStream()) {
-            amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
-
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
-        }
-        return fileName;
-    }
-
-    public void deleteFile(String fileName) {
-        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
-    }
-
-    private String createFileName(String fileName) {
-        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
-    }
-
-    private String getFileExtension(String fileName) {
-        try {
-            return fileName.substring(fileName.lastIndexOf("."));
-        } catch (StringIndexOutOfBoundsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일(" + fileName + ") 입니다.");
-        }
     }
 
     private Group getGroup(Long groupId) {
@@ -380,7 +331,7 @@ public class ContentService {
 
     private List<ContentImage> deleteAndSaveContentImage(List<MultipartFile> multipartFile, List<String> deleteContentImageName, Content content) {
         if (deleteContentImageName != null) {
-            deleteContentImageName.forEach(this::deleteFile);
+            deleteContentImageName.forEach(s3Service::deleteFile);
             deleteContentImageName.forEach(imageName ->
                     contentImageRepository.delete(contentImageRepository.findByImageName(imageName)
                             .orElseThrow(
@@ -391,7 +342,7 @@ public class ContentService {
         }
 
         if (multipartFile != null) {
-            List<ContentImage> contentImages = uploadFiles(multipartFile, content);
+            List<ContentImage> contentImages = s3Service.uploadFiles(multipartFile, content);
             return contentImages;
         }
         return null;

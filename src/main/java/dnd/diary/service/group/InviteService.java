@@ -13,6 +13,7 @@ import dnd.diary.request.content.ContentDto;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.repository.mission.UserAssignMissionRepository;
+import dnd.diary.response.content.ContentResponse;
 import dnd.diary.response.notification.InviteNotificationResponse;
 import dnd.diary.service.content.ContentService;
 import org.locationtech.jts.io.ParseException;
@@ -69,12 +70,12 @@ public class InviteService {
 		notification.updateReadNotification();
 
 		// 1. 초대 수락한 그룹에 새 멤버 환영 게시물 생성
-		ContentDto.CreateDto contentResponse = contentService.createContent(
+		ContentResponse.Create content = contentService.createContent(
 				userId, null, groupId, String.format("%s 님이 그룹에 참여했습니다.\n댓글로 반갑게 인사해 주세요!🎉", user.getNickName())
 				, null, null, null
 		);
 
-		Content newGroupMemberContent = contentRepository.findByIdAndDeletedYn(contentResponse.getId(), false);
+		Content newGroupMemberContent = contentRepository.findByIdAndDeletedYn(content.getId(), false);
 		if (newGroupMemberContent == null) {
 			throw new CustomException(NOT_FOUND_CONTENT);
 		}

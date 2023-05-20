@@ -2,6 +2,7 @@ package dnd.diary.controller.content;
 
 import dnd.diary.request.content.ContentDto;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.content.ContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -39,7 +40,7 @@ public class ContentController {
 
     // 피드 검색 조회
     @GetMapping("content/group/search")
-    public CustomResponseEntity<Page<ContentDto.ContentSearchDto>> searchContent(
+    public CustomResponseEntity<Page<ContentResponse.Create>> searchContent(
             @RequestParam final List<Long> groupId,
             @RequestParam final String word,
             @RequestParam final Integer page
@@ -49,7 +50,7 @@ public class ContentController {
 
     // 피드 작성
     @PostMapping("content")
-    public CustomResponseEntity<ContentDto.CreateDto> contentCreate(
+    public CustomResponseEntity<ContentResponse.Create> contentCreate(
             @AuthenticationPrincipal final Long userId,
             @RequestPart(required = false) final List<MultipartFile> multipartFile,
             @RequestParam final Long groupId,

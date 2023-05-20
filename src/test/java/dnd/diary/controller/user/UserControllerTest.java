@@ -164,5 +164,5 @@ class UserControllerTest extends ControllerTestSupport {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
-    
+
 }

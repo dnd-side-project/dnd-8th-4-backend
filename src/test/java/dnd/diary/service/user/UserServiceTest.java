@@ -327,6 +327,15 @@ class UserServiceTest {
 
     // method
 
+    private Authentication saveSecurityContextHolderAndGetAuthentication() {
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken("test@test.com", "abc123!");
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return authentication;
+    }
+
     private User getUserAndSave() {
         User user = User.builder()
                 .authorities(getAuthorities())
@@ -365,15 +374,6 @@ class UserServiceTest {
         return Collections.singleton(Authority.builder()
                 .authorityName("ROLE_USER")
                 .build());
-    }
-
-    private Authentication saveSecurityContextHolderAndGetAuthentication() {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken("test@test.com", "abc123!");
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        return authentication;
     }
 
     private Content getContentAndSave(User user, Group group) {
