@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface EmotionRepository extends JpaRepository<Emotion, Long> {
     List<Emotion> findByContentId(Long contentId);
     Emotion findByContentIdAndUserId(Long contentId, Long userId);
-    Emotion findByContentIdAndUserIdAndEmotionYn(Long contentId, Long userId, boolean emotionYn);
+    Optional<Emotion> findByContentIdAndUserIdAndEmotionYn(Long contentId, Long userId, boolean emotionYn);
     long countByContentId(Long contentId);
 }

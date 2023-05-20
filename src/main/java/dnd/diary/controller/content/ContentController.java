@@ -18,6 +18,32 @@ import java.util.List;
 public class ContentController {
     private final ContentService contentService;
 
+    // 피드 작성
+    @PostMapping("content")
+    public CustomResponseEntity<ContentResponse.Create> contentCreate(
+            @AuthenticationPrincipal final Long userId,
+            @RequestPart(required = false) final List<MultipartFile> multipartFile,
+            @RequestParam final Long groupId,
+            @RequestParam final String content,
+            @RequestParam(required = false) final Double latitude,
+            @RequestParam(required = false) final Double longitude,
+            @RequestParam(required = false) final String location
+    ) {
+        return CustomResponseEntity.success(contentService.createContent(
+                userId, multipartFile, groupId,
+                content, latitude, longitude, location)
+        );
+    }
+
+    // 피드 조회
+    @GetMapping("content")
+    public CustomResponseEntity<ContentResponse.Detail> contentDetail(
+            @AuthenticationPrincipal final Long userId,
+            @RequestParam final Long contentId
+    ) {
+        return CustomResponseEntity.success(contentService.detailContent(userId, contentId));
+    }
+
     // 그룹 피드 리스트 조회
     @GetMapping("content/group")
     public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupList(
@@ -48,31 +74,6 @@ public class ContentController {
         return CustomResponseEntity.success(contentService.contentSearch(groupId, word, page));
     }
 
-    // 피드 작성
-    @PostMapping("content")
-    public CustomResponseEntity<ContentResponse.Create> contentCreate(
-            @AuthenticationPrincipal final Long userId,
-            @RequestPart(required = false) final List<MultipartFile> multipartFile,
-            @RequestParam final Long groupId,
-            @RequestParam final String content,
-            @RequestParam(required = false) final Double latitude,
-            @RequestParam(required = false) final Double longitude,
-            @RequestParam(required = false) final String location
-    ) {
-        return CustomResponseEntity.success(contentService.createContent(
-                userId, multipartFile, groupId,
-                content, latitude, longitude, location)
-        );
-    }
-
-    // 피드 조회
-    @GetMapping("content")
-    public CustomResponseEntity<ContentResponse.Detail> contentDetail(
-            @AuthenticationPrincipal final Long userId,
-            @RequestParam final Long contentId
-    ) {
-        return CustomResponseEntity.success(contentService.detailContent(userId, contentId));
-    }
 
     // 피드 수정
     @PutMapping("content")

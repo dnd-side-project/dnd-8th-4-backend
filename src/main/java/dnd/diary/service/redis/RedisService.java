@@ -1,6 +1,8 @@
 package dnd.diary.service.redis;
 
 import dnd.diary.config.redis.RedisDao;
+import dnd.diary.domain.content.Content;
+import dnd.diary.domain.user.User;
 import dnd.diary.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,4 +52,10 @@ public class RedisService {
 
         return views;
     }
+
+    public boolean isCheckAddBookmark(String email, Long contentId) {
+        return redisDao.getValuesList("bookmark" + email)
+                .contains(contentId.toString());
+    }
+
 }

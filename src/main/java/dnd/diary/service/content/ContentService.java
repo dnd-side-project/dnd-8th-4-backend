@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -55,66 +56,6 @@ public class ContentService {
     private final GroupRepository groupRepository;
     private final ContentImageRepository contentImageRepository;
     private final EmotionRepository emotionRepository;
-
-    @Transactional
-    public Page<ContentDto.groupListPagePostsDto> groupListContent(
-            Long userId, Long groupId, Integer page
-    ) {
-        validateGroupListContent(groupId);
-
-        Page<Content> contents = contentRepository.findByGroupIdAndDeletedYn(
-                groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        User user = userService.getUser(userId);
-
-        return contents.map(
-                (Content content) -> {
-                    Emotion findEmotionStatus = emotionRepository.findByContentIdAndUserIdAndEmotionYn(content.getId(), user.getId(), true);
-                    Long emotionStatus = findEmotionStatus == null ? -1 : findEmotionStatus.getEmotionStatus();
-                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + user.getEmail())
-                            .contains(content.getId().toString());
-                    String views = redisDao.getValues(content.getId().toString());
-
-                    return ContentDto.groupListPagePostsDto.response(
-                            content,
-                            emotionStatus,
-                            views,
-                            myBookmarkStatus
-                    );
-                }
-        );
-    }
-
-    @Transactional
-    public Page<ContentDto.groupListPagePostsDto> groupAllListContent(
-            Long userId, List<Long> groupId, Integer page
-    ) {
-        validateGroupAllListContent(groupId);
-
-        Page<Content> contents = contentRepository.findByGroupIdInAndDeletedYn(
-                groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        User user = userService.getUser(userId);
-        return contents.map(
-                (Content content) -> {
-                    Emotion myEmotionOnContent = isCheckMyEmotionAddContent(content, user);
-                    Long emotionStatus = myEmotionOnContent == null ? -1 : myEmotionOnContent.getEmotionStatus();
-
-                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + user)
-                            .contains(content.getId().toString());
-                    String views = redisDao.getValues(content.getId().toString());
-
-                    return ContentDto.groupListPagePostsDto.response(
-                            content,
-                            emotionStatus,
-                            views,
-                            myBookmarkStatus
-                    );
-                }
-        );
-    }
 
     @Transactional
     public ContentResponse.Create createContent(
@@ -156,6 +97,64 @@ public class ContentService {
                 getContentImageResponse(content),
                 isBookmarked,
                 emotionStatus
+        );
+    }
+
+    @Transactional
+    public Page<ContentDto.groupListPagePostsDto> groupListContent(
+            Long userId, Long groupId, Integer page
+    ) {
+        validateGroupListContent(groupId);
+
+        Page<Content> contents = contentRepository.findByGroupIdAndDeletedYn(
+                groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        User user = userService.getUser(userId);
+
+        return contents.map(
+                (Content content) -> {
+                    Long emotionStatus = isCheckAddEmotionAndGetStatus(user, content);
+                    Boolean myBookmarkStatus = redisService.isCheckAddBookmark(user.getEmail(), content.getId());
+                    String views = redisService.getValues(content.getId().toString());
+
+                    return ContentDto.groupListPagePostsDto.response(
+                            content,
+                            emotionStatus,
+                            views,
+                            myBookmarkStatus
+                    );
+                }
+        );
+    }
+
+    @Transactional
+    public Page<ContentDto.groupListPagePostsDto> groupAllListContent(
+            Long userId, List<Long> groupId, Integer page
+    ) {
+        validateGroupAllListContent(groupId);
+
+        Page<Content> contents = contentRepository.findByGroupIdInAndDeletedYn(
+                groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        User user = userService.getUser(userId);
+        return contents.map(
+                (Content content) -> {
+                    Emotion myEmotionOnContent = isCheckMyEmotionAddContent(content, user);
+                    Long emotionStatus = myEmotionOnContent == null ? -1 : myEmotionOnContent.getEmotionStatus();
+
+                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + user)
+                            .contains(content.getId().toString());
+                    String views = redisDao.getValues(content.getId().toString());
+
+                    return ContentDto.groupListPagePostsDto.response(
+                            content,
+                            emotionStatus,
+                            views,
+                            myBookmarkStatus
+                    );
+                }
         );
     }
 
@@ -222,8 +221,8 @@ public class ContentService {
                 .filter(content -> !content.isDeletedYn())
                 .map((Content content) -> {
                             Long duplicateLocationCount = contentRepository.countByLocationAndGroupIdInAndDeletedYn(
-                                            content.getLocation(), myGroupIdList, false
-                                    );
+                                    content.getLocation(), myGroupIdList, false
+                            );
                             return ContentDto.mapListContent.response(
                                     content,
                                     getContentImageResponse(content),
@@ -266,8 +265,8 @@ public class ContentService {
     }
 
 
-
     // method
+
     private List<ContentDto.ImageResponseDto> getContentImageResponse(Content content) {
         return content.getContentImages()
                 .stream()
@@ -281,6 +280,7 @@ public class ContentService {
                         () -> new CustomException(Result.NOT_MATCHED_USER_CONTENT)
                 );
     }
+
     private Group getGroup(Long groupId) {
         return groupRepository.findById(groupId)
                 .orElseThrow(
@@ -321,12 +321,12 @@ public class ContentService {
 
 
     // validate
-
     private void validateUpdateContent(Long contentId) {
         if (!contentRepository.existsById(contentId)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
     }
+
     private void validateGroupAllListContent(List<Long> groupId) {
         groupId.forEach(
                 id -> groupRepository.findById(id).orElseThrow(
@@ -368,5 +368,13 @@ public class ContentService {
                 .stream()
                 .map(bookmark -> bookmark.getContent().getId())
                 .anyMatch(x -> x.equals(contentId));
+    }
+
+    private Long isCheckAddEmotionAndGetStatus(User user, Content content) {
+        Optional<Emotion> emotionOptional = emotionRepository.findByContentIdAndUserIdAndEmotionYn(
+                content.getId(), user.getId(), true
+        );
+
+        return (emotionOptional.isEmpty()) ? -1 : emotionOptional.get().getEmotionStatus();
     }
 }
