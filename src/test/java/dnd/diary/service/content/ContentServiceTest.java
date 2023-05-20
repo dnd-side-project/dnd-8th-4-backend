@@ -10,6 +10,7 @@ import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.request.content.ContentDto;
+import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.redis.RedisService;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
@@ -184,6 +186,24 @@ class ContentServiceTest {
         assertThat(response)
                 .extracting("userName", "content", "location", "latitude", "longitude")
                 .contains("테스트 닉네임", "하이", "명륜진사갈비", 2.0, 2.0);
+    }
+
+    @DisplayName("유저가 자신이 작성한 글을 삭제한다.")
+    @Test
+    void contentDelete() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+
+        // when
+        Boolean response = contentService.deleteContent(user.getId(), content.getId());
+
+        // then
+        assertThat(response).isTrue();
+        Optional<Content> contentOptional = contentRepository.findByIdAndDeletedYn(content.getId(), false);
+
+        assertThat(contentOptional.isEmpty()).isTrue();
     }
 
     // method

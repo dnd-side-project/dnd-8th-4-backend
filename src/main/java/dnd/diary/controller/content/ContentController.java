@@ -94,11 +94,11 @@ public class ContentController {
 
     // 피드 삭제
     @DeleteMapping("content")
-    public CustomResponseEntity<ContentDto.deleteContent> contentDelete(
+    public CustomResponseEntity<Boolean> contentDelete(
             @AuthenticationPrincipal final Long userId,
             @RequestParam final Long contentId
     ) {
-        return contentService.deleteContent(userId, contentId);
+        return CustomResponseEntity.success(contentService.deleteContent(userId, contentId));
     }
 
     // 지도 포함 검색

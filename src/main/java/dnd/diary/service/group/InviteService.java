@@ -3,6 +3,7 @@ package dnd.diary.service.group;
 import static dnd.diary.enumeration.Result.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.group.Notification;
@@ -75,10 +76,8 @@ public class InviteService {
 				, null, null, null
 		);
 
-		Content newGroupMemberContent = contentRepository.findByIdAndDeletedYn(content.getId(), false);
-		if (newGroupMemberContent == null) {
-			throw new CustomException(NOT_FOUND_CONTENT);
-		}
+		Content newGroupMemberContent = contentRepository.findByIdAndDeletedYn(content.getId(), false)
+				.orElseThrow(() -> new CustomException(NOT_FOUND_CONTENT));
 
 		// 2. 초대 수락한 그룹에 속해 있는 구성원에게 [새 구성원 가입] 알림 발행
 		List<UserJoinGroup> userJoinGroups = invitedGroup.getUserJoinGroups();

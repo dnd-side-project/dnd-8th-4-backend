@@ -37,13 +37,6 @@ public class CustomResponseEntity<T> {
 				.build();
 	}
 
-	public static <T> CustomResponseEntity<T> successDeleteContent() {
-		return CustomResponseEntity.<T>builder()
-				.code(Result.CONTENT_DELETE_OK.getCode())
-				.message(Result.CONTENT_DELETE_OK.getMessage())
-				.build();
-	}
-
 	public static <T> CustomResponseEntity<T> successDeleteEmotion() {
 		return CustomResponseEntity.<T>builder()
 				.code(Result.EMOTION_DELETE_OK.getCode())

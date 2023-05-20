@@ -167,15 +167,12 @@ public class ContentService {
     }
 
     @Transactional
-    public CustomResponseEntity<ContentDto.deleteContent> deleteContent(
+    public Boolean deleteContent(
             Long userId, Long contentId
     ) {
-//        contentRepository.delete(
-//                existsContentAndUser(contentId, getUser(userDetails).getId())
-//        );
         Content content = existsContentAndUser(contentId, userId);
         content.deleteContent();   // 게시물 삭제 시 상태값만 변경
-        return CustomResponseEntity.successDeleteContent();
+        return true;
     }
 
     @Transactional
@@ -183,26 +180,27 @@ public class ContentService {
             Long userId, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude
     ) {
         User user = userService.getUser(userId);
+
         List<Long> myGroupIdList = user.getUserJoinGroups().stream()
                 .map(userJoinGroup -> userJoinGroup.getGroup().getId()).toList();
-
         List<Content> myMapContents = contentRepository.findByMapList(
                 myGroupIdList, endLatitude, startLatitude, startLongitude, endLongitude);
 
         return myMapContents.stream()
                 .filter(content -> !content.isDeletedYn())
-                .map((Content content) -> {
-                            Long duplicateLocationCount = contentRepository.countByLocationAndGroupIdInAndDeletedYn(
-                                    content.getLocation(), myGroupIdList, false
-                            );
-                            return ContentDto.mapListContent.response(
-                                    content,
-                                    getContentImageResponse(content),
-                                    duplicateLocationCount
-                            );
-                        }
+                .map((Content content) -> ContentDto.mapListContent.response(
+                                content,
+                                getContentImageResponse(content),
+                                isCountDuplicateLocation(myGroupIdList, content)
+                        )
                 )
                 .toList();
+    }
+
+    private Long isCountDuplicateLocation(List<Long> myGroupIdList, Content content) {
+        return contentRepository.countByLocationAndGroupIdInAndDeletedYn(
+                content.getLocation(), myGroupIdList, false
+        );
     }
 
     @Transactional
@@ -235,7 +233,6 @@ public class ContentService {
 
         return contentPage.map(ContentResponse.Create::response);
     }
-
 
 
     // method
@@ -299,6 +296,7 @@ public class ContentService {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
     }
+
     private void validateGroupAllListContent(List<Long> groupId) {
         groupId.forEach(
                 id -> groupRepository.findById(id).orElseThrow(

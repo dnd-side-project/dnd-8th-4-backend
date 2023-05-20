@@ -38,5 +38,5 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
             nativeQuery = true)
     List<Content> findByMapList(List<Long> group_id, Double endLatitude, Double startLatitude, Double startLongitude, Double endLongitude);
 
-    Content findByIdAndDeletedYn(Long contentId, Boolean deletedYn);
+    Optional<Content> findByIdAndDeletedYn(Long contentId, Boolean deletedYn);
 }
