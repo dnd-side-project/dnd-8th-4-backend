@@ -1,13 +1,12 @@
 package dnd.diary.response.content;
 
 import dnd.diary.domain.content.Content;
+import dnd.diary.domain.content.Emotion;
 import dnd.diary.request.content.ContentDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -135,6 +134,68 @@ public class ContentResponse {
                     .bookmarkAddStatus(bookmarkAddStatus)
                     .emotionStatus(emotionStatus)
                     .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
+                    .build();
+        }
+    }
+
+
+    @NoArgsConstructor
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
+    public static class GroupPage {
+        private Long id;
+        private Long userId;
+        private Long groupId;
+        private String userName;
+        private String profileImageUrl;
+        private String groupName;
+        private String content;
+        private Double latitude;
+        private Double longitude;
+        private String location;
+        private LocalDateTime createAt;
+        private long views;
+        private String contentLink;
+        private Boolean deletedYn;
+        private Long comments;
+        private Long emotions;
+        private Long emotionStatus;
+        private Boolean bookmarkAddStatus;
+        List<ContentDto.ImageResponseDto> Images;
+        List<ContentDto.EmotionResponseGroupListDto> emotionResponseDtos;
+
+        public static ContentResponse.GroupPage response(
+                Content content, Long emotionStatus, String views, Boolean bookmarkAddStatus
+        ) {
+            return ContentResponse.GroupPage.builder()
+                    .id(content.getId())
+                    .userId(content.getUser().getId())
+                    .groupId(content.getGroup().getId())
+                    .userName(content.getUser().getNickName())
+                    .profileImageUrl(content.getUser().getProfileImageUrl())
+                    .groupName(content.getGroup().getGroupName())
+                    .content(content.getContent())
+                    .latitude(content.getLatitude())
+                    .longitude(content.getLongitude())
+                    .location(content.getLocation())
+                    .createAt(content.getCreatedAt())
+                    .views(Long.parseLong(views))
+                    .contentLink(content.getContentLink())
+                    .deletedYn(content.isDeletedYn())
+                    .comments((long) content.getComments().size())
+                    .emotions((long) content.getEmotions().size())
+                    .emotionStatus(emotionStatus)
+                    .bookmarkAddStatus(bookmarkAddStatus)
+                    .Images(content.getContentImages()
+                            .stream()
+                            .map(ContentDto.ImageResponseDto::response)
+                            .toList())
+                    .emotionResponseDtos(content.getEmotions()
+                            .stream()
+                            .filter(Emotion::isEmotionYn)   // 공감이 추가된 상태인 경우에만 응답으로 추가
+                            .map(ContentDto.EmotionResponseGroupListDto::response)
+                            .toList())
                     .build();
         }
     }

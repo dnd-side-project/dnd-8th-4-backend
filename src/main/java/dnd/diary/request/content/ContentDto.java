@@ -20,68 +20,6 @@ public class ContentDto {
     @NoArgsConstructor
     @Getter
     @Builder
-    public static class groupListPagePostsDto {
-
-        private Long id;
-        private Long userId;
-        private Long groupId;
-        private String userName;
-        private String profileImageUrl;
-        private String groupName;
-        private String content;
-        private Double latitude;
-        private Double longitude;
-        private String location;
-        private LocalDateTime createAt;
-        private long views;
-        private String contentLink;
-        private Boolean deletedYn;
-        private Long comments;
-        private Long emotions;
-        private Long emotionStatus;
-        private Boolean bookmarkAddStatus;
-        List<ContentDto.ImageResponseDto> Images;
-        List<EmotionResponseGroupListDto> emotionResponseDtos;
-
-        public static ContentDto.groupListPagePostsDto response(
-                Content content, Long emotionStatus, String views, Boolean bookmarkAddStatus
-        ) {
-            return groupListPagePostsDto.builder()
-                    .id(content.getId())
-                    .userId(content.getUser().getId())
-                    .groupId(content.getGroup().getId())
-                    .userName(content.getUser().getNickName())
-                    .profileImageUrl(content.getUser().getProfileImageUrl())
-                    .groupName(content.getGroup().getGroupName())
-                    .content(content.getContent())
-                    .latitude(content.getLatitude())
-                    .longitude(content.getLongitude())
-                    .location(content.getLocation())
-                    .createAt(content.getCreatedAt())
-                    .views(Long.parseLong(views))
-                    .contentLink(content.getContentLink())
-                    .deletedYn(content.isDeletedYn())
-                    .comments((long) content.getComments().size())
-                    .emotions((long) content.getEmotions().size())
-                    .emotionStatus(emotionStatus)
-                    .bookmarkAddStatus(bookmarkAddStatus)
-                    .Images(content.getContentImages()
-                            .stream()
-                            .map(ContentDto.ImageResponseDto::response)
-                            .toList())
-                    .emotionResponseDtos(content.getEmotions()
-                            .stream()
-                            .filter(Emotion::isEmotionYn)   // 공감이 추가된 상태인 경우에만 응답으로 추가
-                            .map(ContentDto.EmotionResponseGroupListDto::response)
-                            .toList())
-                    .build();
-        }
-    }
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Builder
     public static class ImageResponseDto {
         private Long id;
         private String imageName;

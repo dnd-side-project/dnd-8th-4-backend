@@ -46,7 +46,7 @@ public class ContentController {
 
     // 그룹 피드 리스트 조회
     @GetMapping("content/group")
-    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupList(
+    public CustomResponseEntity<Page<ContentResponse.GroupPage>> contentGroupList(
             @AuthenticationPrincipal final Long userId,
             @RequestParam final Long groupId,
             @RequestParam final Integer page
@@ -56,7 +56,7 @@ public class ContentController {
 
     // 그룹 전체 피드 리스트 조회
     @GetMapping("content/group/all")
-    public CustomResponseEntity<Page<ContentDto.groupListPagePostsDto>> contentGroupAllList(
+    public CustomResponseEntity<Page<ContentResponse.GroupPage>> contentGroupAllList(
             @AuthenticationPrincipal final Long userId,
             @RequestParam final List<Long> groupId,
             @RequestParam final Integer page

@@ -17,13 +17,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -77,7 +78,7 @@ class ContentServiceTest {
         Group group = getGroupSave(user);
         Content content = getContentAndSave(user, group);
 
-        given(redisService.getViewsAndRedisSave(anyLong(),anyString()))
+        given(redisService.getViewsAndRedisSave(anyLong(), anyString()))
                 .willReturn(5);
 
         // when
@@ -88,6 +89,31 @@ class ContentServiceTest {
         assertThat(response)
                 .extracting("groupName", "userName", "content", "location")
                 .contains("테스트 그룹", "테스트 닉네임", "테스트 내용", "삼성 서비스 센터");
+    }
+
+    @DisplayName("유저가 선택한 그룹의 피드를 페이지로 조회한다.")
+    @Test
+    void contentGroupList() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        getContentAndSave(user, group);
+
+        given(redisService.getValues(anyString()))
+                .willReturn("23");
+
+        given(redisService.isCheckAddBookmark(anyString(), anyLong()))
+                .willReturn(false);
+
+        // when
+        Page<ContentResponse.GroupPage> response = contentService.groupListContent(user.getId(), group.getId(), 1);
+
+        // then
+        assertThat(response)
+                .extracting("userName", "content", "views","bookmarkAddStatus")
+                .contains(
+                        tuple("테스트 닉네임", "테스트 내용", 23L, false)
+                );
     }
 
     // method
