@@ -1,7 +1,7 @@
 package dnd.diary.service.user;
 
 import dnd.diary.config.Jwt.TokenProvider;
-import dnd.diary.config.RedisDao;
+import dnd.diary.config.redis.RedisDao;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
 import dnd.diary.repository.user.UserRepository;
@@ -148,6 +148,16 @@ class UserServiceTest {
         // then
         assertThat(redisDao.getValues(user.getEmail())).isNull();
         assertThat(redisDao.getValues(testAccessToken)).isEqualTo("logout");
+    }
+
+    @DisplayName("")
+    @Test
+    void test() {
+        // given
+
+        // when
+
+        // then
     }
 
     // method

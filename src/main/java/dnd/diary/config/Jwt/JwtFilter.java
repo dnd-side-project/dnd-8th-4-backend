@@ -1,6 +1,6 @@
 package dnd.diary.config.Jwt;
 
-import dnd.diary.config.RedisDao;
+import dnd.diary.config.redis.RedisDao;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;

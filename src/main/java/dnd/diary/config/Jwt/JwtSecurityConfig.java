@@ -1,6 +1,6 @@
 package dnd.diary.config.Jwt;
 
-import dnd.diary.config.RedisDao;
+import dnd.diary.config.redis.RedisDao;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;

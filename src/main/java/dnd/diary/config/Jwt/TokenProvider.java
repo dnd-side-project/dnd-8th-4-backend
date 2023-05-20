@@ -1,7 +1,6 @@
 package dnd.diary.config.Jwt;
 
-import dnd.diary.config.RedisDao;
-import dnd.diary.domain.user.User;
+import dnd.diary.config.redis.RedisDao;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

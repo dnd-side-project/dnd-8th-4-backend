@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dnd.diary.config.Jwt.JwtAccessDeniedHandler;
 import dnd.diary.config.Jwt.JwtAuthenticationEntryPoint;
 import dnd.diary.config.Jwt.TokenProvider;
-import dnd.diary.config.RedisDao;
+import dnd.diary.config.redis.RedisDao;
 import dnd.diary.controller.user.UserController;
 import dnd.diary.service.mission.MissionService;
 import dnd.diary.service.user.UserService;

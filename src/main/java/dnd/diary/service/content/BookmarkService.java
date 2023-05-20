@@ -1,6 +1,6 @@
 package dnd.diary.service.content;
 
-import dnd.diary.config.RedisDao;
+import dnd.diary.config.redis.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.User;
