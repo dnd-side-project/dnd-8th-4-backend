@@ -22,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
@@ -107,6 +108,33 @@ class ContentServiceTest {
 
         // when
         Page<ContentResponse.GroupPage> response = contentService.groupListContent(user.getId(), group.getId(), 1);
+
+        // then
+        assertThat(response)
+                .extracting("userName", "content", "views","bookmarkAddStatus")
+                .contains(
+                        tuple("테스트 닉네임", "테스트 내용", 23L, false)
+                );
+    }
+
+    @DisplayName("유저가 속한 전체 그룹의 피드를 페이지로 조회한다.")
+    @Test
+    void groupAllListContent() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        getContentAndSave(user, group);
+
+        given(redisService.getValues(anyString()))
+                .willReturn("23");
+
+        given(redisService.isCheckAddBookmark(anyString(), anyLong()))
+                .willReturn(false);
+
+        List<Long> groups = List.of(group.getId());
+
+        // when
+        Page<ContentResponse.GroupPage> response = contentService.groupAllListContent(user.getId(), groups, 1);
 
         // then
         assertThat(response)
