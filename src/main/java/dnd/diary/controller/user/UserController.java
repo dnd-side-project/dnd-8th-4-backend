@@ -76,8 +76,7 @@ public class UserController {
             @AuthenticationPrincipal final Long userId,
             @RequestHeader(value = "Authorization") String auth
     ) {
-        userService.deleteUser(userId, auth);
-        return CustomResponseEntity.successDelete();
+        return CustomResponseEntity.success(userService.deleteUser(userId, auth.substring(7)));
     }
 
     // 유저 검색

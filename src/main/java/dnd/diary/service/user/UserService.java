@@ -1,7 +1,7 @@
 package dnd.diary.service.user;
 
 import dnd.diary.config.Jwt.TokenProvider;
-import dnd.diary.config.RedisDao;
+import dnd.diary.config.redis.RedisDao;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
@@ -19,6 +19,7 @@ import dnd.diary.request.service.UserServiceRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.user.UserSearchResponse;
+import dnd.diary.service.redis.RedisService;
 import dnd.diary.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,11 +56,10 @@ public class UserService {
     private final UserImageRepository userImageRepository;
     private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EntityManager em;
+    private final RedisService redisService;
     private final S3Service s3Service;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final RedisDao redisDao;
 
     @Transactional
     public UserResponse.Login createUserAccount(UserServiceRequest.CreateUser request) {
@@ -125,7 +125,7 @@ public class UserService {
                                 .map(ContentDto.ImageResponseDto::response)
                                 .toList()
                         , Integer.parseInt(
-                                redisDao.getValues(content.getId().toString())
+                                redisService.getValues(content.getId().toString())
                         )
                 )
         );
@@ -149,7 +149,9 @@ public class UserService {
                                 .stream()
                                 .map(ContentDto.ImageResponseDto::response)
                                 .toList(),
-                        Integer.parseInt(redisDao.getValues(content.getId().toString()))
+                        Integer.parseInt(
+                                redisService.getValues(content.getId().toString())
+                        )
                 )
         );
     }
@@ -172,8 +174,7 @@ public class UserService {
                                 .stream()
                                 .map(ContentDto.ImageResponseDto::response)
                                 .toList(),
-                        Integer.parseInt(redisDao.getValues(content.getId().toString()))
-                )
+                        Integer.parseInt(redisService.getValues(content.getId().toString())))
         );
     }
 
@@ -181,27 +182,22 @@ public class UserService {
     public Void logout(Long userId, String accessToken) {
         String email = getUser(userId).getEmail();
         Long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
-        if (redisDao.getValues(email) == null || redisDao.getValues(email).isEmpty()) {
-            throw new CustomException(Result.FAIL);
-        }
 
-        redisDao.deleteValues(email);
-        redisDao.setValues(accessToken, "logout", Duration.ofMillis(accessTokenExpiration));
+        redisService.logoutFromRedis(email, accessToken, accessTokenExpiration);
+
         return null;
     }
 
     @Transactional
-    public void deleteUser(Long userId, String auth) {
-        String atk = auth.substring(7);
+    public Void deleteUser(Long userId, String accessToken) {
         User user = getUser(userId);
+        String email = getUser(userId).getEmail();
 
-        if (redisDao.getValues(user.getEmail()) != null) {
-            redisDao.deleteValues(user.getEmail());
-        }
-
-        redisDao.setValues(atk, "logout", Duration.ofMillis(tokenProvider.getExpiration(atk)));
+        redisService.logoutFromRedis(email, accessToken, tokenProvider.getExpiration(accessToken));
 
         userRepository.delete(user);
+
+        return null;
     }
 
     @Transactional
@@ -273,6 +269,7 @@ public class UserService {
             throw new CustomException(Result.DUPLICATION_NICKNAME);
         }
     }
+
     private void validateLogin(
             UserServiceRequest.Login request
     ) {
