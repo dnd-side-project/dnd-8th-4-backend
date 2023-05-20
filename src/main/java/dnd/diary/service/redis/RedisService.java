@@ -24,9 +24,10 @@ public class RedisService {
         return values;
     }
 
-    public void logoutFromRedis(String email, String accessToken, Long accessTokenExpiration) {
+    public Boolean logoutFromRedis(String email, String accessToken, Long accessTokenExpiration) {
         String redisEmail = redisDao.getValues(email);
         redisDao.deleteValues(redisEmail);
         redisDao.setValues(accessToken, "logout", Duration.ofMillis(accessTokenExpiration));
+        return true;
     }
 }

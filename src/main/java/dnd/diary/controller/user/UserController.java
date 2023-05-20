@@ -63,7 +63,7 @@ public class UserController {
 
     // 로그아웃
     @PostMapping("auth/logout")
-    public CustomResponseEntity<Void> login(
+    public CustomResponseEntity<Boolean> login(
             @AuthenticationPrincipal final Long userId,
             @RequestHeader(value = "Authorization") String auth
     ) {
@@ -72,7 +72,7 @@ public class UserController {
 
     // 회원 탈퇴
     @DeleteMapping("auth")
-    public CustomResponseEntity<Void> userDelete(
+    public CustomResponseEntity<Boolean> userDelete(
             @AuthenticationPrincipal final Long userId,
             @RequestHeader(value = "Authorization") String auth
     ) {

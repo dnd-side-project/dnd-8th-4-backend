@@ -179,25 +179,21 @@ public class UserService {
     }
 
     @Transactional
-    public Void logout(Long userId, String accessToken) {
+    public Boolean logout(Long userId, String accessToken) {
         String email = getUser(userId).getEmail();
         Long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
 
-        redisService.logoutFromRedis(email, accessToken, accessTokenExpiration);
-
-        return null;
+        return redisService.logoutFromRedis(email, accessToken, accessTokenExpiration);
     }
 
     @Transactional
-    public Void deleteUser(Long userId, String accessToken) {
+    public Boolean deleteUser(Long userId, String accessToken) {
         User user = getUser(userId);
         String email = getUser(userId).getEmail();
 
-        redisService.logoutFromRedis(email, accessToken, tokenProvider.getExpiration(accessToken));
-
         userRepository.delete(user);
 
-        return null;
+        return redisService.logoutFromRedis(email, accessToken, tokenProvider.getExpiration(accessToken));
     }
 
     @Transactional
