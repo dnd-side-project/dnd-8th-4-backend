@@ -12,6 +12,7 @@ import static dnd.diary.enumeration.Result.REDIS_VALUE_NOT_FOUND;
 @Service
 @RequiredArgsConstructor
 public class RedisService {
+
     private final RedisDao redisDao;
 
     public String getValues(String key) {
@@ -25,8 +26,7 @@ public class RedisService {
     }
 
     public Boolean logoutFromRedis(String email, String accessToken, Long accessTokenExpiration) {
-        String redisEmail = redisDao.getValues(email);
-        redisDao.deleteValues(redisEmail);
+        redisDao.deleteValues(email);
         redisDao.setValues(accessToken, "logout", Duration.ofMillis(accessTokenExpiration));
         return true;
     }
