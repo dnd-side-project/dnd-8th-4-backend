@@ -101,7 +101,7 @@ public class ContentService {
     }
 
     @Transactional
-    public Page<ContentDto.groupListPagePostsDto> groupListContent(
+    public Page<ContentResponse.GroupPage> groupListContent(
             Long userId, Long groupId, Integer page
     ) {
         validateGroupListContent(groupId);
@@ -110,26 +110,11 @@ public class ContentService {
                 groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        User user = userService.getUser(userId);
-
-        return contents.map(
-                (Content content) -> {
-                    Long emotionStatus = isCheckAddEmotionAndGetStatus(user, content);
-                    Boolean myBookmarkStatus = redisService.isCheckAddBookmark(user.getEmail(), content.getId());
-                    String views = redisService.getValues(content.getId().toString());
-
-                    return ContentDto.groupListPagePostsDto.response(
-                            content,
-                            emotionStatus,
-                            views,
-                            myBookmarkStatus
-                    );
-                }
-        );
+        return getMyGroupPages(userId, contents);
     }
 
     @Transactional
-    public Page<ContentDto.groupListPagePostsDto> groupAllListContent(
+    public Page<ContentResponse.GroupPage> groupAllListContent(
             Long userId, List<Long> groupId, Integer page
     ) {
         validateGroupAllListContent(groupId);
@@ -138,24 +123,7 @@ public class ContentService {
                 groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        User user = userService.getUser(userId);
-        return contents.map(
-                (Content content) -> {
-                    Emotion myEmotionOnContent = isCheckMyEmotionAddContent(content, user);
-                    Long emotionStatus = myEmotionOnContent == null ? -1 : myEmotionOnContent.getEmotionStatus();
-
-                    Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + user)
-                            .contains(content.getId().toString());
-                    String views = redisDao.getValues(content.getId().toString());
-
-                    return ContentDto.groupListPagePostsDto.response(
-                            content,
-                            emotionStatus,
-                            views,
-                            myBookmarkStatus
-                    );
-                }
-        );
+        return getMyGroupPages(userId, contents);
     }
 
     @Transactional
@@ -265,8 +233,8 @@ public class ContentService {
     }
 
 
-    // method
 
+    // method
     private List<ContentDto.ImageResponseDto> getContentImageResponse(Content content) {
         return content.getContentImages()
                 .stream()
@@ -321,12 +289,12 @@ public class ContentService {
 
 
     // validate
+
     private void validateUpdateContent(Long contentId) {
         if (!contentRepository.existsById(contentId)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
     }
-
     private void validateGroupAllListContent(List<Long> groupId) {
         groupId.forEach(
                 id -> groupRepository.findById(id).orElseThrow(
@@ -368,6 +336,27 @@ public class ContentService {
                 .stream()
                 .map(bookmark -> bookmark.getContent().getId())
                 .anyMatch(x -> x.equals(contentId));
+    }
+
+    private Page<ContentResponse.GroupPage> getMyGroupPages(Long userId, Page<Content> contents) {
+        User user = userService.getUser(userId);
+
+        Page<ContentResponse.GroupPage> myGroupPages = contents.map(
+                (Content content) -> {
+                    Long emotionStatus = isCheckAddEmotionAndGetStatus(user, content);
+                    Boolean myBookmarkStatus = redisService.isCheckAddBookmark(user.getEmail(), content.getId());
+                    String views = redisService.getValues(content.getId().toString());
+
+                    return ContentResponse.GroupPage.response(
+                            content,
+                            emotionStatus,
+                            views,
+                            myBookmarkStatus
+                    );
+                }
+        );
+
+        return myGroupPages;
     }
 
     private Long isCheckAddEmotionAndGetStatus(User user, Content content) {
