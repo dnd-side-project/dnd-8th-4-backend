@@ -20,6 +20,7 @@ import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.content.ContentResponse;
+import dnd.diary.service.redis.RedisService;
 import dnd.diary.service.s3.S3Service;
 import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,7 @@ import java.util.UUID;
 @Slf4j
 public class ContentService {
     private final UserService userService;
+    private final RedisService redisService;
     private final RedisDao redisDao;
     private final S3Service s3Service;
     private final ContentRepository contentRepository;
@@ -126,17 +128,7 @@ public class ContentService {
         User user = userService.getUser(userId);
         Group group = getGroup(groupId);
         Content content = contentRepository.save(
-                Content.builder()
-                        .content(contentNote)
-                        .latitude(latitude)
-                        .longitude(longitude)
-                        .location(location)
-                        .views(0L)
-                        .contentLink("test")
-                        .deletedYn(false)
-                        .user(user)
-                        .group(group)
-                        .build()
+                contentToEntity(contentNote, latitude, longitude, location, user, group)
         );
 
         if (multipartFile != null) {
@@ -145,7 +137,7 @@ public class ContentService {
         }
 
         group.updateRecentModifiedAt();
-        redisDao.setValues(content.getId().toString(), "0");
+        redisService.setValues(content.getId().toString(), "0");
 
         return ContentResponse.Create.response(content);
     }
@@ -296,13 +288,13 @@ public class ContentService {
 
 
     // method
+
     private List<ContentDto.ImageResponseDto> getContentImageResponse(Content content) {
         return content.getContentImages()
                 .stream()
                 .map(ContentDto.ImageResponseDto::response)
                 .toList();
     }
-
     private Content existsContentAndUser(Long contentId, Long userId) {
         return contentRepository.findByIdAndUserIdAndDeletedYn(contentId, userId, false)
                 .orElseThrow(
@@ -348,8 +340,8 @@ public class ContentService {
         return null;
     }
 
-    // validate
 
+    // validate
     private void validateUpdateContent(Long contentId) {
         if (!contentRepository.existsById(contentId)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
@@ -368,5 +360,19 @@ public class ContentService {
         if (!groupRepository.existsById(groupId)) {
             throw new CustomException(Result.NOT_FOUND_GROUP);
         }
+    }
+
+    private static Content contentToEntity(String contentNote, Double latitude, Double longitude, String location, User user, Group group) {
+        return Content.builder()
+                .content(contentNote)
+                .latitude(latitude)
+                .longitude(longitude)
+                .location(location)
+                .views(0L)
+                .contentLink("test")
+                .deletedYn(false)
+                .user(user)
+                .group(group)
+                .build();
     }
 }

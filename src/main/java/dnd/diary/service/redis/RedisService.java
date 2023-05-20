@@ -15,6 +15,11 @@ public class RedisService {
 
     private final RedisDao redisDao;
 
+    public Boolean setValues(String key, String value) {
+        redisDao.setValues(key,value);
+        return true;
+    }
+
     public String getValues(String key) {
         String values = redisDao.getValues(key);
 
