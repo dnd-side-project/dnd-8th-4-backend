@@ -1,4 +1,4 @@
-package dnd.diary.config;
+package dnd.diary.config.redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

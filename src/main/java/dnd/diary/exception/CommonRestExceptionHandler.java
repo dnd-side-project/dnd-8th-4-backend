@@ -5,10 +5,12 @@ import dnd.diary.response.CustomResponseEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 public class CommonRestExceptionHandler extends RuntimeException {
 
     @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(Exception.class)
     public CustomResponseEntity<String> handleExceptionHandler(HttpServletRequest request, Exception e) {
         log.error("defaultExceptionHandler", e);
@@ -27,6 +30,7 @@ public class CommonRestExceptionHandler extends RuntimeException {
     }
 
     @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CustomException.class)
     public CustomResponseEntity<String> handleCustomExceptionHandler(CustomException exception) {
         log.error("CustomExceptionHandler code : {}, message : {}",
@@ -35,6 +39,7 @@ public class CommonRestExceptionHandler extends RuntimeException {
     }
 
 	@ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(
             MethodArgumentNotValidException.class
     )
@@ -51,6 +56,7 @@ public class CommonRestExceptionHandler extends RuntimeException {
     }
 
 	@ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(
             MissingServletRequestParameterException.class
     )
@@ -66,6 +72,7 @@ public class CommonRestExceptionHandler extends RuntimeException {
     }
 
     @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(
             MissingServletRequestPartException.class
     )

@@ -30,7 +30,6 @@ import dnd.diary.domain.mission.Mission;
 import dnd.diary.domain.mission.MissionStatus;
 import dnd.diary.domain.user.User;
 import dnd.diary.request.group.MissionCreateRequest;
-import dnd.diary.request.UserDto;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.mission.MissionRepository;
@@ -64,8 +63,8 @@ public class MissionService {
 
 	// 미션 생성
 	@Transactional
-	public MissionResponse createMission(MissionCreateRequest request) throws ParseException {
-		User user = findUser();
+	public MissionResponse createMission(MissionCreateRequest request, Long userId) throws ParseException {
+		User user = userService.getUser(userId);
 		Group group = findGroup(request.getGroupId());
 
 		MissionStatus missionStatus = MissionStatus.READY;
@@ -160,8 +159,8 @@ public class MissionService {
 	
 	// 미션 삭제
 	@Transactional
-	public void deleteMission(Long missionId) {
-		User user = findUser();
+	public void deleteMission(Long missionId, Long userId) {
+		User user = userService.getUser(userId);
 		Mission mission = missionRepository.findMissionByIdAndDeletedYn(missionId, false);
 		if (mission == null) {
 			new CustomException(NOT_FOUND_MISSION);
@@ -181,10 +180,10 @@ public class MissionService {
 	
 	// 미션 위치 인증
 	@Transactional
-	public MissionCheckLocationResponse checkMissionLocation(MissionCheckLocationRequest request) {
+	public MissionCheckLocationResponse checkMissionLocation(Long userId, MissionCheckLocationRequest request) {
 
 		// 유저가 가진 미션이 맞는지 확인
-		User user = findUser();
+		User user = userService.getUser(userId);
 		List<UserAssignMission> userAssignMissionList = user.getUserAssignMissions();
 		List<Long> userAssignMissionIdList = new ArrayList<>();
 		List<Long> userAssignMissionGroupIdList = new ArrayList<>();
@@ -264,9 +263,9 @@ public class MissionService {
 
 	// 미션 게시물 인증
 	@Transactional
-	public MissionCheckContentResponse checkMissionContent(UserDetails userDetails, List<MultipartFile> multipartFiles, Long missionId, String content) throws ParseException {
+	public MissionCheckContentResponse checkMissionContent(Long userId, List<MultipartFile> multipartFiles, Long missionId, String content) throws ParseException {
 
-		User user = getUser(userDetails);
+		User user = userService.getUser(userId);
 		Mission targetMission = missionRepository.findMissionByIdAndDeletedYn(missionId, false);
 
 		if (targetMission == null) {
@@ -288,7 +287,7 @@ public class MissionService {
 		}
 
 		contentService.createContent(
-				userDetails, multipartFiles, targetMission.getGroup().getId(), content,
+				userId, multipartFiles, targetMission.getGroup().getId(), content,
 				targetMission.getLatitude(), targetMission.getLongitude(), targetMission.getMissionLocationName()
 		);
 
@@ -339,9 +338,9 @@ public class MissionService {
 	}
 
 	// 미션 상태별 목록 조회 (0 : 전체, 1 : 시작 전, 2 : 진행중, 3 : 종료)
-	public List<MissionResponse> getMissionList(int missionStatus) {
+	public List<MissionResponse> getMissionList(Long userId, int missionStatus) {
 
-		User user = findUser();
+		User user = userService.getUser(userId);
 		MissionStatus findMissionStatus = MissionStatus.getName(missionStatus);
 		List<UserAssignMission> userAssignMissionList = user.getUserAssignMissions();
 		List<MissionResponse> missionResponseList = new ArrayList<>();
@@ -393,9 +392,9 @@ public class MissionService {
 	}
 
 	// 그룹 메인 진입 페이지 내 [시작 전/진행 중] 미션 목록 조회 - 최대 4개
-	public List<MissionResponse> getReadyAndActiveGroupMissionList(int groupId) {
+	public List<MissionResponse> getReadyAndActiveGroupMissionList(Long userId, int groupId) {
 
-		User user = findUser();
+		User user = userService.getUser(userId);
 		Group group = findGroup(Long.parseLong(String.valueOf(groupId)));
 
 		List<MissionResponse> missionResponseList = new ArrayList<>();
@@ -429,14 +428,14 @@ public class MissionService {
 	}
 
 	// 시작 전인 미션 + 진행 중인 미션 전체
-	public List<MissionResponse> getReadyAndActiveMissionList() {
-		List<MissionResponse> missionResponseList = getMissionList(MissionStatus.READY.getCode());
-		missionResponseList.addAll(getMissionList(MissionStatus.ACTIVE.getCode()));
+	public List<MissionResponse> getReadyAndActiveMissionList(Long userId) {
+		List<MissionResponse> missionResponseList = getMissionList(userId, MissionStatus.READY.getCode());
+		missionResponseList.addAll(getMissionList(userId, MissionStatus.ACTIVE.getCode()));
 		return missionResponseList;
 	}
 
-	public MissionResponse getMission(Long missionId) {
-		User user = findUser();
+	public MissionResponse getMission(Long missionId, Long userId) {
+		User user = userService.getUser(userId);
 		Mission mission = missionRepository.findMissionByIdAndDeletedYn(missionId, false);
 		if (mission == null) {
 			throw new CustomException(NOT_FOUND_MISSION);
@@ -486,9 +485,9 @@ public class MissionService {
 	}
 
 	// 유저에게 할당된 미션 중, 지도 범위 내에 존재하는 미션 목록 조회
-	public List<MissionResponse> getMissionListByMap(MissionListByMapRequest missionListByMapRequest) {
+	public List<MissionResponse> getMissionListByMap(MissionListByMapRequest missionListByMapRequest, Long userId) {
 
-		User user = findUser();
+		User user = userService.getUser(userId);
 		List<Mission> userMissionList = new ArrayList<>();
 		user.getUserAssignMissions().forEach(
 				userAssignMission -> {
@@ -519,8 +518,8 @@ public class MissionService {
 	}
 
 	// 완료한 미션 목록 조회
-	public List<MissionResponse> getCompleteMissionList() {
-		User user = findUser();
+	public List<MissionResponse> getCompleteMissionList(Long userId) {
+		User user = userService.getUser(userId);
 		List<MissionResponse> completeMissionResponseList = new ArrayList<>();
 
 		List<UserAssignMission> userAssignMissionList = user.getUserAssignMissions();
@@ -536,11 +535,6 @@ public class MissionService {
 			}
 		}
 		return completeMissionResponseList;
-	}
-
-	private User findUser() {
-		UserDto.InfoDto userInfo = userService.findMyListUser();
-		return userRepository.findById(userInfo.getId()).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 	}
 
 	private Group findGroup(Long groupId) {

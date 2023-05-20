@@ -4,6 +4,7 @@ import dnd.diary.config.Jwt.JwtAccessDeniedHandler;
 import dnd.diary.config.Jwt.JwtAuthenticationEntryPoint;
 import dnd.diary.config.Jwt.JwtSecurityConfig;
 import dnd.diary.config.Jwt.TokenProvider;
+import dnd.diary.config.redis.RedisDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;

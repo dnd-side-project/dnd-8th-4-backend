@@ -8,7 +8,6 @@ import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.MissionResponse;
 import dnd.diary.response.user.UserResponse;
-import dnd.diary.response.notification.UserNotificationInfoResponse;
 import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.mission.MissionService;
 import dnd.diary.service.user.UserService;
@@ -30,55 +29,54 @@ public class UserController {
 
     // 회원가입
     @PostMapping("auth")
-    public CustomResponseEntity<UserResponse.CreateUser> createUserAccount(
-            @Valid @RequestBody final UserRequest.CreateUser request
+    public CustomResponseEntity<UserResponse.Login> createUserAccount(
+             @RequestBody @Valid final UserRequest.CreateUser request
     ) {
         return CustomResponseEntity.success(userService.createUserAccount(request.toServiceRequest()));
     }
 
-    // 프로필 수정
-    @PatchMapping("auth")
-    public CustomResponseEntity<UserDto.UpdateDto> updateProfileUser(
-            @AuthenticationPrincipal final UserDetails userDetails,
-            @RequestParam(required = false) final String nickName,
-            @RequestPart(required = false) final MultipartFile file
-    ) {
-        return CustomResponseEntity.success(userService.userUpdateProfile(userDetails,nickName,file));
-    }
-
     // 로그인
     @PostMapping("auth/login")
-    public CustomResponseEntity<UserDto.LoginDto> login(
-            @Valid @RequestBody final UserDto.LoginDto request
+    public CustomResponseEntity<UserResponse.Login> login(
+            @RequestBody final UserRequest.Login request
     ) {
-        return CustomResponseEntity.success(userService.login(request));
-    }
-
-    // 로그아웃
-    @PostMapping("auth/logout")
-    public CustomResponseEntity<Void> login(
-            @AuthenticationPrincipal final UserDetails userDetails,
-            @RequestHeader(value = "Authorization") String auth
-    ) {
-        userService.logout(userDetails, auth);
-        return CustomResponseEntity.successLogout();
-    }
-
-    // 회원 탈퇴
-    @DeleteMapping("auth")
-    public CustomResponseEntity<Void> userDelete(
-            @AuthenticationPrincipal final UserDetails userDetails,
-            @RequestHeader(value = "Authorization") String auth
-    ) {
-        userService.deleteUser(userDetails, auth);
-        return CustomResponseEntity.successDelete();
+        return CustomResponseEntity.success(userService.login(request.toServiceRequest()));
     }
 
     // 정보 조회
     @GetMapping("auth/my/info")
-    public CustomResponseEntity<UserDto.InfoDto> userMyList(
+    public CustomResponseEntity<UserResponse.Detail> findMyListUser(
+            @AuthenticationPrincipal Long userId
     ) {
-        return CustomResponseEntity.success(userService.findMyListUser());
+        return CustomResponseEntity.success(userService.findMyListUser(userId));
+    }
+
+    // 프로필 수정
+    @PatchMapping("auth")
+    public CustomResponseEntity<UserResponse.Update> updateProfileUser(
+            @AuthenticationPrincipal final Long userId,
+            @RequestParam(required = false) final String nickName,
+            @RequestPart(required = false) final MultipartFile file
+    ) {
+        return CustomResponseEntity.success(userService.userUpdateProfile(userId, nickName,file));
+    }
+
+    // 로그아웃
+    @PostMapping("auth/logout")
+    public CustomResponseEntity<Boolean> login(
+            @AuthenticationPrincipal final Long userId,
+            @RequestHeader(value = "Authorization") String auth
+    ) {
+        return CustomResponseEntity.success(userService.logout(userId, auth.substring(7)));
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("auth")
+    public CustomResponseEntity<Boolean> userDelete(
+            @AuthenticationPrincipal final Long userId,
+            @RequestHeader(value = "Authorization") String auth
+    ) {
+        return CustomResponseEntity.success(userService.deleteUser(userId, auth.substring(7)));
     }
 
     // 유저 검색
@@ -90,10 +88,10 @@ public class UserController {
     // 북마크 글 조회
     @GetMapping("auth/my/bookmark")
     public CustomResponseEntity<Page<UserDto.BookmarkDto>> myBookmarkList(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal Long userId,
             @RequestParam final Integer page
     ) {
-        return CustomResponseEntity.success(userService.listMyBookmark(userDetails, page));
+        return CustomResponseEntity.success(userService.listMyBookmark(userId, page));
     }
 
     // 작성한 글 조회
@@ -108,10 +106,10 @@ public class UserController {
     // 작성한 댓글 조회
     @GetMapping("auth/my/comment")
     public CustomResponseEntity<Page<UserDto.myCommentListDto>> searchMyCommentList(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal Long userId,
             @RequestParam final Integer page
     ) {
-        return CustomResponseEntity.success(userService.listSearchMyComment(userDetails, page));
+        return CustomResponseEntity.success(userService.listSearchMyComment(userId, page));
     }
 
     // 이메일 중복 검사
@@ -124,8 +122,8 @@ public class UserController {
 
     // 완료한 미션 조회
     @GetMapping("auth/my/mission/complete")
-    public CustomResponseEntity<List<MissionResponse>> getCompleteMissionList() {
-        return CustomResponseEntity.success(missionService.getCompleteMissionList());
+    public CustomResponseEntity<List<MissionResponse>> getCompleteMissionList(@AuthenticationPrincipal Long userId) {
+        return CustomResponseEntity.success(missionService.getCompleteMissionList(userId));
     }
 
     // 새로운 알림 & 읽지 않은 알림 조회

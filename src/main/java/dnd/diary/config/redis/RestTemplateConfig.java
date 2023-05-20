@@ -1,4 +1,4 @@
-package dnd.diary.config;
+package dnd.diary.config.redis;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;

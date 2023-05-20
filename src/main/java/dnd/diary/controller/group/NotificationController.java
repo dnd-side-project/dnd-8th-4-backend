@@ -7,6 +7,7 @@ import dnd.diary.response.notification.InviteNotificationResponse;
 import dnd.diary.response.notification.UserNotificationInfoResponse;
 import dnd.diary.service.group.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,13 +22,13 @@ public class NotificationController {
 
 	// 초대 알림 목록 조회
 	@GetMapping
-	public CustomResponseEntity<InviteNotificationResponse> getInviteNotification() {
-		return CustomResponseEntity.success(notificationService.getInviteNotification());
+	public CustomResponseEntity<InviteNotificationResponse> getInviteNotification(@AuthenticationPrincipal Long userId) {
+		return CustomResponseEntity.success(notificationService.getInviteNotification(userId));
 	}
 
 	@GetMapping("/all")
-	public CustomResponseEntity<AllNotificationListResponse> getAllNotificationList() {
-		return CustomResponseEntity.success(notificationService.getAllNotificationList());
+	public CustomResponseEntity<AllNotificationListResponse> getAllNotificationList(@AuthenticationPrincipal Long userId) {
+		return CustomResponseEntity.success(notificationService.getAllNotificationList(userId));
 	}
 
 	// 알림 단일 클릭(읽기)
@@ -38,7 +39,7 @@ public class NotificationController {
 
 	// 새로 등록된 알림 표시 비활성화
 	@GetMapping("/all/read")
-	public CustomResponseEntity<UserNotificationInfoResponse> readAllNotificationList() {
-		return CustomResponseEntity.success(notificationService.readAllNotificationList());
+	public CustomResponseEntity<UserNotificationInfoResponse> readAllNotificationList(@AuthenticationPrincipal Long userId) {
+		return CustomResponseEntity.success(notificationService.readAllNotificationList(userId));
 	}
 }

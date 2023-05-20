@@ -12,7 +12,7 @@ public class GroupValidator {
 	private final int MAX_GROUP_NAME = 12;
 	private final int MAX_GROUP_NOTE = 30;
 
-	public void checkGroupCreateAndUpdate(String groupName, String groupNote) {
+	public void checkGroupCreateAndUpdate(Long userId, String groupName, String groupNote) {
 		checkGroupName(groupName);
 		checkGroupNote(groupNote);
 	}

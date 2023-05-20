@@ -1,4 +1,4 @@
-package dnd.diary.config;
+package dnd.diary.config.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ListOperations;
@@ -22,12 +22,12 @@ public class RedisDao {
     }
 
     public void setValuesList(String key, String data) {
-        redisTemplate.opsForList().rightPushAll(key,data);
+        redisTemplate.opsForList().rightPushAll(key, data);
     }
 
     public List<String> getValuesList(String key) {
         Long len = redisTemplate.opsForList().size(key);
-        return len == 0 ? new ArrayList<>() : redisTemplate.opsForList().range(key, 0, len-1);
+        return len == 0 ? new ArrayList<>() : redisTemplate.opsForList().range(key, 0, len - 1);
     }
 
     public void setValues(String key, String data, Duration duration) {

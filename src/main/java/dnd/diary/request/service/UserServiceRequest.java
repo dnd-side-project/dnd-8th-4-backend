@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+
 public class UserServiceRequest {
 
     @NoArgsConstructor
@@ -24,6 +26,19 @@ public class UserServiceRequest {
             this.nickName = nickName;
             this.phoneNumber = phoneNumber;
             this.profileImageUrl = profileImageUrl;
+        }
+    }
+
+    @NoArgsConstructor
+    @Getter
+    public static class Login {
+        private String email;
+        private String password;
+
+        @Builder
+        private Login(String email, String password) {
+            this.email = email;
+            this.password = password;
         }
     }
 }

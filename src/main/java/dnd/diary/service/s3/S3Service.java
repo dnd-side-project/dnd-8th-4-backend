@@ -32,6 +32,22 @@ public class S3Service {
 
 	private final AmazonS3 amazonS3;
 
+	public String saveProfileImage(MultipartFile file) {
+		String fileName = createFileName(file.getOriginalFilename());
+		ObjectMetadata objectMetadata = new ObjectMetadata();
+		objectMetadata.setContentLength(file.getSize());
+		objectMetadata.setContentType(file.getContentType());
+
+		try (InputStream inputStream = file.getInputStream()) {
+			amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
+					.withCannedAcl(CannedAccessControlList.PublicRead));
+
+		} catch (IOException e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+		}
+		return amazonS3.getUrl(bucket, fileName).toString();
+	}
+
 	public List<String> uploadImageList(List<MultipartFile> multipartFile) {
 
 		List<String> fileUrlList = new ArrayList<>();

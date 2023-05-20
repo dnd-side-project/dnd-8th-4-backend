@@ -16,13 +16,11 @@ import dnd.diary.repository.mission.UserAssignMissionRepository;
 import dnd.diary.response.notification.InviteNotificationResponse;
 import dnd.diary.service.content.ContentService;
 import org.locationtech.jts.io.ParseException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserJoinGroup;
-import dnd.diary.request.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupRepository;
@@ -50,8 +48,8 @@ public class InviteService {
 
 	// 초대 수락
 	@Transactional
-	public InviteNotificationResponse.InviteNotificationInfo acceptInvite(UserDetails userDetails, Long groupId, Long notificationId) throws ParseException {
-		User user = findUser();
+	public InviteNotificationResponse.InviteNotificationInfo acceptInvite(Long userId, Long groupId, Long notificationId) throws ParseException {
+		User user = userService.getUser(userId);
 		Group invitedGroup = findGroup(groupId);
 
 		checkAlreadyExist(user, invitedGroup);
@@ -72,7 +70,7 @@ public class InviteService {
 
 		// 1. 초대 수락한 그룹에 새 멤버 환영 게시물 생성
 		ContentDto.CreateDto contentResponse = contentService.createContent(
-				userDetails, null, groupId, String.format("%s 님이 그룹에 참여했습니다.\n댓글로 반갑게 인사해 주세요!🎉", user.getNickName())
+				userId, null, groupId, String.format("%s 님이 그룹에 참여했습니다.\n댓글로 반갑게 인사해 주세요!🎉", user.getNickName())
 				, null, null, null
 		);
 
@@ -100,8 +98,8 @@ public class InviteService {
 
 	// 초대 거절
 	@Transactional
-	public InviteNotificationResponse.InviteNotificationInfo rejectInvite(Long groupId, Long notificationId) {
-		User user = findUser();
+	public InviteNotificationResponse.InviteNotificationInfo rejectInvite(Long groupId, Long notificationId, Long userId) {
+		User user = userService.getUser(userId);
 		Group invitedGroup = findGroup(groupId);
 
 		checkAlreadyExist(user, invitedGroup);
@@ -138,11 +136,6 @@ public class InviteService {
 
 	private Group findGroup(Long groupId) {
 		return groupRepository.findById(groupId).orElseThrow(() -> new CustomException(Result.NOT_FOUND_GROUP));
-	}
-
-	private User findUser() {
-		UserDto.InfoDto userInfo = userService.findMyListUser();
-		return userRepository.findById(userInfo.getId()).orElseThrow(() -> new CustomException(NOT_FOUND_USER));
 	}
 
 	private Notification findNotification(Long notificationId) {
