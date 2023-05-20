@@ -41,6 +41,9 @@ public class RedisDao {
     }
 
     public void deleteValues(String key) {
+        if (key.isBlank()) {
+
+        }
         redisTemplate.delete(key);
     }
 }
