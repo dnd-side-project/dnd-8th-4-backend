@@ -97,12 +97,8 @@ public class UserService {
     }
 
     @Transactional
-    public CustomResponseEntity<Result> emailCheckMatch(String email) {
-        if (!userRepository.existsByEmail(email)) {
-            return CustomResponseEntity.successEmailCheck();
-        } else {
-            throw new CustomException(Result.DUPLICATION_USER);
-        }
+    public Boolean emailCheckMatch(String email) {
+        return userRepository.existsByEmail(email);
     }
 
     @Transactional
@@ -181,6 +177,7 @@ public class UserService {
                 () -> new CustomException(NOT_FOUND_USER)
         );
     }
+
     private Authentication getAuthentication(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
@@ -215,7 +212,6 @@ public class UserService {
                 .userSearchInfoList(userSearchInfoList)
                 .build();
     }
-
 
 
     // Validate

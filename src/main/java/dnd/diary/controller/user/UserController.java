@@ -30,7 +30,7 @@ public class UserController {
     // 회원가입
     @PostMapping("auth")
     public CustomResponseEntity<UserResponse.Login> createUserAccount(
-             @RequestBody @Valid final UserRequest.CreateUser request
+            @RequestBody @Valid final UserRequest.CreateUser request
     ) {
         return CustomResponseEntity.success(userService.createUserAccount(request.toServiceRequest()));
     }
@@ -58,7 +58,7 @@ public class UserController {
             @RequestParam(required = false) final String nickName,
             @RequestPart(required = false) final MultipartFile file
     ) {
-        return CustomResponseEntity.success(userService.userUpdateProfile(userId, nickName,file));
+        return CustomResponseEntity.success(userService.userUpdateProfile(userId, nickName, file));
     }
 
     // 로그아웃
@@ -104,7 +104,7 @@ public class UserController {
     ) {
         return CustomResponseEntity.success(userService.listSearchMyContent(userId, page));
     }
-    
+
     // 작성한 댓글 조회
     @GetMapping("auth/my/comment")
     public CustomResponseEntity<Page<UserResponse.ContentList>> searchMyCommentList(
@@ -116,10 +116,10 @@ public class UserController {
 
     // 이메일 중복 검사
     @GetMapping("auth/check")
-    public CustomResponseEntity<Result> checkMatchEmail(
+    public CustomResponseEntity<Boolean> checkMatchEmail(
             @RequestParam final String email
     ) {
-        return userService.emailCheckMatch(email);
+        return CustomResponseEntity.success(userService.emailCheckMatch(email));
     }
 
     // 완료한 미션 조회

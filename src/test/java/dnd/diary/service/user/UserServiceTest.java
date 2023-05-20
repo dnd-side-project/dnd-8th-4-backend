@@ -312,6 +312,19 @@ class UserServiceTest {
                 .contains("테스트 내용");
     }
 
+    @DisplayName("이메일이 현재 서비스 내에 존재하는지 여부를 확인한다.")
+    @Test
+    void checkMatchEmail() {
+        // given
+        String email = "test@test.com";
+
+        // when
+        Boolean response = userService.emailCheckMatch(email);
+
+        // then
+        assertThat(response).isFalse();
+    }
+
     // method
 
     private User getUserAndSave() {
@@ -330,6 +343,7 @@ class UserServiceTest {
 
         return userRepository.save(user);
     }
+
     private User getUserAndSave(String email, String nickName) {
         User user = User.builder()
                 .authorities(getAuthorities())
