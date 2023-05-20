@@ -121,16 +121,5 @@ public class UserController {
     ) {
         return CustomResponseEntity.success(userService.emailCheckMatch(email));
     }
-
-    // 완료한 미션 조회
-    @GetMapping("auth/my/mission/complete")
-    public CustomResponseEntity<List<MissionResponse>> getCompleteMissionList(@AuthenticationPrincipal Long userId) {
-        return CustomResponseEntity.success(missionService.getCompleteMissionList(userId));
-    }
-
-    // 새로운 알림 & 읽지 않은 알림 조회
-    // @GetMapping("/user/notification")
-    // public CustomResponseEntity<UserNotificationInfoResponse> getUserNotificationInfo() {
-    //
-    // }
+    
 }
