@@ -1,12 +1,7 @@
 package dnd.diary.controller.user;
 
-import java.util.List;
-
-import dnd.diary.request.UserDto;
-import dnd.diary.enumeration.Result;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.CustomResponseEntity;
-import dnd.diary.response.mission.MissionResponse;
 import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.mission.MissionService;
@@ -14,7 +9,6 @@ import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -121,5 +115,5 @@ public class UserController {
     ) {
         return CustomResponseEntity.success(userService.emailCheckMatch(email));
     }
-    
+
 }
