@@ -46,7 +46,7 @@ class UserServiceTest {
     @MockBean
     private S3Service s3Service;
 
-    @MockBean
+    @Autowired
     private TokenProvider tokenProvider;
 
     @Autowired
@@ -70,6 +70,7 @@ class UserServiceTest {
                 "test@test.com", "abc123!", "테스트 계정",
                 "테스트 닉네임", "010-1234-5678", ""
         );
+
 
         // when
         UserResponse.Login response = userService.createUserAccount(request.toServiceRequest());
@@ -134,8 +135,8 @@ class UserServiceTest {
 
         // then
         assertThat(response)
-                .extracting("nickName","profileImageUrl")
-                .contains("업데이트 계정","updateImage");
+                .extracting("nickName", "profileImageUrl")
+                .contains("업데이트 계정", "updateImage");
     }
 
     @DisplayName("유저가 로그아웃을 하면 액세스 토큰이 블랙리스트로 redis 에 저장된다.")
@@ -143,14 +144,14 @@ class UserServiceTest {
     void logoutUser() {
         // given
         User user = getUserAndSave();
-        given(tokenProvider.getExpiration(anyString()))
-                .willReturn(1L);
+        Authentication authentication = saveSecurityContextHolderAndGetAuthentication();
+        String testAccessToken = tokenProvider.createToken(user.getId(), authentication);
 
-        given(redisService.logoutFromRedis(anyString(),anyString(),anyLong()))
+        given(redisService.logoutFromRedis(anyString(), anyString(), anyLong()))
                 .willReturn(true);
 
         // when
-        Boolean response = userService.logout(user.getId(), anyString());
+        Boolean response = userService.logout(user.getId(), testAccessToken);
 
         // then
         assertThat(response).isTrue();
@@ -182,14 +183,13 @@ class UserServiceTest {
     void userDelete() {
         // given
         User user = getUserAndSave();
+        Authentication authentication = saveSecurityContextHolderAndGetAuthentication();
+        String testAccessToken = tokenProvider.createToken(user.getId(), authentication);
 
-        given(redisService.logoutFromRedis(anyString(),anyString(),anyLong()))
+        given(redisService.logoutFromRedis(anyString(), anyString(), anyLong()))
                 .willReturn(true);
-
-        given(tokenProvider.getExpiration(anyString()))
-                .willReturn(1L);
         // when
-        Boolean response = userService.deleteUser(user.getId(), anyString());
+        Boolean response = userService.deleteUser(user.getId(), testAccessToken);
 
         // then
         assertThat(response).isTrue();
