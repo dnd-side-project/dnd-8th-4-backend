@@ -7,9 +7,11 @@ import dnd.diary.domain.user.User;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.user.UserResponse;
+import dnd.diary.service.redis.RedisService;
 import dnd.diary.service.s3.S3Service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,11 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -36,19 +41,20 @@ import static org.mockito.BDDMockito.given;
 class UserServiceTest {
 
     @MockBean
+    private RedisService redisService;
+
+    @MockBean
     private S3Service s3Service;
+
+    @MockBean
+    private TokenProvider tokenProvider;
 
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private TokenProvider tokenProvider;
 
     @Autowired
     private AuthenticationManagerBuilder authenticationManagerBuilder;
-
-    @Autowired
-    private RedisDao redisDao;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -137,6 +143,26 @@ class UserServiceTest {
     void logoutUser() {
         // given
         User user = getUserAndSave();
+        given(tokenProvider.getExpiration(anyString()))
+                .willReturn(1L);
+
+        given(redisService.logoutFromRedis(anyString(),anyString(),anyLong()))
+                .willReturn(true);
+
+        // when
+        Boolean response = userService.logout(user.getId(), anyString());
+
+        // then
+        assertThat(response).isTrue();
+    }
+
+    /*  Redis Service 테스트 (분리 예정)
+
+        @DisplayName("유저가 로그아웃을 하면 액세스 토큰이 블랙리스트로 redis 에 저장된다.")
+    @Test
+    void logoutUser() {
+        // given
+        User user = getUserAndSave();
         Authentication authentication = saveSecurityContextHolderAndGetAuthentication();
 
         String testAccessToken = tokenProvider.createToken(user.getId(), authentication);
@@ -149,15 +175,27 @@ class UserServiceTest {
         assertThat(redisDao.getValues(user.getEmail())).isNull();
         assertThat(redisDao.getValues(testAccessToken)).isEqualTo("logout");
     }
+     */
 
-    @DisplayName("")
+    @DisplayName("유저가 서비스 회원탈퇴를 진행한다.")
     @Test
-    void test() {
+    void userDelete() {
         // given
+        User user = getUserAndSave();
 
+        given(redisService.logoutFromRedis(anyString(),anyString(),anyLong()))
+                .willReturn(true);
+
+        given(tokenProvider.getExpiration(anyString()))
+                .willReturn(1L);
         // when
+        Boolean response = userService.deleteUser(user.getId(), anyString());
 
         // then
+        assertThat(response).isTrue();
+
+        Optional<User> userOptional = userRepository.findById(user.getId());
+        assertThat(userOptional.isEmpty()).isTrue();
     }
 
     // method
