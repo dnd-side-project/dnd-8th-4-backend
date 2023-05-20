@@ -89,7 +89,7 @@ public class UserController {
 
     // 북마크 글 조회
     @GetMapping("auth/my/bookmark")
-    public CustomResponseEntity<Page<UserResponse.Bookmark>> myBookmarkList(
+    public CustomResponseEntity<Page<UserResponse.ContentList>> myBookmarkList(
             @AuthenticationPrincipal Long userId,
             @RequestParam final Integer page
     ) {
@@ -98,11 +98,11 @@ public class UserController {
 
     // 작성한 글 조회
     @GetMapping("auth/my/content")
-    public CustomResponseEntity<Page<UserDto.myContentListDto>> searchMyContentList(
-            @AuthenticationPrincipal UserDetails userDetails,
+    public CustomResponseEntity<Page<UserResponse.ContentList>> searchMyContentList(
+            @AuthenticationPrincipal Long userId,
             @RequestParam final Integer page
     ) {
-        return CustomResponseEntity.success(userService.listSearchMyContent(userDetails, page));
+        return CustomResponseEntity.success(userService.listSearchMyContent(userId, page));
     }
     
     // 작성한 댓글 조회

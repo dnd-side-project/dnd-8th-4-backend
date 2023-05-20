@@ -234,7 +234,7 @@ class UserServiceTest {
                 );
     }
 
-    @DisplayName("자신이 북마크한 글을 전부 조회한다.")
+    @DisplayName("자신이 북마크한 글을 페이지 조회한다.")
     @Test
     void listMyBookmark() {
         // given
@@ -255,16 +255,35 @@ class UserServiceTest {
                 .willReturn("1");
 
         // when
-        Page<UserResponse.Bookmark> response = userService.listMyBookmark(user.getId(), 1);
+        Page<UserResponse.ContentList> response = userService.listMyBookmark(user.getId(), 1);
 
         // then
         assertThat(response)
                 .hasSize(1)
-                .extracting(UserResponse.Bookmark::getContent)
+                .extracting(UserResponse.ContentList::getContent)
                 .contains("테스트 내용");
     }
 
-    
+    @DisplayName("유저가 자신이 작성한 글을 페이지 조회한다.")
+    @Test
+    void listSearchMyContent() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        getContentAndSave(user, group);
+
+        given(redisService.getValues(anyString()))
+                .willReturn("1");
+
+        // when
+        Page<UserResponse.ContentList> response = userService.listSearchMyContent(user.getId(), 1);
+
+        // then
+        assertThat(response)
+                .hasSize(1)
+                .extracting(UserResponse.ContentList::getContent)
+                .contains("테스트 내용");
+    }
 
     // method
     private User getUserAndSave() {
@@ -283,6 +302,7 @@ class UserServiceTest {
 
         return userRepository.save(user);
     }
+
     private User getUserAndSave(String email, String nickName) {
         User user = User.builder()
                 .authorities(getAuthorities())

@@ -45,42 +45,6 @@ public class UserDto {
     @NoArgsConstructor
     @Getter
     @Builder
-    public static class myContentListDto {
-        private Long contentId;
-        private Long groupId;
-        private String groupName;
-        private String groupImage;
-        private String content;
-        private LocalDateTime createAt;
-        private Integer views;
-        private Integer comments;
-        private Integer imageSize;
-        List<ContentDto.ImageResponseDto> Images;
-
-        public static UserDto.myContentListDto response(
-                Content content,
-                List<ContentDto.ImageResponseDto> images,
-                Integer views
-        ){
-            return myContentListDto.builder()
-                    .contentId(content.getId())
-                    .groupId(content.getGroup().getId())
-                    .groupName(content.getGroup().getGroupName())
-                    .groupImage(content.getGroup().getGroupImageUrl())
-                    .content(content.getContent())
-                    .createAt(content.getCreatedAt())
-                    .views(views)
-                    .comments(content.getComments().size())
-                    .imageSize(images.size())
-                    .Images(images)
-                    .build();
-        }
-    }
-
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Builder
     public static class myCommentListDto {
         private Long contentId;
         private Long groupId;

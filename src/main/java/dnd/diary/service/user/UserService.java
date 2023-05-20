@@ -1,7 +1,6 @@
 package dnd.diary.service.user;
 
 import dnd.diary.config.Jwt.TokenProvider;
-import dnd.diary.config.redis.RedisDao;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
@@ -31,15 +30,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityManager;
-import java.time.Duration;
 import java.util.*;
 
 import static dnd.diary.enumeration.Result.NOT_FOUND_USER;
@@ -110,7 +106,7 @@ public class UserService {
     }
 
     @Transactional
-    public Page<UserResponse.Bookmark> listMyBookmark(Long userId, Integer page) {
+    public Page<UserResponse.ContentList> listMyBookmark(Long userId, Integer page) {
 
         // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
         List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userId).getId());
@@ -118,7 +114,7 @@ public class UserService {
                 contentIdList, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        return bookmarkPage.map((Content content) -> UserResponse.Bookmark.response(
+        return bookmarkPage.map((Content content) -> UserResponse.ContentList.response(
                         content
                         , content.getContentImages()
                                 .stream()
@@ -157,18 +153,15 @@ public class UserService {
     }
 
     @Transactional
-    public Page<UserDto.myContentListDto> listSearchMyContent(UserDetails userDetails, Integer page) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+    public Page<UserResponse.ContentList> listSearchMyContent(Long userId, Integer page) {
+        User user = getUser(userId);
 
         Page<Content> pageMyContent = contentRepository.findByUserIdAndDeletedYn(
                 user.getId(), false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
         return pageMyContent.map((Content content) ->
-                UserDto.myContentListDto.response(
+                UserResponse.ContentList.response(
                         content,
                         content.getContentImages()
                                 .stream()

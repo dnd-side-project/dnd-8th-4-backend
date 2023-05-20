@@ -108,7 +108,7 @@ public class UserResponse {
 
     @NoArgsConstructor
     @Getter
-    public static class Bookmark {
+    public static class ContentList {
         private Long contentId;
         private Long userId;
         private String profileImageUrl;
@@ -123,7 +123,7 @@ public class UserResponse {
         List<ContentDto.ImageResponseDto> images;
 
         @Builder
-        private Bookmark(Long contentId, Long userId, String profileImageUrl, Long groupId, String groupName, String groupImage, String content, LocalDateTime createAt, Integer views, Integer comments, Integer imageSize, List<ContentDto.ImageResponseDto> images) {
+        private ContentList(Long contentId, Long userId, String profileImageUrl, Long groupId, String groupName, String groupImage, String content, LocalDateTime createAt, Integer views, Integer comments, Integer imageSize, List<ContentDto.ImageResponseDto> images) {
             this.contentId = contentId;
             this.userId = userId;
             this.profileImageUrl = profileImageUrl;
@@ -138,12 +138,12 @@ public class UserResponse {
             this.images = images;
         }
 
-        public static UserResponse.Bookmark response(
+        public static UserResponse.ContentList response(
                 Content content,
                 List<ContentDto.ImageResponseDto> images,
                 Integer views
         ) {
-            return Bookmark.builder()
+            return ContentList.builder()
                     .contentId(content.getId())
                     .userId(content.getUser().getId())
                     .profileImageUrl(content.getUser().getProfileImageUrl())
