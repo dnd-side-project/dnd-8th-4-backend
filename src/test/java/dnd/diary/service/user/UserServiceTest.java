@@ -2,8 +2,14 @@ package dnd.diary.service.user;
 
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.redis.RedisDao;
+import dnd.diary.domain.bookmark.Bookmark;
+import dnd.diary.domain.content.Content;
+import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
+import dnd.diary.repository.content.BookmarkRepository;
+import dnd.diary.repository.content.ContentRepository;
+import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.user.UserResponse;
@@ -16,6 +22,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -53,15 +60,23 @@ class UserServiceTest {
     @Autowired
     private UserService userService;
 
-
     @Autowired
     private AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    @Autowired
+    private ContentRepository contentRepository;
+
+    @Autowired
+    private BookmarkRepository bookmarkRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     @DisplayName("유저가 회원가입을 하고 토큰을 발급 받는다.")
     @Test
@@ -203,8 +218,8 @@ class UserServiceTest {
     @Test
     void searchUserList() {
         // given
-        User user1 = getUserAndSave("test1@test.com", "테스트 계정1");
-        User user2 = getUserAndSave("test2@test.com", "테스트 계정2");
+        getUserAndSave("test1@test.com", "테스트 계정1");
+        getUserAndSave("test2@test.com", "테스트 계정2");
 
         // when
         UserSearchResponse response = userService.searchUserList("테스트");
@@ -218,6 +233,38 @@ class UserServiceTest {
                         tuple("test2@test.com", "테스트 계정2")
                 );
     }
+
+    @DisplayName("자신이 북마크한 글을 전부 조회한다.")
+    @Test
+    void listMyBookmark() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+
+        contentRepository.save(content);
+
+        Bookmark bookmark = Bookmark.builder()
+                .user(user)
+                .content(content)
+                .build();
+
+        bookmarkRepository.save(bookmark);
+
+        given(redisService.getValues(anyString()))
+                .willReturn("1");
+
+        // when
+        Page<UserResponse.Bookmark> response = userService.listMyBookmark(user.getId(), 1);
+
+        // then
+        assertThat(response)
+                .hasSize(1)
+                .extracting(UserResponse.Bookmark::getContent)
+                .contains("테스트 내용");
+    }
+
+    
 
     // method
     private User getUserAndSave() {
@@ -236,7 +283,6 @@ class UserServiceTest {
 
         return userRepository.save(user);
     }
-
     private User getUserAndSave(String email, String nickName) {
         User user = User.builder()
                 .authorities(getAuthorities())
@@ -267,5 +313,33 @@ class UserServiceTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return authentication;
+    }
+
+    private Content getContentAndSave(User user, Group group) {
+        Content content = Content.builder()
+                .id(1L)
+                .user(user)
+                .group(group)
+                .content("테스트 내용")
+                .latitude(0.0)
+                .longitude(0.0)
+                .location("삼성 서비스 센터")
+                .views(0)
+                .contentLink("test.com")
+                .build();
+
+        return contentRepository.save(content);
+    }
+
+    private Group getGroupSave(User user) {
+        Group group = Group.builder()
+                .groupName("테스트 그룹")
+                .groupCreateUser(user)
+                .groupImageUrl("테스트 이미지")
+                .groupNote("테스트 내용")
+                .build();
+
+        groupRepository.save(group);
+        return group;
     }
 }

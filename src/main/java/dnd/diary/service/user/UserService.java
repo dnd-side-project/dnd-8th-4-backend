@@ -110,7 +110,7 @@ public class UserService {
     }
 
     @Transactional
-    public Page<UserDto.BookmarkDto> listMyBookmark(Long userId, Integer page) {
+    public Page<UserResponse.Bookmark> listMyBookmark(Long userId, Integer page) {
 
         // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
         List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userId).getId());
@@ -118,7 +118,7 @@ public class UserService {
                 contentIdList, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
-        return bookmarkPage.map((Content content) -> UserDto.BookmarkDto.response(
+        return bookmarkPage.map((Content content) -> UserResponse.Bookmark.response(
                         content
                         , content.getContentImages()
                                 .stream()

@@ -89,7 +89,7 @@ public class UserController {
 
     // 북마크 글 조회
     @GetMapping("auth/my/bookmark")
-    public CustomResponseEntity<Page<UserDto.BookmarkDto>> myBookmarkList(
+    public CustomResponseEntity<Page<UserResponse.Bookmark>> myBookmarkList(
             @AuthenticationPrincipal Long userId,
             @RequestParam final Integer page
     ) {
