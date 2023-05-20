@@ -16,7 +16,7 @@ public class RedisService {
     private final RedisDao redisDao;
 
     public Boolean setValues(String key, String value) {
-        redisDao.setValues(key,value);
+        redisDao.setValues(key, value);
         return true;
     }
 
@@ -34,5 +34,20 @@ public class RedisService {
         redisDao.deleteValues(email);
         redisDao.setValues(accessToken, "logout", Duration.ofMillis(accessTokenExpiration));
         return true;
+    }
+
+    public int getViewsAndRedisSave(Long contentId, String nickName) {
+        String redisKey = contentId.toString();
+        String values = redisDao.getValues(redisKey);
+
+        int views = Integer.parseInt(values);
+
+        if (redisDao.getValuesList(nickName).contains(redisKey) == false) {
+            redisDao.setValuesList(nickName, redisKey);
+            views = Integer.parseInt(values) + 1;
+            redisDao.setValues(redisKey, String.valueOf(views));
+        }
+
+        return views;
     }
 }

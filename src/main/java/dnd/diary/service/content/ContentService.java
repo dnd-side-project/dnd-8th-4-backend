@@ -99,11 +99,7 @@ public class ContentService {
         User user = userService.getUser(userId);
         return contents.map(
                 (Content content) -> {
-                    Emotion myEmotionOnContent = content.getEmotions().stream()
-                            .filter(emotion -> emotion.getUser() == user)
-                            .filter(Emotion::isEmotionYn)
-                            .findFirst()
-                            .orElse(null);
+                    Emotion myEmotionOnContent = isCheckMyEmotionAddContent(content, user);
                     Long emotionStatus = myEmotionOnContent == null ? -1 : myEmotionOnContent.getEmotionStatus();
 
                     Boolean myBookmarkStatus = redisDao.getValuesList("bookmark" + user)
@@ -143,35 +139,18 @@ public class ContentService {
     }
 
     @Transactional
-    @Cacheable(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
-    public ContentDto.detailDto detailContent(Long userId, Long contentId) {
+    public ContentResponse.Detail detailContent(Long userId, Long contentId) {
         Content content = getContent(contentId);
         User user = userService.getUser(userId);
 
-        String redisKey = contentId.toString();
-        String redisUserKey = user.getNickName();
-        String values = redisDao.getValues(redisKey);
-        int views = Integer.parseInt(values);
+        int views = redisService.getViewsAndRedisSave(contentId, user.getNickName());
+        boolean isBookmarked = isCheckBookmark(contentId, user);
+        Emotion myEmotionOnContent = isCheckMyEmotionAddContent(content, user);
 
-        if (!redisDao.getValuesList(redisUserKey).contains(redisKey)) {
-            redisDao.setValuesList(redisUserKey, redisKey);
-            views = Integer.parseInt(values) + 1;
-            redisDao.setValues(redisKey, String.valueOf(views));
-        }
+        Long emotionStatus = (myEmotionOnContent == null) ?
+                -1 : myEmotionOnContent.getEmotionStatus();
 
-        boolean isBookmarked = user.getBookmarks()
-                .stream()
-                .map(bookmark -> bookmark.getContent().getId())
-                .anyMatch(x -> x.equals(contentId));
-
-        Emotion myEmotionOnContent = content.getEmotions().stream()
-                .filter(emotion -> emotion.getUser() == user)
-                .filter(Emotion::isEmotionYn)
-                .findFirst()
-                .orElse(null);
-        Long emotionStatus = myEmotionOnContent == null ? -1 : myEmotionOnContent.getEmotionStatus();
-
-        return ContentDto.detailDto.response(
+        return ContentResponse.Detail.response(
                 content,
                 views,
                 getContentImageResponse(content),
@@ -287,21 +266,21 @@ public class ContentService {
     }
 
 
-    // method
 
+    // method
     private List<ContentDto.ImageResponseDto> getContentImageResponse(Content content) {
         return content.getContentImages()
                 .stream()
                 .map(ContentDto.ImageResponseDto::response)
                 .toList();
     }
+
     private Content existsContentAndUser(Long contentId, Long userId) {
         return contentRepository.findByIdAndUserIdAndDeletedYn(contentId, userId, false)
                 .orElseThrow(
                         () -> new CustomException(Result.NOT_MATCHED_USER_CONTENT)
                 );
     }
-
     private Group getGroup(Long groupId) {
         return groupRepository.findById(groupId)
                 .orElseThrow(
@@ -342,12 +321,12 @@ public class ContentService {
 
 
     // validate
+
     private void validateUpdateContent(Long contentId) {
         if (!contentRepository.existsById(contentId)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
     }
-
     private void validateGroupAllListContent(List<Long> groupId) {
         groupId.forEach(
                 id -> groupRepository.findById(id).orElseThrow(
@@ -374,5 +353,20 @@ public class ContentService {
                 .user(user)
                 .group(group)
                 .build();
+    }
+
+    private static Emotion isCheckMyEmotionAddContent(Content content, User user) {
+        return content.getEmotions().stream()
+                .filter(emotion -> emotion.getUser() == user)
+                .filter(Emotion::isEmotionYn)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private static boolean isCheckBookmark(Long contentId, User user) {
+        return user.getBookmarks()
+                .stream()
+                .map(bookmark -> bookmark.getContent().getId())
+                .anyMatch(x -> x.equals(contentId));
     }
 }

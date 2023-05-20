@@ -11,10 +11,12 @@ import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.request.content.ContentDto;
 import dnd.diary.response.content.ContentResponse;
+import dnd.diary.service.redis.RedisService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +25,17 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
 class ContentServiceTest {
+
+    @MockBean
+    private RedisService redisService;
 
     @Autowired
     private ContentService contentService;
@@ -59,6 +67,27 @@ class ContentServiceTest {
         assertThat(response)
                 .extracting("userName", "content", "latitude", "longitude", "location")
                 .contains("테스트 닉네임", "테스트 내용", 1.0, 1.0, "삼성 서비스센터");
+    }
+
+    @DisplayName("유저가 피드를 상세조회 한다.")
+    @Test
+    void contentDetail() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+
+        given(redisService.getViewsAndRedisSave(anyLong(),anyString()))
+                .willReturn(5);
+
+        // when
+        ContentResponse.Detail response = contentService.detailContent(user.getId(), content.getId());
+
+        // then
+        assertThat(response).isNotNull();
+        assertThat(response)
+                .extracting("groupName", "userName", "content", "location")
+                .contains("테스트 그룹", "테스트 닉네임", "테스트 내용", "삼성 서비스 센터");
     }
 
     // method

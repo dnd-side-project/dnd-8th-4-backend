@@ -70,4 +70,72 @@ public class ContentResponse {
                     .build();
         }
     }
+
+    @NoArgsConstructor
+    @Getter
+    public static class Detail {
+        private Long id;
+        private Long userId;
+        private Long groupId;
+        private String groupName;
+        private String userName;
+        private String profileImageUrl;
+        private String content;
+        private Double latitude;
+        private Double longitude;
+        private String location;
+        private long views;
+        private Boolean bookmarkAddStatus;
+        private Long emotionStatus;
+        private String contentLink;
+        private boolean deletedYn;
+        private String createAt;
+        List<ContentDto.ImageResponseDto> collect;
+
+        @Builder
+        private Detail(Long id, Long userId, Long groupId, String groupName, String userName, String profileImageUrl, String content, Double latitude, Double longitude, String location, long views, Boolean bookmarkAddStatus, Long emotionStatus, String contentLink, boolean deletedYn, String createAt, List<ContentDto.ImageResponseDto> collect) {
+            this.id = id;
+            this.userId = userId;
+            this.groupId = groupId;
+            this.groupName = groupName;
+            this.userName = userName;
+            this.profileImageUrl = profileImageUrl;
+            this.content = content;
+            this.latitude = latitude;
+            this.longitude = longitude;
+            this.location = location;
+            this.views = views;
+            this.bookmarkAddStatus = bookmarkAddStatus;
+            this.emotionStatus = emotionStatus;
+            this.contentLink = contentLink;
+            this.deletedYn = deletedYn;
+            this.createAt = createAt;
+            this.collect = collect;
+        }
+
+        public static ContentResponse.Detail response(
+                Content content, Integer views, List<ContentDto.ImageResponseDto> collect,
+                boolean bookmarkAddStatus, Long emotionStatus
+        ) {
+            return ContentResponse.Detail.builder()
+                    .id(content.getId())
+                    .groupName(content.getGroup().getGroupName())
+                    .userName(content.getUser().getNickName())
+                    .profileImageUrl(content.getUser().getProfileImageUrl())
+                    .content(content.getContent())
+                    .latitude(content.getLatitude())
+                    .longitude(content.getLongitude())
+                    .location(content.getLocation())
+                    .views(views)
+                    .contentLink(content.getContentLink())
+                    .deletedYn(content.isDeletedYn())
+                    .userId(content.getUser().getId())
+                    .groupId(content.getGroup().getId())
+                    .collect(collect)
+                    .bookmarkAddStatus(bookmarkAddStatus)
+                    .emotionStatus(emotionStatus)
+                    .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
+                    .build();
+        }
+    }
 }

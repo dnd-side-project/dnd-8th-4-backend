@@ -67,7 +67,7 @@ public class ContentController {
 
     // 피드 조회
     @GetMapping("content")
-    public CustomResponseEntity<ContentDto.detailDto> contentDetail(
+    public CustomResponseEntity<ContentResponse.Detail> contentDetail(
             @AuthenticationPrincipal final Long userId,
             @RequestParam final Long contentId
     ) {
