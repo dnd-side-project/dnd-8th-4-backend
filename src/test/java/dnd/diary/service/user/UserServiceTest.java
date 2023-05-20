@@ -7,6 +7,7 @@ import dnd.diary.domain.user.User;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.user.UserResponse;
+import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.redis.RedisService;
 import dnd.diary.service.s3.S3Service;
 import org.junit.jupiter.api.DisplayName;
@@ -26,11 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.as;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -198,15 +199,51 @@ class UserServiceTest {
         assertThat(userOptional.isEmpty()).isTrue();
     }
 
+    @DisplayName("키워드로 해당 서비스에 가입되어있는 유저를 검색한다.")
+    @Test
+    void searchUserList() {
+        // given
+        User user1 = getUserAndSave("test1@test.com", "테스트 계정1");
+        User user2 = getUserAndSave("test2@test.com", "테스트 계정2");
+
+        // when
+        UserSearchResponse response = userService.searchUserList("테스트");
+
+        // then
+        assertThat(response.getUserSearchInfoList())
+                .hasSize(2)
+                .extracting(UserSearchResponse.UserSearchInfo::getUserEmail, UserSearchResponse.UserSearchInfo::getUserNickName)
+                .contains(
+                        tuple("test1@test.com", "테스트 계정1"),
+                        tuple("test2@test.com", "테스트 계정2")
+                );
+    }
+
     // method
     private User getUserAndSave() {
         User user = User.builder()
-                .id(1L)
                 .authorities(getAuthorities())
                 .email("test@test.com")
                 .password(passwordEncoder.encode("abc123!"))
                 .name("테스트 계정")
                 .nickName("테스트 닉네임")
+                .phoneNumber("010-1234-5678")
+                .profileImageUrl("test.png")
+                .mainLevel(0L)
+                .subLevel(0.0)
+                .isNewNotification(Boolean.FALSE)
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    private User getUserAndSave(String email, String nickName) {
+        User user = User.builder()
+                .authorities(getAuthorities())
+                .email(email)
+                .password(passwordEncoder.encode("abc123!"))
+                .name("테스트 계정")
+                .nickName(nickName)
                 .phoneNumber("010-1234-5678")
                 .profileImageUrl("test.png")
                 .mainLevel(0L)

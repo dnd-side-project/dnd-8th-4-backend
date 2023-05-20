@@ -81,7 +81,9 @@ public class UserController {
 
     // 유저 검색
     @GetMapping("/user/search")
-    public CustomResponseEntity<UserSearchResponse> searchUserList(@RequestParam String keyword) {
+    public CustomResponseEntity<UserSearchResponse> searchUserList(
+            @RequestParam String keyword
+    ) {
         return CustomResponseEntity.success(userService.searchUserList(keyword));
     }
 
