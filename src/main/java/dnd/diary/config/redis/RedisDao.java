@@ -1,4 +1,4 @@
-package dnd.diary.config;
+package dnd.diary.config.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ListOperations;
@@ -41,9 +41,6 @@ public class RedisDao {
     }
 
     public void deleteValues(String key) {
-        if (key.isBlank()) {
-
-        }
-        redisTemplate.delete(key);
+            redisTemplate.delete(key);
     }
 }
