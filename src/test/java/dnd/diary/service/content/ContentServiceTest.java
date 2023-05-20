@@ -111,7 +111,7 @@ class ContentServiceTest {
 
         // then
         assertThat(response)
-                .extracting("userName", "content", "views","bookmarkAddStatus")
+                .extracting("userName", "content", "views", "bookmarkAddStatus")
                 .contains(
                         tuple("테스트 닉네임", "테스트 내용", 23L, false)
                 );
@@ -138,9 +138,31 @@ class ContentServiceTest {
 
         // then
         assertThat(response)
-                .extracting("userName", "content", "views","bookmarkAddStatus")
+                .extracting("userName", "content", "views", "bookmarkAddStatus")
                 .contains(
                         tuple("테스트 닉네임", "테스트 내용", 23L, false)
+                );
+    }
+
+    @DisplayName("유저가 피드의 내용을 검색하여 조회한다.")
+    @Test
+    void searchContent() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        getContentAndSave(user, group);
+
+        List<Long> groups = List.of(group.getId());
+
+        // when
+        Page<ContentResponse.Create> response = contentService.contentSearch(groups, "테스트", 1);
+
+        // then
+        assertThat(response)
+                .hasSize(1)
+                .extracting("userName", "content", "latitude", "longitude", "location")
+                .contains(
+                        tuple("테스트 닉네임", "테스트 내용", 0.0, 0.0, "삼성 서비스 센터")
                 );
     }
 
