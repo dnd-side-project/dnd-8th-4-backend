@@ -4,12 +4,19 @@ import dnd.diary.request.service.content.CommentServiceRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class CommentRequest {
 
     @NoArgsConstructor
     @Getter
     public static class Add {
+
+        @NotBlank(message = "댓글 내용은 필수입니다.")
         private String commentNote;
+
+        @NotNull(message = "stickerId 값은 필수입ㄴ디ㅏ.")
         private Long stickerId;
 
         public CommentServiceRequest.Add toServiceRequest() {
