@@ -1,0 +1,10 @@
+[[user-createAccountUser]]
+=== 회원가입 API
+
+==== HTTP Request
+include::{snippets}/user-createAccountUser/http-request.adoc[]
+include::{snippets}/user-createAccountUser/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-createAccountUser/http-response.adoc[]
+include::{snippets}/user-createAccountUser/response-body.adoc[]

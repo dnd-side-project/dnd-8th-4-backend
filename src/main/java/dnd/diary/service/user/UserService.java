@@ -161,7 +161,7 @@ public class UserService {
         User user = getUser(userId);
 
         // 이미지 설정
-        String fileUrl = (file != null) ? s3Service.saveProfileImage(file) : setDefaultProfileImage("");
+        String fileUrl = (file != null) ? s3Service.saveProfileImage(file) : setDefaultProfileImage();
         user.updateUserProfile(nickName, fileUrl);
 
         return UserResponse.Update.response(user);
@@ -267,7 +267,7 @@ public class UserService {
                 .phoneNumber(request.getPhoneNumber())
                 .profileImageUrl(
                         // 사용자 기본 프로필 추가
-                        setDefaultProfileImage(request.getProfileImageUrl())
+                        setDefaultProfileImage()
                 )
                 .authorities(
                         getAuthorities()
@@ -283,15 +283,13 @@ public class UserService {
                 .build());
     }
 
-    private String setDefaultProfileImage(String profileImageUrl) {
+    private String setDefaultProfileImage() {
         String imageUrl = "";
 
-        if (profileImageUrl.isBlank()) {
             int sampleGroupImageCount = userImageRepository.findAll().size();
             int randomIdx = getRandomNumber(1, sampleGroupImageCount);
             UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
             imageUrl = sampleUserImage.getUserImageUrl();
-        }
 
         return imageUrl;
     }

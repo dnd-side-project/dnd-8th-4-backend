@@ -25,7 +25,6 @@ public class UserRequest {
         private String nickName;
 
         private String phoneNumber;
-        private String profileImageUrl;
 
         public UserServiceRequest.CreateUser toServiceRequest() {
             return UserServiceRequest.CreateUser.builder()
@@ -34,18 +33,16 @@ public class UserRequest {
                     .name(name)
                     .nickName(nickName)
                     .phoneNumber(phoneNumber)
-                    .profileImageUrl(profileImageUrl)
                     .build();
         }
 
         // 테스트 생성자
-        public CreateUser(String email, String password, String name, String nickName, String phoneNumber, String profileImageUrl) {
+        public CreateUser(String email, String password, String name, String nickName, String phoneNumber) {
             this.email = email;
             this.password = password;
             this.name = name;
             this.nickName = nickName;
             this.phoneNumber = phoneNumber;
-            this.profileImageUrl = profileImageUrl;
         }
     }
 
