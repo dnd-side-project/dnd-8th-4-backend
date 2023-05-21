@@ -3,7 +3,6 @@ package dnd.diary.service.content;
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.comment.CommentLike;
 import dnd.diary.domain.user.User;
-import dnd.diary.request.content.CommentLikeDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.NotificationRepository;
@@ -11,9 +10,9 @@ import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.content.CommentLikeRepository;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.content.CommentLikeResponse;
 import dnd.diary.service.group.NotificationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,7 @@ public class CommentLikeService {
     private final NotificationService notificationService;
 
     @Transactional
-    public CustomResponseEntity<CommentLikeDto.SaveCommentLike> commentLikeSave(
+    public CustomResponseEntity<CommentLikeResponse> commentLikeSave(
             Long userId, Long commentId
     ) {
         validateCommentLikeSave(commentId);
@@ -49,14 +48,13 @@ public class CommentLikeService {
             // 자신의 댓글이 아닌 경우에 댓글 좋아요 알림 추가
             notificationService.sendToNotification(user, targetComment, commentLike);
 
-            return CustomResponseEntity.success(CommentLikeDto.SaveCommentLike.response(commentLike));
+            return CustomResponseEntity.success(CommentLikeResponse.response(commentLike));
 
             // 최초 등록이 아닐 경우
         } else {
 
             // 댓글 좋아요 취소일 경우
             if (existsLike.isCommentLikeYn()) {
-
                 existsLike.cancelCommentLike();
                 return CustomResponseEntity.successDeleteLike();
             }
@@ -65,7 +63,7 @@ public class CommentLikeService {
             else {
                 existsLike.addCommentLike();
                 return CustomResponseEntity.success(
-                        CommentLikeDto.SaveCommentLike.response(existsLike)
+                        CommentLikeResponse.response(existsLike)
                 );
             }
         }
