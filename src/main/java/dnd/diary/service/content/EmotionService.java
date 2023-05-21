@@ -36,7 +36,7 @@ public class EmotionService {
 
     @Transactional
     @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
-    public CustomResponseEntity<EmotionResponse.Add> saveEmotion(
+    public CustomResponseEntity<EmotionResponse.Add> processEmotionTransaction(
             Long userId, Long contentId, EmotionServiceRequest.Add request
     ) {
         validateAddEmotion(request,contentId);

@@ -18,12 +18,12 @@ public class EmotionController {
     private final EmotionService emotionService;
 
     @PostMapping("/content/{contentId}/emotion")
-    public CustomResponseEntity<EmotionResponse.Add> emotionSave(
+    public CustomResponseEntity<EmotionResponse.Add> processEmotionTransaction(
             @AuthenticationPrincipal final Long userId,
             @PathVariable(name = "contentId") final Long contentId,
             @Valid @RequestBody final EmotionRequest.Add request
     ) {
-        return emotionService.saveEmotion(userId, contentId, request.toServiceRequest());
+        return emotionService.processEmotionTransaction(userId, contentId, request.toServiceRequest());
     }
 
     // 피드 감정 리스트 조회
