@@ -1,4 +1,4 @@
-package dnd.diary.request.group;
+package dnd.diary.request.service.group;
 
 import java.util.ArrayList;
 import java.util.List;

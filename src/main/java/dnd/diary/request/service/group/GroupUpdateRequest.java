@@ -1,12 +1,11 @@
-package dnd.diary.request.group;
+package dnd.diary.request.service.group;
 
 import lombok.Getter;
 
 @Getter
-public class GroupCreateRequest {
-
+public class GroupUpdateRequest {
+	private Long groupId;
 	private String groupName;
 	private String groupNote;
 	private String groupImageUrl;
-
 }
