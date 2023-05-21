@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import dnd.diary.domain.content.Content;
+import dnd.diary.domain.content.ContentImage;
+import dnd.diary.repository.content.ContentImageRepository;
+import dnd.diary.repository.content.ContentRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,7 @@ public class S3Service {
 
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
+	private final ContentImageRepository contentImageRepository;
 
 	private final AmazonS3 amazonS3;
 
@@ -110,4 +115,40 @@ public class S3Service {
 		amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
 	}
 
+	public List<ContentImage> uploadFiles(List<MultipartFile> multipartFile, Content content) {
+		List<ContentImage> contentImages = new ArrayList<>();
+
+		multipartFile.forEach(file -> {
+			String fileName = saveImage(file);
+			ContentImage contentSaveImage = contentImageRepository.save(
+					ContentImage.builder()
+							.content(content)
+							.imageName(fileName)
+							.imageUrl(amazonS3.getUrl(bucket, fileName).toString())
+							.build()
+			);
+			contentImages.add(contentSaveImage);
+		});
+		return contentImages;
+	}
+
+	private String saveImage(MultipartFile file) {
+		String fileName = createFileName(file.getOriginalFilename());
+		ObjectMetadata objectMetadata = new ObjectMetadata();
+		objectMetadata.setContentLength(file.getSize());
+		objectMetadata.setContentType(file.getContentType());
+
+		try (InputStream inputStream = file.getInputStream()) {
+			amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata)
+					.withCannedAcl(CannedAccessControlList.PublicRead));
+
+		} catch (IOException e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+		}
+		return fileName;
+	}
+
+	public void deleteFile(String fileName) {
+		amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
+	}
 }

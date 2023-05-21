@@ -1,8 +1,8 @@
 package dnd.diary.controller.content;
 
 import dnd.diary.request.content.CommentDto;
-import dnd.diary.request.content.ContentDto;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.content.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,7 +40,7 @@ public class CommentController {
 
     // 피드 감정 리스트 조회
     @GetMapping("content/{contentId}/emotion")
-    public CustomResponseEntity<List<ContentDto.EmotionResponseDto>> listEmotion(
+    public CustomResponseEntity<List<ContentResponse.EmotionDetail>> listEmotion(
             @PathVariable(name = "contentId") final Long contentId
     ){
         return CustomResponseEntity.success(commentService.emotionList(contentId));

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,10 +34,17 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
 
     Long countByLocationAndGroupIdInAndDeletedYn(String location, List<Long> groupId, Boolean deletedYn);
 
-    @Query(value = "SELECT * FROM content AS c \n" +
-            "WHERE c.group_id IN (?1) AND c.latitude between ?3 and ?2 and c.longitude between ?4 and ?5",
-            nativeQuery = true)
-    List<Content> findByMapList(List<Long> group_id, Double endLatitude, Double startLatitude, Double startLongitude, Double endLongitude);
+//    @Query(value = "SELECT * FROM content AS c \n" +
+//            "WHERE c.group_id IN (?1) AND c.latitude between ?3 and ?2 and c.longitude between ?4 and ?5",
+//            nativeQuery = true)
+//    List<Content> findByMapList(List<Long> group_id, Double endLatitude, Double startLatitude, Double startLongitude, Double endLongitude);
 
-    Content findByIdAndDeletedYn(Long contentId, Boolean deletedYn);
+    @Query("SELECT c FROM Content c WHERE c.group.id IN :groupIds AND c.latitude BETWEEN :startLatitude AND :endLatitude AND c.longitude BETWEEN :startLongitude AND :endLongitude")
+    List<Content> findByMapList(
+            @Param("groupIds") List<Long> groupIds, @Param("endLatitude") Double endLatitude,
+            @Param("startLatitude") Double startLatitude, @Param("startLongitude") Double startLongitude,
+            @Param("endLongitude") Double endLongitude
+    );
+
+    Optional<Content> findByIdAndDeletedYn(Long contentId, Boolean deletedYn);
 }

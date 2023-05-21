@@ -110,5 +110,4 @@ public class Content extends BaseEntity {
     public void deleteContent() {
         this.deletedYn = true;
     }
-
 }

@@ -75,7 +75,7 @@ class UserControllerTest extends ControllerTestSupport {
         mockMvc.perform(
                         MockMvcRequestBuilders.multipart(HttpMethod.PATCH, URI.create("/auth"))
                                 .file(multipartFile)
-                                .param("nickName","test")
+                                .param("nickName", "test")
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -87,7 +87,79 @@ class UserControllerTest extends ControllerTestSupport {
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/auth/logout")
-                                .header("Authorization","testToken")
+                                .header("Authorization", "accessToken")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("유저 회원탈퇴 API")
+    @Test
+    void userDelete() throws Exception {
+        // when // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.delete("/auth")
+                                .header("Authorization", "accessToken")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("유저 검색 API")
+    @Test
+    void searchUserList() throws Exception {
+        // when // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/user/search")
+                                .param("keyword", "test")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("북마크한 글 조회 API")
+    @Test
+    void myBookmarkList() throws Exception {
+        // when // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/auth/my/bookmark")
+                                .param("page", "1")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("작성한 글 조회 API")
+    @Test
+    void searchMyContentList() throws Exception {
+        // when // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/auth/my/content")
+                                .param("page", "1")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("작성한 댓글의 글 조회 API")
+    @Test
+    void searchMyCommentList() throws Exception {
+        // when // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/auth/my/comment")
+                                .param("page", "1")
+                )
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("이메일 검증 API")
+    @Test
+    void checkMatchEmail() throws Exception {
+        // when // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.get("/auth/check")
+                                .param("email", "1")
                 )
                 .andDo(print())
                 .andExpect(status().isOk());

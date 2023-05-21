@@ -1,13 +1,10 @@
 package dnd.diary.service.user;
 
 import dnd.diary.config.Jwt.TokenProvider;
-import dnd.diary.config.redis.RedisDao;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserImage;
-import dnd.diary.request.content.ContentDto;
-import dnd.diary.request.UserDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.BookmarkRepository;
@@ -16,7 +13,7 @@ import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.user.UserImageRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.request.service.UserServiceRequest;
-import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.content.ContentResponse;
 import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.redis.RedisService;
@@ -31,15 +28,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityManager;
-import java.time.Duration;
 import java.util.*;
 
 import static dnd.diary.enumeration.Result.NOT_FOUND_USER;
@@ -101,78 +95,42 @@ public class UserService {
     }
 
     @Transactional
-    public CustomResponseEntity<Result> emailCheckMatch(String email) {
-        if (!userRepository.existsByEmail(email)) {
-            return CustomResponseEntity.successEmailCheck();
-        } else {
-            throw new CustomException(Result.DUPLICATION_USER);
-        }
+    public Boolean emailCheckMatch(String email) {
+        return userRepository.existsByEmail(email);
     }
 
     @Transactional
-    public Page<UserDto.BookmarkDto> listMyBookmark(Long userId, Integer page) {
+    public Page<UserResponse.ContentList> listMyBookmark(Long userId, Integer page) {
 
         // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
         List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userId).getId());
-        Page<Content> bookmarkPage = contentRepository.findByIdInAndDeletedYn(
-                contentIdList, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        return bookmarkPage.map((Content content) -> UserDto.BookmarkDto.response(
-                        content
-                        , content.getContentImages()
-                                .stream()
-                                .map(ContentDto.ImageResponseDto::response)
-                                .toList()
-                        , Integer.parseInt(
-                                redisService.getValues(content.getId().toString())
-                        )
-                )
-        );
+        return getContentLists(page, contentIdList);
     }
 
     @Transactional
-    public Page<UserDto.myCommentListDto> listSearchMyComment(
+    public Page<UserResponse.ContentList> listSearchMyComment(
             Long userId, Integer page
     ) {
         User user = getUser(userId);
         List<Long> distinctContentIdListByUserId = commentRepository.findDistinctContentIdListByUserId(user.getId());
 
-        Page<Content> pageMyComment = contentRepository.findByIdInAndDeletedYn(
-                distinctContentIdListByUserId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        return pageMyComment.map((Content content) ->
-                UserDto.myCommentListDto.response(
-                        content,
-                        content.getContentImages()
-                                .stream()
-                                .map(ContentDto.ImageResponseDto::response)
-                                .toList(),
-                        Integer.parseInt(
-                                redisService.getValues(content.getId().toString())
-                        )
-                )
-        );
+        return getContentLists(page, distinctContentIdListByUserId);
     }
 
     @Transactional
-    public Page<UserDto.myContentListDto> listSearchMyContent(UserDetails userDetails, Integer page) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
-                .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
-                );
+    public Page<UserResponse.ContentList> listSearchMyContent(Long userId, Integer page) {
+        User user = getUser(userId);
 
         Page<Content> pageMyContent = contentRepository.findByUserIdAndDeletedYn(
                 user.getId(), false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
 
         return pageMyContent.map((Content content) ->
-                UserDto.myContentListDto.response(
+                UserResponse.ContentList.response(
                         content,
                         content.getContentImages()
                                 .stream()
-                                .map(ContentDto.ImageResponseDto::response)
+                                .map(ContentResponse.ImageDetail::response)
                                 .toList(),
                         Integer.parseInt(redisService.getValues(content.getId().toString())))
         );
@@ -211,6 +169,7 @@ public class UserService {
 
 
     // method
+
     public User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_USER)
@@ -254,7 +213,6 @@ public class UserService {
 
 
     // Validate
-
     private void validateRegister(UserServiceRequest.CreateUser request) {
         Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
         Boolean existsByNickName = userRepository.existsByNickName(request.getNickName());
@@ -336,5 +294,24 @@ public class UserService {
         }
 
         return imageUrl;
+    }
+
+    private Page<UserResponse.ContentList> getContentLists(Integer page, List<Long> distinctContentIdListByUserId) {
+        Page<Content> pageMyComment = contentRepository.findByIdInAndDeletedYn(
+                distinctContentIdListByUserId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
+        );
+
+        return pageMyComment.map((Content content) ->
+                UserResponse.ContentList.response(
+                        content,
+                        content.getContentImages()
+                                .stream()
+                                .map(ContentResponse.ImageDetail::response)
+                                .toList(),
+                        Integer.parseInt(
+                                redisService.getValues(content.getId().toString())
+                        )
+                )
+        );
     }
 }

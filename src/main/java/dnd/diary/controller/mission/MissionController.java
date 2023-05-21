@@ -105,4 +105,10 @@ public class MissionController {
     ) throws ParseException {
         return CustomResponseEntity.success(missionService.checkMissionContent(userId, multipartFiles, missionId, content));
     }
+
+    // 완료한 미션 조회
+    @GetMapping("auth/my/mission/complete")
+    public CustomResponseEntity<List<MissionResponse>> getCompleteMissionList(@AuthenticationPrincipal Long userId) {
+        return CustomResponseEntity.success(missionService.getCompleteMissionList(userId));
+    }
 }
