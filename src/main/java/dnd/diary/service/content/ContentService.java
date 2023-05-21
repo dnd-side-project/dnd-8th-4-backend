@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -204,10 +205,16 @@ public class ContentService {
 
     // method
     private List<ContentResponse.ImageDetail> getContentImageResponse(Content content) {
-        return content.getContentImages()
-                .stream()
-                .map(ContentResponse.ImageDetail::response)
-                .toList();
+        List<ContentResponse.ImageDetail> imageDetails = new ArrayList<>();
+
+        if (content.getContentImages() != null) {
+            imageDetails = content.getContentImages()
+                    .stream()
+                    .map(ContentResponse.ImageDetail::response)
+                    .toList();
+        }
+
+        return imageDetails;
     }
 
     private Content existsContentAndUser(Long contentId, Long userId) {

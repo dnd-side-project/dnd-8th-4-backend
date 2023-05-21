@@ -13,6 +13,7 @@ import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.user.UserImageRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.request.service.UserServiceRequest;
+import dnd.diary.response.content.ContentResponse;
 import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.redis.RedisService;
@@ -129,7 +130,7 @@ public class UserService {
                         content,
                         content.getContentImages()
                                 .stream()
-                                .map(ContentDto.ImageResponseDto::response)
+                                .map(ContentResponse.ImageDetail::response)
                                 .toList(),
                         Integer.parseInt(redisService.getValues(content.getId().toString())))
         );
@@ -305,7 +306,7 @@ public class UserService {
                         content,
                         content.getContentImages()
                                 .stream()
-                                .map(ContentDto.ImageResponseDto::response)
+                                .map(ContentResponse.ImageDetail::response)
                                 .toList(),
                         Integer.parseInt(
                                 redisService.getValues(content.getId().toString())
