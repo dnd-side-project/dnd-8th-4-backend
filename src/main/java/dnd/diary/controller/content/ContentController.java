@@ -113,7 +113,8 @@ public class ContentController {
     // (중복되는 장소의) 지도 피드 상세보기
     @GetMapping("content/map/detail")
     public CustomResponseEntity<List<ContentResponse.LocationDetail>> myMapListDetail(
-            @RequestParam final String location, @AuthenticationPrincipal final Long userId
+            @RequestParam final String location,
+            @AuthenticationPrincipal final Long userId
     ) {
         return CustomResponseEntity.success(contentService.listDetailMyMap(location, userId));
     }
