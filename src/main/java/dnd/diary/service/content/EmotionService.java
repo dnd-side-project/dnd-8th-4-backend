@@ -83,6 +83,7 @@ public class EmotionService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<EmotionResponse.Detail> emotionList(Long contentId) {
         return emotionRepository.findByContentId(contentId)
                 .stream()

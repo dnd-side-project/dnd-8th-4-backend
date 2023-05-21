@@ -23,10 +23,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -135,6 +137,27 @@ class EmotionServiceTest {
         assertThat(emotionOptional.get().getEmotionStatus()).isEqualTo(2L);
     }
 
+    @DisplayName("유저가 해당 피드의 남겨진 공감을 조회한다.")
+    @Test
+    void emotionList() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+        Emotion emotion = getEmotionAndSave(user, content, 2L);
+
+        // when
+        List<EmotionResponse.Detail> response = emotionService.emotionList(content.getId());
+
+        // then
+        assertThat(response)
+                .extracting("id", "emotionStatus")
+                .contains(
+                        tuple(emotion.getId(), 2L)
+                );
+    }
+
+    // method
     private Emotion getEmotionAndSave(User user, Content content, Long emotionStatus) {
         Emotion emotion = Emotion.builder()
                 .user(user)
@@ -155,7 +178,6 @@ class EmotionServiceTest {
         return emotionRepository.save(emotion);
     }
 
-    // method
     private User getUserAndSave() {
         User user = User.builder()
                 .authorities(getAuthorities())
