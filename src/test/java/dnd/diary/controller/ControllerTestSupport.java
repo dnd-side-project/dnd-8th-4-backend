@@ -5,7 +5,9 @@ import dnd.diary.config.Jwt.JwtAccessDeniedHandler;
 import dnd.diary.config.Jwt.JwtAuthenticationEntryPoint;
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.redis.RedisDao;
+import dnd.diary.controller.content.ContentController;
 import dnd.diary.controller.user.UserController;
+import dnd.diary.service.content.ContentService;
 import dnd.diary.service.mission.MissionService;
 import dnd.diary.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.filter.CorsFilter;
 
 @WebMvcTest(controllers = {
-        UserController.class
+        UserController.class,
+        ContentController.class
 })
 @AutoConfigureMockMvc(addFilters = false)
 public abstract class ControllerTestSupport {
@@ -32,6 +35,9 @@ public abstract class ControllerTestSupport {
 
     @MockBean
     protected MissionService missionService;
+
+    @MockBean
+    protected ContentService contentService;
 
     @MockBean
     private RedisDao redisDao;
