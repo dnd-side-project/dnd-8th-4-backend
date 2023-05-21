@@ -17,9 +17,9 @@ public class CommentLikeController {
 
     @GetMapping("content/comment/like")
     public CustomResponseEntity<CommentLikeDto.SaveCommentLike> likeSaveComment(
-            @AuthenticationPrincipal final UserDetails userDetails,
+            @AuthenticationPrincipal final Long userId,
             @RequestParam final Long commentId
     ) {
-        return commentLikeService.commentLikeSave(userDetails, commentId);
+        return commentLikeService.commentLikeSave(userId, commentId);
     }
 }

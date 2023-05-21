@@ -2,8 +2,6 @@ package dnd.diary.service.content;
 
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.comment.CommentLike;
-import dnd.diary.domain.group.Notification;
-import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
 import dnd.diary.request.content.CommentLikeDto;
 import dnd.diary.enumeration.Result;
@@ -13,6 +11,7 @@ import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.content.CommentLikeRepository;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.service.group.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -25,49 +24,48 @@ public class CommentLikeService {
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public CustomResponseEntity<CommentLikeDto.SaveCommentLike> commentLikeSave(
-            UserDetails userDetails, Long commentId
+            Long userId, Long commentId
     ) {
         validateCommentLikeSave(commentId);
 
-        User user = getUser(userDetails);
+        User user = getUser(userId);
         CommentLike existsLike =
                 commentLikeRepository.findByCommentIdAndUserId(commentId, user.getId());
 
         // 최초 좋아요 등록일 경우
-        if (existsLike == null){
+        if (existsLike == null) {
             Comment targetComment = getComment(commentId);
             CommentLike commentLike = CommentLike.builder()
-                .comment(targetComment)
-                .user(user)
-                .commentLikeYn(true)
-                .build();
+                    .comment(targetComment)
+                    .user(user)
+                    .commentLikeYn(true)
+                    .build();
             commentLikeRepository.save(commentLike);
 
             // 자신의 댓글이 아닌 경우에 댓글 좋아요 알림 추가
-            if (!user.getId().equals(targetComment.getUser().getId())) {
-                Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, targetComment.getUser(), NotificationType.COMMENT_LIKE);
-                notificationRepository.save(notification);
+            notificationService.sendToNotification(user, targetComment, commentLike);
 
-                targetComment.getUser().updateNewNotification();
-            }
-            return CustomResponseEntity.success(
-                    CommentLikeDto.SaveCommentLike.response(commentLike)
-            );
-        // 최초 등록이 아닐 경우
+            return CustomResponseEntity.success(CommentLikeDto.SaveCommentLike.response(commentLike));
+
+            // 최초 등록이 아닐 경우
         } else {
+
             // 댓글 좋아요 취소일 경우
             if (existsLike.isCommentLikeYn()) {
+
                 existsLike.cancelCommentLike();
                 return CustomResponseEntity.successDeleteLike();
             }
+
             // 댓글 좋아요 취소 후 다시 등록할 경우
             else {
                 existsLike.addCommentLike();
                 return CustomResponseEntity.success(
-                    CommentLikeDto.SaveCommentLike.response(existsLike)
+                        CommentLikeDto.SaveCommentLike.response(existsLike)
                 );
             }
         }
@@ -83,17 +81,16 @@ public class CommentLikeService {
         }
     }
 
-    private User getUser(UserDetails userDetails) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(
-                        () -> new CustomException(Result.FAIL)
+                        () -> new CustomException(Result.NOT_FOUND_USER)
                 );
-        return user;
     }
 
     // validate
     private void validateCommentLikeSave(Long commentId) {
-        if (!commentRepository.existsByIdAndDeletedYn(commentId, false)){
+        if (!commentRepository.existsByIdAndDeletedYn(commentId, false)) {
             throw new CustomException(Result.NOT_FOUND_COMMENT);
         }
     }
