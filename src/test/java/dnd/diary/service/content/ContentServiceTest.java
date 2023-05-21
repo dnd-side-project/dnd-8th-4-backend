@@ -5,6 +5,7 @@ import dnd.diary.domain.content.Content;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
+import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.GroupRepository;
@@ -206,6 +207,32 @@ class ContentServiceTest {
         assertThat(contentOptional.isEmpty()).isTrue();
     }
 
+    @DisplayName("유저가 위치를 검색하여 주변에 남겨진 피드들을 검색한다.")
+    @Test
+    void listMyMap() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+
+        UserJoinGroup userJoinGroup = UserJoinGroup.builder()
+                .user(user)
+                .group(group)
+                .build();
+
+        user.getUserJoinGroups().add(userJoinGroup);
+
+        getContentAndSave(user, group, 37.802508, 127.076286);
+
+        // when
+        List<ContentResponse.LocationSearchContent> response =
+                contentService.listMyMap(user.getId(), 37.798631, 127.071024, 37.806840, 127.081482);
+
+        // then
+        assertThat(response).hasSize(1)
+                .extracting("location")
+                .contains("삼성 서비스 센터");
+    }
+
     // method
     private User getUserAndSave() {
         User user = User.builder()
@@ -256,6 +283,22 @@ class ContentServiceTest {
 
         groupRepository.save(group);
         return group;
+    }
+
+    private Content getContentAndSave(User user, Group group, Double latitude, Double longitude) {
+        Content content = Content.builder()
+                .id(1L)
+                .user(user)
+                .group(group)
+                .content("테스트 내용")
+                .latitude(latitude)
+                .longitude(longitude)
+                .location("삼성 서비스 센터")
+                .views(0)
+                .contentLink("test.com")
+                .build();
+
+        return contentRepository.save(content);
     }
 
 }

@@ -176,25 +176,25 @@ public class ContentService {
     }
 
     @Transactional
-    public List<ContentDto.mapListContent> listMyMap(
+    public List<ContentResponse.LocationSearchContent> listMyMap(
             Long userId, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude
     ) {
         User user = userService.getUser(userId);
 
         List<Long> myGroupIdList = user.getUserJoinGroups().stream()
                 .map(userJoinGroup -> userJoinGroup.getGroup().getId()).toList();
+
         List<Content> myMapContents = contentRepository.findByMapList(
                 myGroupIdList, endLatitude, startLatitude, startLongitude, endLongitude);
 
         return myMapContents.stream()
                 .filter(content -> !content.isDeletedYn())
-                .map((Content content) -> ContentDto.mapListContent.response(
+                .map((Content content) -> ContentResponse.LocationSearchContent.response(
                                 content,
                                 getContentImageResponse(content),
                                 isCountDuplicateLocation(myGroupIdList, content)
                         )
-                )
-                .toList();
+                ).toList();
     }
 
     private Long isCountDuplicateLocation(List<Long> myGroupIdList, Content content) {
@@ -216,7 +216,7 @@ public class ContentService {
                 .map((Content content) ->
                         ContentDto.mapListContentDetail.response(
                                 content,
-                                getContentImageResponse(content)
+                                getContentImageResponseDto(content)
                         )
                 ).toList();
     }
@@ -236,7 +236,14 @@ public class ContentService {
 
 
     // method
-    private List<ContentDto.ImageResponseDto> getContentImageResponse(Content content) {
+    private List<ContentResponse.ImageInfo> getContentImageResponse(Content content) {
+        return content.getContentImages()
+                .stream()
+                .map(ContentResponse.ImageInfo::response)
+                .toList();
+    }
+
+    private List<ContentDto.ImageResponseDto> getContentImageResponseDto(Content content) {
         return content.getContentImages()
                 .stream()
                 .map(ContentDto.ImageResponseDto::response)

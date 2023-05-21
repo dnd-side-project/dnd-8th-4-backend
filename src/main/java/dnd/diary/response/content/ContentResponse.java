@@ -1,6 +1,7 @@
 package dnd.diary.response.content;
 
 import dnd.diary.domain.content.Content;
+import dnd.diary.domain.content.ContentImage;
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.request.content.ContentDto;
 import lombok.*;
@@ -89,10 +90,10 @@ public class ContentResponse {
         private String contentLink;
         private boolean deletedYn;
         private String createAt;
-        List<ContentDto.ImageResponseDto> collect;
+        List<ContentResponse.ImageInfo> collect;
 
         @Builder
-        private Detail(Long id, Long userId, Long groupId, String groupName, String userName, String profileImageUrl, String content, Double latitude, Double longitude, String location, long views, Boolean bookmarkAddStatus, Long emotionStatus, String contentLink, boolean deletedYn, String createAt, List<ContentDto.ImageResponseDto> collect) {
+        private Detail(Long id, Long userId, Long groupId, String groupName, String userName, String profileImageUrl, String content, Double latitude, Double longitude, String location, long views, Boolean bookmarkAddStatus, Long emotionStatus, String contentLink, boolean deletedYn, String createAt, List<ContentResponse.ImageInfo> collect) {
             this.id = id;
             this.userId = userId;
             this.groupId = groupId;
@@ -113,7 +114,7 @@ public class ContentResponse {
         }
 
         public static ContentResponse.Detail response(
-                Content content, Integer views, List<ContentDto.ImageResponseDto> collect,
+                Content content, Integer views, List<ContentResponse.ImageInfo> collect,
                 boolean bookmarkAddStatus, Long emotionStatus
         ) {
             return ContentResponse.Detail.builder()
@@ -236,6 +237,72 @@ public class ContentResponse {
                     .userId(content.getUser().getId())
                     .groupId(content.getGroup().getId())
                     .collect(collect)
+                    .build();
+        }
+    }
+
+    @NoArgsConstructor
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
+    public static class LocationSearchContent {
+        private Long id;
+        private String location;
+        private Double latitude;
+        private Double longitude;
+        private Long userId;
+        private Long groupId;
+        private Long counts;
+        private String contentImageUrl;
+        private boolean deletedYn;
+
+        public static ContentResponse.LocationSearchContent response(
+                Content content, List<ContentResponse.ImageInfo> collect, Long counts
+        ) {
+            if (collect.size() != 0){
+                return ContentResponse.LocationSearchContent.builder()
+                        .id(content.getId())
+                        .location(content.getLocation())
+                        .latitude(content.getLatitude())
+                        .longitude(content.getLongitude())
+                        .userId(content.getUser().getId())
+                        .groupId(content.getGroup().getId())
+                        .counts(counts)
+                        .contentImageUrl(collect.get(0).imageUrl)
+                        .deletedYn(content.isDeletedYn())
+                        .build();
+            } else {
+                return ContentResponse.LocationSearchContent.builder()
+                        .id(content.getId())
+                        .location(content.getLocation())
+                        .latitude(content.getLatitude())
+                        .longitude(content.getLongitude())
+                        .userId(content.getUser().getId())
+                        .groupId(content.getGroup().getId())
+                        .counts(counts)
+                        .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/6f6b761a-8481-45b6-a6cc-9b48ff73c679.png")
+                        .deletedYn(content.isDeletedYn())
+                        .build();
+            }
+        }
+    }
+
+    @NoArgsConstructor
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
+    public static class ImageInfo {
+        private Long id;
+        private String imageName;
+        private String imageUrl;
+        private Long contentId;
+
+        public static ContentResponse.ImageInfo response(ContentImage contentImage) {
+            return ContentResponse.ImageInfo.builder()
+                    .id(contentImage.getId())
+                    .imageUrl(contentImage.getImageUrl())
+                    .imageName(contentImage.getImageName())
+                    .contentId(contentImage.getContent().getId())
                     .build();
         }
     }
