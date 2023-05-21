@@ -3,8 +3,6 @@ package dnd.diary.service.content;
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
 
-import dnd.diary.domain.content.Emotion;
-
 import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.user.User;
 import dnd.diary.enumeration.Result;
@@ -15,9 +13,8 @@ import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.mission.StickerRepository;
 import dnd.diary.repository.user.UserRepository;
-import dnd.diary.request.service.CommentServiceRequest;
+import dnd.diary.request.service.content.CommentServiceRequest;
 import dnd.diary.response.content.CommentResponse;
-import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.group.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +23,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -125,13 +120,5 @@ public class CommentService {
         if (!contentRepository.existsByIdAndDeletedYn(contentId, false)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
         }
-    }
-
-    public List<ContentResponse.EmotionDetail> emotionList(Long contentId) {
-        return emotionRepository.findByContentId(contentId)
-            .stream()
-            .filter(Emotion::isEmotionYn)
-            .map(ContentResponse.EmotionDetail::response)
-            .toList();
     }
 }

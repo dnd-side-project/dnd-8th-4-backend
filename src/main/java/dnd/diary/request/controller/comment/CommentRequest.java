@@ -1,6 +1,6 @@
 package dnd.diary.request.controller.comment;
 
-import dnd.diary.request.service.CommentServiceRequest;
+import dnd.diary.request.service.content.CommentServiceRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

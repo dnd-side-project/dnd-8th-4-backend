@@ -1,4 +1,4 @@
-package dnd.diary.request.service;
+package dnd.diary.request.service.content;
 
 import lombok.Builder;
 import lombok.Getter;

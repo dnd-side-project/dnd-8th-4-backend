@@ -10,7 +10,6 @@ import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.request.controller.comment.CommentRequest;
-import dnd.diary.request.service.CommentServiceRequest;
 import dnd.diary.response.content.CommentResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")

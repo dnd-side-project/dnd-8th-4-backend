@@ -37,12 +37,4 @@ public class CommentController {
     ) {
         return CustomResponseEntity.success(commentService.commentPage(userId, contentId, page));
     }
-
-    // 피드 감정 리스트 조회
-    @GetMapping("content/{contentId}/emotion")
-    public CustomResponseEntity<List<ContentResponse.EmotionDetail>> listEmotion(
-            @PathVariable(name = "contentId") final Long contentId
-    ) {
-        return CustomResponseEntity.success(commentService.emotionList(contentId));
-    }
 }
