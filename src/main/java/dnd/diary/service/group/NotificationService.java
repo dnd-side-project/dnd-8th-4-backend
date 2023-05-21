@@ -10,7 +10,9 @@ import dnd.diary.domain.group.Group;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
+import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
+import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.notification.*;
@@ -30,7 +32,7 @@ import java.util.List;
 public class NotificationService {
 
 	private final NotificationRepository notificationRepository;
-	private final UserRepository userRepository;
+	private final ContentRepository contentRepository;
 
 	private final UserService userService;
 
@@ -265,5 +267,29 @@ public class NotificationService {
 			}
 		}
 		return notificationList.size() - readCount;
+	}
+
+	// 게시글 작성 시 알림 생성
+	public void sendToNotification(Long contentId, Comment comment) {
+		Content content = getContent(contentId);
+		if (!comment.getUser().getId().equals(content.getUser().getId())) {
+			Notification notification = Notification.toContentCommentEntity(
+					content, comment, content.getUser(), NotificationType.CONTENT_COMMENT);
+			notificationRepository.save(notification);
+
+			content.getUser().updateNewNotification();
+		}
+	}
+
+	private Content getContent(Long contentId) {
+		Content content = contentRepository.findById(contentId)
+				.orElseThrow(
+						() -> new CustomException(Result.NOT_FOUND_CONTENT)
+				);
+		// 이미 삭제된 게시물일 경우
+		if (content.isDeletedYn()) {
+			throw new CustomException(Result.NOT_FOUND_CONTENT);
+		}
+		return content;
 	}
 }
