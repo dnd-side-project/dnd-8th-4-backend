@@ -19,7 +19,6 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
-    private final MissionService missionService;
 
     // 회원가입
     @PostMapping("auth")

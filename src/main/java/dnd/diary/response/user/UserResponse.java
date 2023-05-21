@@ -21,19 +21,19 @@ public class UserResponse {
         private String nickName;
         private String phoneNumber;
         private String profileImageUrl;
-        private String atk;
-        private String rtk;
+        private String accessToken;
+        private String refreshToken;
 
         @Builder
-        private Login(Long id, String email, String name, String nickName, String phoneNumber, String profileImageUrl, String atk, String rtk) {
+        private Login(Long id, String email, String name, String nickName, String phoneNumber, String profileImageUrl, String accessToken, String refreshToken) {
             this.id = id;
             this.email = email;
             this.name = name;
             this.nickName = nickName;
             this.phoneNumber = phoneNumber;
             this.profileImageUrl = profileImageUrl;
-            this.atk = atk;
-            this.rtk = rtk;
+            this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
         }
 
         public static UserResponse.Login response(User user, String atk, String rtk) {
@@ -44,8 +44,8 @@ public class UserResponse {
                     .nickName(user.getNickName())
                     .phoneNumber(user.getPhoneNumber())
                     .profileImageUrl(user.getProfileImageUrl())
-                    .atk(atk)
-                    .rtk(rtk)
+                    .accessToken(atk)
+                    .refreshToken(rtk)
                     .build();
         }
     }

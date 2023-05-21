@@ -11,7 +11,7 @@ import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.user.User;
 import dnd.diary.domain.user.UserJoinGroup;
-import dnd.diary.request.group.GroupInviteRequest;
+import dnd.diary.request.service.group.GroupInviteRequest;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.group.GroupImageRepository;
 import dnd.diary.repository.group.GroupRepository;

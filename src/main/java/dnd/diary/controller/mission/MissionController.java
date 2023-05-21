@@ -2,15 +2,15 @@ package dnd.diary.controller.mission;
 
 import java.util.List;
 
-import dnd.diary.request.mission.MissionCheckLocationRequest;
-import dnd.diary.request.mission.MissionListByMapRequest;
+import dnd.diary.request.service.mission.MissionCheckLocationRequest;
+import dnd.diary.request.service.mission.MissionListByMapRequest;
 import dnd.diary.response.mission.MissionCheckContentResponse;
 import dnd.diary.response.mission.MissionCheckLocationResponse;
 import org.locationtech.jts.io.ParseException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import dnd.diary.request.group.MissionCreateRequest;
+import dnd.diary.request.service.group.MissionCreateRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.mission.MissionResponse;
 import dnd.diary.service.mission.MissionService;

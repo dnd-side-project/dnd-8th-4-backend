@@ -1,4 +1,4 @@
-package dnd.diary.request.group;
+package dnd.diary.request.service.group;
 
 import java.time.LocalDate;
 

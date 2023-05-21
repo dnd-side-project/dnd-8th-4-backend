@@ -86,7 +86,7 @@ class UserServiceTest {
         // given
         UserRequest.CreateUser request = new UserRequest.CreateUser(
                 "test@test.com", "abc123!", "테스트 계정",
-                "테스트 닉네임", "010-1234-5678", ""
+                "테스트 닉네임", "010-1234-5678"
         );
 
 
@@ -99,8 +99,8 @@ class UserServiceTest {
                 .contains("test@test.com", "테스트 계정", "테스트 닉네임", "010-1234-5678");
 
         assertThat(response.getProfileImageUrl()).isNotBlank();
-        assertThat(response.getAtk()).isNotBlank();
-        assertThat(response.getRtk()).isNotBlank();
+        assertThat(response.getAccessToken()).isNotBlank();
+        assertThat(response.getRefreshToken()).isNotBlank();
     }
 
     @DisplayName("유저가 로그인을 하고 토큰을 발급 받는다.")
@@ -120,8 +120,8 @@ class UserServiceTest {
                 .contains("test@test.com", "테스트 계정", "테스트 닉네임", "010-1234-5678");
 
         assertThat(response.getProfileImageUrl()).isNotBlank();
-        assertThat(response.getAtk()).isNotBlank();
-        assertThat(response.getRtk()).isNotBlank();
+        assertThat(response.getAccessToken()).isNotBlank();
+        assertThat(response.getRefreshToken()).isNotBlank();
     }
 
     @DisplayName("유저가 자신의 정보를 조회한다.")
