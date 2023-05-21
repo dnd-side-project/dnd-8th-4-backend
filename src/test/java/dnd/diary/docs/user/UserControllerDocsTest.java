@@ -108,7 +108,20 @@ class UserControllerDocsTest extends RestDocsSupport {
     @Test
     void loginUser() throws Exception {
         // given
-        UserRequest.Login request = new UserRequest.Login(".", ".");
+        UserRequest.Login request = new UserRequest.Login("test@test.com", "테스트 계정");
+
+        given(userService.login(any(UserServiceRequest.Login.class)))
+                .willReturn(UserResponse.Login.builder()
+                        .id(1L)
+                        .email("test@test.com")
+                        .name("테스트 계정")
+                        .nickName("테스트 닉네임")
+                        .phoneNumber("010-1234-5678")
+                        .profileImageUrl("default.png")
+                        .accessToken("issued AccessToken")
+                        .refreshToken("issued RefreshToken")
+                        .build()
+                );
 
         // when // then
         mockMvc.perform(
@@ -117,7 +130,39 @@ class UserControllerDocsTest extends RestDocsSupport {
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("user-login",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("email").type(JsonFieldType.STRING)
+                                        .description("유저 이메일"),
+                                fieldWithPath("password").type(JsonFieldType.STRING)
+                                        .description("유저 비밀번호")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("상태 메세지"),
+                                fieldWithPath("data.id").type(JsonFieldType.NUMBER)
+                                        .description("유저 ID / Long"),
+                                fieldWithPath("data.email").type(JsonFieldType.STRING)
+                                        .description("유저 이메일"),
+                                fieldWithPath("data.name").type(JsonFieldType.STRING)
+                                        .description("유저 이름"),
+                                fieldWithPath("data.nickName").type(JsonFieldType.STRING)
+                                        .description("유저 별명"),
+                                fieldWithPath("data.phoneNumber").type(JsonFieldType.STRING)
+                                        .description("유저 전화번호"),
+                                fieldWithPath("data.profileImageUrl").type(JsonFieldType.STRING)
+                                        .description("유저 프로필 이미지 URL"),
+                                fieldWithPath("data.accessToken").type(JsonFieldType.STRING)
+                                        .description("발급된 AccessToken"),
+                                fieldWithPath("data.refreshToken").type(JsonFieldType.STRING)
+                                        .description("발급된 RefreshToken")
+                        )
+                ));
     }
 
     @DisplayName("정보조회 API")

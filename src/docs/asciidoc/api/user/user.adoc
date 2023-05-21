@@ -8,3 +8,13 @@ include::{snippets}/user-createAccountUser/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/user-createAccountUser/http-response.adoc[]
 include::{snippets}/user-createAccountUser/response-body.adoc[]
+
+=== 로그인 API
+
+==== HTTP Request
+include::{snippets}/user-login/http-request.adoc[]
+include::{snippets}/user-login/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-login/http-response.adoc[]
+include::{snippets}/user-login/response-fields.adoc[]
