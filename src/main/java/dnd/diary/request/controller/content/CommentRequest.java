@@ -1,4 +1,4 @@
-package dnd.diary.request.controller.comment;
+package dnd.diary.request.controller.content;
 
 import dnd.diary.request.service.content.CommentServiceRequest;
 import lombok.Getter;

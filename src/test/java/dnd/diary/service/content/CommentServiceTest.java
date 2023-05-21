@@ -9,7 +9,7 @@ import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.user.UserRepository;
-import dnd.diary.request.controller.comment.CommentRequest;
+import dnd.diary.request.controller.content.CommentRequest;
 import dnd.diary.response.content.CommentResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,9 +1,8 @@
 package dnd.diary.controller.content;
 
-import dnd.diary.request.controller.comment.CommentRequest;
+import dnd.diary.request.controller.content.CommentRequest;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.content.CommentResponse;
-import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.content.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,7 +10,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
