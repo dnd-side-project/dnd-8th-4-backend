@@ -8,12 +8,15 @@ import dnd.diary.config.redis.RedisDao;
 import dnd.diary.controller.content.CommentController;
 import dnd.diary.controller.content.CommentLikeController;
 import dnd.diary.controller.content.ContentController;
+import dnd.diary.controller.content.EmotionController;
 import dnd.diary.controller.user.UserController;
 import dnd.diary.service.content.CommentLikeService;
 import dnd.diary.service.content.CommentService;
 import dnd.diary.service.content.ContentService;
+import dnd.diary.service.content.EmotionService;
 import dnd.diary.service.mission.MissionService;
 import dnd.diary.service.user.UserService;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,7 +28,8 @@ import org.springframework.web.filter.CorsFilter;
         UserController.class,
         ContentController.class,
         CommentLikeController.class,
-        CommentController.class
+        CommentController.class,
+        EmotionController.class
 })
 @AutoConfigureMockMvc(addFilters = false)
 public abstract class ControllerTestSupport {
@@ -35,6 +39,9 @@ public abstract class ControllerTestSupport {
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @MockBean
+    protected EmotionService emotionService;
 
     @MockBean
     protected UserService userService;
