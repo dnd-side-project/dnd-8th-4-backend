@@ -4,16 +4,15 @@ import dnd.diary.config.redis.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.User;
-import dnd.diary.request.content.BookmarkDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.repository.content.BookmarkRepository;
 import dnd.diary.repository.content.ContentRepository;
+import dnd.diary.request.controller.BookmarkResponse;
 import dnd.diary.response.CustomResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,29 +26,32 @@ public class BookmarkService {
 
     @Transactional
     @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
-    public CustomResponseEntity<BookmarkDto.addBookmarkDto> bookmarkAdd(
-            UserDetails userDetails, Long contentId
+    public CustomResponseEntity<BookmarkResponse> bookmarkAdd(
+            Long userId, Long contentId
     ) {
+        User user = getUser(userId);
         Bookmark bookmark = bookmarkRepository.findByUserIdAndContentId(
-                getUser(userDetails).getId(), contentId
+                user.getId(), contentId
         );
+
         // 이미 북마크를 등록했다면 북마크 취소
-        if (bookmark != null){
+        if (bookmark != null) {
             bookmarkRepository.delete(bookmark);
             return CustomResponseEntity.successDeleteBookmark();
-        } else {
-            // 북마크 추가
-            return CustomResponseEntity.success(
-                    BookmarkDto.addBookmarkDto.response(
-                            bookmarkRepository.save(
-                                    Bookmark.builder()
-                                            .content(getContent(contentId))
-                                            .user(getUser(userDetails))
-                                            .build()
-                            )
-                    )
-            );
         }
+
+        // 북마크 추가
+        return CustomResponseEntity.success(
+                BookmarkResponse.response(
+                        bookmarkRepository.save(
+                                Bookmark.builder()
+                                        .content(getContent(contentId))
+                                        .user(user)
+                                        .build()
+                        )
+                )
+        );
+
     }
 
     // method
@@ -61,11 +63,10 @@ public class BookmarkService {
         return content;
     }
 
-    private User getUser(UserDetails userDetails) {
-        User user = userRepository.findOneWithAuthoritiesByEmail(userDetails.getUsername())
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
                 .orElseThrow(
                         () -> new CustomException(Result.FAIL)
                 );
-        return user;
     }
 }
