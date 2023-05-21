@@ -70,7 +70,57 @@ class CommentLikeServiceTest {
         assertThat(commentLikeOptional.isPresent()).isTrue();
         assertThat(commentLikeOptional.get().isCommentLikeYn()).isTrue();
     }
-    
+
+    @DisplayName("유저가 해당 댓글에 남긴 좋아요를 취소한다.")
+    @Test
+    void processCommentLikeTransactionToCancel() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+        Comment comment = getCommentAndSave(user, content);
+        CommentLike commentLike = commentLikeRepository.save(CommentLike.builder()
+                .user(user)
+                .comment(comment)
+                .commentLikeYn(true)
+                .build()
+        );
+
+        // when
+        commentLikeService.processCommentLikeTransaction(user.getId(), comment.getId());
+
+        // then
+        Optional<CommentLike> commentLikeOptional = commentLikeRepository.findById(commentLike.getId());
+
+        assertThat(commentLikeOptional.isPresent()).isTrue();
+        assertThat(commentLikeOptional.get().isCommentLikeYn()).isFalse();
+    }
+
+    @DisplayName("유저가 해당 댓글을 취소했던 상태에서 좋아요를 다시 남긴다.")
+    @Test
+    void processCommentLikeTransactionToCancelWillAdd() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+        Comment comment = getCommentAndSave(user, content);
+        CommentLike commentLike = commentLikeRepository.save(CommentLike.builder()
+                .user(user)
+                .comment(comment)
+                .commentLikeYn(false)
+                .build()
+        );
+
+        // when
+        commentLikeService.processCommentLikeTransaction(user.getId(), comment.getId());
+
+        // then
+        Optional<CommentLike> commentLikeOptional = commentLikeRepository.findById(commentLike.getId());
+
+        assertThat(commentLikeOptional.isPresent()).isTrue();
+        assertThat(commentLikeOptional.get().isCommentLikeYn()).isTrue();
+    }
+
     // method
 
     private Comment getCommentAndSave(User user, Content content) {
