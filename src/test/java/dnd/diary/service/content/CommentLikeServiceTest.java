@@ -1,34 +1,36 @@
 package dnd.diary.service.content;
 
 import dnd.diary.domain.comment.Comment;
+import dnd.diary.domain.comment.CommentLike;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.Authority;
 import dnd.diary.domain.user.User;
+import dnd.diary.repository.content.CommentLikeRepository;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.user.UserRepository;
-import dnd.diary.request.controller.content.CommentRequest;
-import dnd.diary.response.content.CommentResponse;
+import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.content.CommentLikeResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Transactional
-class CommentServiceTest {
+class CommentLikeServiceTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -43,30 +45,14 @@ class CommentServiceTest {
     private CommentRepository commentRepository;
 
     @Autowired
-    private CommentService commentService;
+    private CommentLikeRepository commentLikeRepository;
 
-    @DisplayName("유저가 상대방의 피드에 댓글을 작성한다.")
+    @Autowired
+    private CommentLikeService commentLikeService;
+
+    @DisplayName("유저가 해당 댓글에 최초로 좋아요를 남긴다.")
     @Test
-    void commentAdd() {
-        // given
-        User user = getUserAndSave();
-        Group group = getGroupSave(user);
-        Content content = getContentAndSave(user, group);
-
-        CommentRequest.Add request = new CommentRequest.Add("테스트 내용", null);
-
-        // when
-        CommentResponse.Add response =
-                commentService.commentAdd(user.getId(), content.getId(), request.toServiceRequest());
-
-        // then
-        assertThat(response.getCommentNote()).isEqualTo("테스트 내용");
-        assertThat(response.getStickerId()).isNull();
-    }
-
-    @DisplayName("유저가 피드의 댓글을 페이지 조회한다.")
-    @Test
-    void commentPage() {
+    void processCommentLikeTransactionToAdd() {
         // given
         User user = getUserAndSave();
         Group group = getGroupSave(user);
@@ -74,14 +60,65 @@ class CommentServiceTest {
         Comment comment = getCommentAndSave(user, content);
 
         // when
-        Page<CommentResponse.Detail> response = commentService.commentPage(user.getId(), content.getId(), 1);
+        CustomResponseEntity<CommentLikeResponse> response =
+                commentLikeService.processCommentLikeTransaction(user.getId(), comment.getId());
 
         // then
-        assertThat(response).hasSize(1)
-                .extracting("commentNote","userName")
-                .contains(
-                        tuple("테스트 댓글","테스트 닉네임")
-                );
+        Long commentLikeId = response.getData().getId();
+        Optional<CommentLike> commentLikeOptional = commentLikeRepository.findById(commentLikeId);
+
+        assertThat(commentLikeOptional.isPresent()).isTrue();
+        assertThat(commentLikeOptional.get().isCommentLikeYn()).isTrue();
+    }
+
+    @DisplayName("유저가 해당 댓글에 남긴 좋아요를 취소한다.")
+    @Test
+    void processCommentLikeTransactionToCancel() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+        Comment comment = getCommentAndSave(user, content);
+        CommentLike commentLike = commentLikeRepository.save(CommentLike.builder()
+                .user(user)
+                .comment(comment)
+                .commentLikeYn(true)
+                .build()
+        );
+
+        // when
+        commentLikeService.processCommentLikeTransaction(user.getId(), comment.getId());
+
+        // then
+        Optional<CommentLike> commentLikeOptional = commentLikeRepository.findById(commentLike.getId());
+
+        assertThat(commentLikeOptional.isPresent()).isTrue();
+        assertThat(commentLikeOptional.get().isCommentLikeYn()).isFalse();
+    }
+
+    @DisplayName("유저가 해당 댓글을 취소했던 상태에서 좋아요를 다시 남긴다.")
+    @Test
+    void processCommentLikeTransactionToCancelWillAdd() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+        Comment comment = getCommentAndSave(user, content);
+        CommentLike commentLike = commentLikeRepository.save(CommentLike.builder()
+                .user(user)
+                .comment(comment)
+                .commentLikeYn(false)
+                .build()
+        );
+
+        // when
+        commentLikeService.processCommentLikeTransaction(user.getId(), comment.getId());
+
+        // then
+        Optional<CommentLike> commentLikeOptional = commentLikeRepository.findById(commentLike.getId());
+
+        assertThat(commentLikeOptional.isPresent()).isTrue();
+        assertThat(commentLikeOptional.get().isCommentLikeYn()).isTrue();
     }
 
     // method

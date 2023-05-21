@@ -293,6 +293,16 @@ public class NotificationService {
 		}
 	}
 
+	// 자신의 댓글이 아닌 경우에 댓글 좋아요 알림 생성
+	public void sendToNotification(User user, Comment targetComment, CommentLike commentLike) {
+		if (!user.getId().equals(targetComment.getUser().getId())) {
+			Notification notification = Notification.toCommentLikeEntity(targetComment, commentLike, targetComment.getUser(), NotificationType.COMMENT_LIKE);
+			notificationRepository.save(notification);
+
+			targetComment.getUser().updateNewNotification();
+		}
+	}
+
 	private Content getContent(Long contentId) {
 		Content content = contentRepository.findById(contentId)
 				.orElseThrow(
