@@ -3,7 +3,6 @@ package dnd.diary.response.content;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.ContentImage;
 import dnd.diary.domain.content.Emotion;
-import dnd.diary.request.content.ContentDto;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
@@ -30,10 +29,10 @@ public class ContentResponse {
         private boolean deletedYn;
         private Long userId;
         private Long groupId;
-        List<ContentDto.ImageResponseDto> collect;
+        List<ContentResponse.ImageDetail> collect;
 
         @Builder
-        private Create(Long id, String userName, String profileImageUrl, String content, Double latitude, Double longitude, String location, long views, String contentLink, boolean deletedYn, Long userId, Long groupId, List<ContentDto.ImageResponseDto> collect) {
+        private Create(Long id, String userName, String profileImageUrl, String content, Double latitude, Double longitude, String location, long views, String contentLink, boolean deletedYn, Long userId, Long groupId, List<ContentResponse.ImageDetail> collect) {
             this.id = id;
             this.userName = userName;
             this.profileImageUrl = profileImageUrl;
@@ -65,7 +64,7 @@ public class ContentResponse {
                     .groupId(content.getGroup().getId())
                     .collect(content.getContentImages()
                             .stream()
-                            .map(ContentDto.ImageResponseDto::response)
+                            .map(ContentResponse.ImageDetail::response)
                             .collect(Collectors.toList()))
                     .build();
         }
@@ -90,10 +89,10 @@ public class ContentResponse {
         private String contentLink;
         private boolean deletedYn;
         private String createAt;
-        List<ContentResponse.ImageInfo> collect;
+        List<ContentResponse.ImageDetail> collect;
 
         @Builder
-        private Detail(Long id, Long userId, Long groupId, String groupName, String userName, String profileImageUrl, String content, Double latitude, Double longitude, String location, long views, Boolean bookmarkAddStatus, Long emotionStatus, String contentLink, boolean deletedYn, String createAt, List<ContentResponse.ImageInfo> collect) {
+        private Detail(Long id, Long userId, Long groupId, String groupName, String userName, String profileImageUrl, String content, Double latitude, Double longitude, String location, long views, Boolean bookmarkAddStatus, Long emotionStatus, String contentLink, boolean deletedYn, String createAt, List<ContentResponse.ImageDetail> collect) {
             this.id = id;
             this.userId = userId;
             this.groupId = groupId;
@@ -114,7 +113,7 @@ public class ContentResponse {
         }
 
         public static ContentResponse.Detail response(
-                Content content, Integer views, List<ContentResponse.ImageInfo> collect,
+                Content content, Integer views, List<ContentResponse.ImageDetail> collect,
                 boolean bookmarkAddStatus, Long emotionStatus
         ) {
             return ContentResponse.Detail.builder()
@@ -163,8 +162,8 @@ public class ContentResponse {
         private Long emotions;
         private Long emotionStatus;
         private Boolean bookmarkAddStatus;
-        List<ContentDto.ImageResponseDto> Images;
-        List<ContentDto.EmotionResponseGroupListDto> emotionResponseDtos;
+        List<ContentResponse.ImageDetail> imageDetails;
+        List<ContentResponse.EmotionDetail> emotionDetails;
 
         public static ContentResponse.GroupPage response(
                 Content content, Long emotionStatus, String views, Boolean bookmarkAddStatus
@@ -188,14 +187,14 @@ public class ContentResponse {
                     .emotions((long) content.getEmotions().size())
                     .emotionStatus(emotionStatus)
                     .bookmarkAddStatus(bookmarkAddStatus)
-                    .Images(content.getContentImages()
+                    .imageDetails(content.getContentImages()
                             .stream()
-                            .map(ContentDto.ImageResponseDto::response)
+                            .map(ContentResponse.ImageDetail::response)
                             .toList())
-                    .emotionResponseDtos(content.getEmotions()
+                    .emotionDetails(content.getEmotions()
                             .stream()
                             .filter(Emotion::isEmotionYn)   // 공감이 추가된 상태인 경우에만 응답으로 추가
-                            .map(ContentDto.EmotionResponseGroupListDto::response)
+                            .map(ContentResponse.EmotionDetail::response)
                             .toList())
                     .build();
         }
@@ -219,10 +218,9 @@ public class ContentResponse {
         private boolean deletedYn;
         private Long userId;
         private Long groupId;
-        List<ContentDto.ImageResponseDto> collect;
-        private List<ContentDto.deleteImageNameDto> deleteContentImageName;
+        private List<ContentResponse.ImageDetail> collect;
 
-        public static ContentResponse.Update response(Content content, Integer views, List<ContentDto.ImageResponseDto> collect) {
+        public static ContentResponse.Update response(Content content, Integer views, List<ContentResponse.ImageDetail> collect) {
             return ContentResponse.Update.builder()
                     .id(content.getId())
                     .userName(content.getUser().getNickName())
@@ -245,7 +243,7 @@ public class ContentResponse {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder
-    public static class LocationSearchContent {
+    public static class LocationSearch {
         private Long id;
         private String location;
         private Double latitude;
@@ -256,11 +254,11 @@ public class ContentResponse {
         private String contentImageUrl;
         private boolean deletedYn;
 
-        public static ContentResponse.LocationSearchContent response(
-                Content content, List<ContentResponse.ImageInfo> collect, Long counts
+        public static ContentResponse.LocationSearch response(
+                Content content, List<ContentResponse.ImageDetail> collect, Long counts
         ) {
             if (collect.size() != 0){
-                return ContentResponse.LocationSearchContent.builder()
+                return ContentResponse.LocationSearch.builder()
                         .id(content.getId())
                         .location(content.getLocation())
                         .latitude(content.getLatitude())
@@ -272,7 +270,7 @@ public class ContentResponse {
                         .deletedYn(content.isDeletedYn())
                         .build();
             } else {
-                return ContentResponse.LocationSearchContent.builder()
+                return ContentResponse.LocationSearch.builder()
                         .id(content.getId())
                         .location(content.getLocation())
                         .latitude(content.getLatitude())
@@ -291,18 +289,106 @@ public class ContentResponse {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder
-    public static class ImageInfo {
+    public static class LocationDetail {
+        private Long contentId;
+        private String userProfileImage;
+        private Long groupId;
+        private String location;
+        private String content;
+        private String groupImage;
+        private String groupName;
+        private String createAt;
+        private Integer contentImageSize;
+        private String contentImageUrl;
+        private boolean deletedYn;
+
+        public static ContentResponse.LocationDetail response(
+                Content content, List<ContentResponse.ImageDetail> collect
+        ) {
+            if (collect.size() != 0){
+                return ContentResponse.LocationDetail.builder()
+                        .contentId(content.getId())
+                        .userProfileImage(content.getUser().getProfileImageUrl())
+                        .groupId(content.getGroup().getId())
+                        .location(content.getLocation())
+                        .content(content.getContent())
+                        .groupImage(content.getGroup().getGroupImageUrl())
+                        .groupName(content.getGroup().getGroupName())
+                        .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
+                        .contentImageSize(collect.size())
+                        .contentImageUrl(collect.get(0).imageUrl)
+                        .deletedYn(content.isDeletedYn())
+                        .build();
+            } else {
+                return ContentResponse.LocationDetail.builder()
+                        .contentId(content.getId())
+                        .userProfileImage(content.getUser().getProfileImageUrl())
+                        .groupId(content.getId())
+                        .location(content.getLocation())
+                        .content(content.getContent())
+                        .groupImage(content.getGroup().getGroupImageUrl())
+                        .groupName(content.getGroup().getGroupName())
+                        .createAt(content.getCreatedAt().toString().substring(2, 10).replace("-", "."))
+                        .contentImageSize(0)
+                        .contentImageUrl("https://dnd-diary-image-bucket.s3.ap-northeast-2.amazonaws.com/6f6b761a-8481-45b6-a6cc-9b48ff73c679.png")
+                        .deletedYn(content.isDeletedYn())
+                        .build();
+            }
+        }
+    }
+
+    @NoArgsConstructor
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
+    public static class ImageDetail {
         private Long id;
         private String imageName;
         private String imageUrl;
         private Long contentId;
 
-        public static ContentResponse.ImageInfo response(ContentImage contentImage) {
-            return ContentResponse.ImageInfo.builder()
+        public static ContentResponse.ImageDetail response(ContentImage contentImage) {
+            return ContentResponse.ImageDetail.builder()
                     .id(contentImage.getId())
                     .imageUrl(contentImage.getImageUrl())
                     .imageName(contentImage.getImageName())
                     .contentId(contentImage.getContent().getId())
+                    .build();
+        }
+    }
+
+    @NoArgsConstructor
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
+    public static class EmotionDetail {
+        private Long id;
+        private Long emotionStatus;
+
+        public static ContentResponse.EmotionDetail response(Emotion emotion) {
+            return ContentResponse.EmotionDetail.builder()
+                    .id(emotion.getId())
+                    .emotionStatus(emotion.getEmotionStatus())
+                    .build();
+        }
+    }
+
+    @NoArgsConstructor
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
+    public static class EmotionDetails {
+        private Long id;
+        private Long emotionStatus;
+        private String profileImageUrl;
+        private Long userId;
+
+        public static ContentResponse.EmotionDetails response(Emotion emotion) {
+            return EmotionDetails.builder()
+                    .id(emotion.getId())
+                    .emotionStatus(emotion.getEmotionStatus())
+                    .profileImageUrl(emotion.getUser().getProfileImageUrl())
+                    .userId(emotion.getUser().getId())
                     .build();
         }
     }

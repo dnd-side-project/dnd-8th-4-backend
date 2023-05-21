@@ -3,14 +3,12 @@ package dnd.diary.service.group;
 import static dnd.diary.enumeration.Result.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.group.Notification;
 import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.mission.Mission;
 import dnd.diary.domain.mission.UserAssignMission;
-import dnd.diary.request.content.ContentDto;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.repository.mission.UserAssignMissionRepository;

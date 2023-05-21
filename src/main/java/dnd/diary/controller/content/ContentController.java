@@ -1,13 +1,11 @@
 package dnd.diary.controller.content;
 
-import dnd.diary.request.content.ContentDto;
 import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.content.ContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,6 +42,32 @@ public class ContentController {
         return CustomResponseEntity.success(contentService.detailContent(userId, contentId));
     }
 
+    // 피드 수정
+    @PutMapping("content")
+    public CustomResponseEntity<ContentResponse.Update> contentUpdate(
+            @AuthenticationPrincipal final Long userId,
+            @RequestPart(required = false) final List<MultipartFile> multipartFile,
+            @RequestParam final Long contentId,
+            @RequestParam final String content,
+            @RequestParam(required = false) final Double latitude,
+            @RequestParam(required = false) final Double longitude,
+            @RequestParam(required = false) final String location
+    ) {
+        return CustomResponseEntity.success(contentService.updateContent(
+                userId, multipartFile, contentId,
+                content, latitude, longitude, location)
+        );
+    }
+
+    // 피드 삭제
+    @DeleteMapping("content")
+    public CustomResponseEntity<Boolean> contentDelete(
+            @AuthenticationPrincipal final Long userId,
+            @RequestParam final Long contentId
+    ) {
+        return CustomResponseEntity.success(contentService.deleteContent(userId, contentId));
+    }
+
     // 그룹 피드 리스트 조회
     @GetMapping("content/group")
     public CustomResponseEntity<Page<ContentResponse.GroupPage>> contentGroupList(
@@ -74,36 +98,9 @@ public class ContentController {
         return CustomResponseEntity.success(contentService.contentSearch(groupId, word, page));
     }
 
-
-    // 피드 수정
-    @PutMapping("content")
-    public CustomResponseEntity<ContentResponse.Update> contentUpdate(
-            @AuthenticationPrincipal final Long userId,
-            @RequestPart(required = false) final List<MultipartFile> multipartFile,
-            @RequestParam final Long contentId,
-            @RequestParam final String content,
-            @RequestParam(required = false) final Double latitude,
-            @RequestParam(required = false) final Double longitude,
-            @RequestParam(required = false) final String location
-    ) {
-        return CustomResponseEntity.success(contentService.updateContent(
-                userId, multipartFile, contentId,
-                content, latitude, longitude, location)
-        );
-    }
-
-    // 피드 삭제
-    @DeleteMapping("content")
-    public CustomResponseEntity<Boolean> contentDelete(
-            @AuthenticationPrincipal final Long userId,
-            @RequestParam final Long contentId
-    ) {
-        return CustomResponseEntity.success(contentService.deleteContent(userId, contentId));
-    }
-
     // 지도 포함 검색
     @GetMapping("content/map")
-    public CustomResponseEntity<List<ContentResponse.LocationSearchContent>> myMapList(
+    public CustomResponseEntity<List<ContentResponse.LocationSearch>> myMapList(
             @AuthenticationPrincipal final Long userId,
             @RequestParam final Double startLatitude,
             @RequestParam final Double startLongitude,
@@ -115,7 +112,7 @@ public class ContentController {
 
     // (중복되는 장소의) 지도 피드 상세보기
     @GetMapping("content/map/detail")
-    public CustomResponseEntity<List<ContentDto.mapListContentDetail>> myMapListDetail(
+    public CustomResponseEntity<List<ContentResponse.LocationDetail>> myMapListDetail(
             @RequestParam final String location, @AuthenticationPrincipal final Long userId
     ) {
         return CustomResponseEntity.success(contentService.listDetailMyMap(location, userId));

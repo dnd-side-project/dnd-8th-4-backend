@@ -10,7 +10,6 @@ import dnd.diary.domain.group.NotificationType;
 import dnd.diary.domain.sticker.Sticker;
 import dnd.diary.domain.user.User;
 import dnd.diary.request.content.CommentDto;
-import dnd.diary.request.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.CommentLikeRepository;
@@ -20,6 +19,7 @@ import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.group.NotificationRepository;
 import dnd.diary.repository.mission.StickerRepository;
 import dnd.diary.repository.user.UserRepository;
+import dnd.diary.response.content.ContentResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -143,11 +143,11 @@ public class CommentService {
         }
     }
 
-    public List<ContentDto.EmotionResponseDto> emotionList(Long contentId) {
+    public List<ContentResponse.EmotionDetail> emotionList(Long contentId) {
         return emotionRepository.findByContentId(contentId)
             .stream()
             .filter(Emotion::isEmotionYn)
-            .map(ContentDto.EmotionResponseDto::response)
+            .map(ContentResponse.EmotionDetail::response)
             .toList();
     }
 }

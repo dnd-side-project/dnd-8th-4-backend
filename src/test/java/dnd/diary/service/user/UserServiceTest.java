@@ -1,7 +1,6 @@
 package dnd.diary.service.user;
 
 import dnd.diary.config.Jwt.TokenProvider;
-import dnd.diary.config.redis.RedisDao;
 import dnd.diary.domain.bookmark.Bookmark;
 import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
@@ -13,7 +12,6 @@ import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.user.UserRepository;
-import dnd.diary.request.UserDto;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.user.UserSearchResponse;
@@ -21,7 +19,6 @@ import dnd.diary.service.redis.RedisService;
 import dnd.diary.service.s3.S3Service;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -37,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 

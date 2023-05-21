@@ -2,13 +2,11 @@ package dnd.diary.response.user;
 
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.user.User;
-import dnd.diary.request.UserDto;
-import dnd.diary.request.content.ContentDto;
+import dnd.diary.response.content.ContentResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -120,10 +118,10 @@ public class UserResponse {
         private Integer views;
         private Integer comments;
         private Integer imageSize;
-        List<ContentDto.ImageResponseDto> images;
+        List<ContentResponse.ImageDetail> images;
 
         @Builder
-        private ContentList(Long contentId, Long userId, String profileImageUrl, Long groupId, String groupName, String groupImage, String content, LocalDateTime createAt, Integer views, Integer comments, Integer imageSize, List<ContentDto.ImageResponseDto> images) {
+        private ContentList(Long contentId, Long userId, String profileImageUrl, Long groupId, String groupName, String groupImage, String content, LocalDateTime createAt, Integer views, Integer comments, Integer imageSize, List<ContentResponse.ImageDetail> images) {
             this.contentId = contentId;
             this.userId = userId;
             this.profileImageUrl = profileImageUrl;
@@ -140,7 +138,7 @@ public class UserResponse {
 
         public static UserResponse.ContentList response(
                 Content content,
-                List<ContentDto.ImageResponseDto> images,
+                List<ContentResponse.ImageDetail> images,
                 Integer views
         ) {
             return ContentList.builder()

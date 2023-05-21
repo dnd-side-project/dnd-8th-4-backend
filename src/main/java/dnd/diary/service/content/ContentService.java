@@ -1,48 +1,33 @@
 package dnd.diary.service.content;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import dnd.diary.config.redis.RedisDao;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.ContentImage;
 import dnd.diary.domain.content.Emotion;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.User;
-import dnd.diary.request.content.ContentDto;
 import dnd.diary.enumeration.Result;
 import dnd.diary.exception.CustomException;
 import dnd.diary.repository.content.ContentImageRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.content.EmotionRepository;
 import dnd.diary.repository.group.GroupRepository;
-import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.redis.RedisService;
 import dnd.diary.service.s3.S3Service;
 import dnd.diary.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -101,6 +86,43 @@ public class ContentService {
     }
 
     @Transactional
+    @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
+    public ContentResponse.Update updateContent(
+            Long userId, List<MultipartFile> multipartFile, Long contentId,
+            String contentNote, Double latitude, Double longitude, String location
+    ) {
+        validateUpdateContent(contentId);
+        Content content = existsContentAndUser(contentId, userId);
+
+        // 이미 삭제 처리된 게시물일 경우
+        if (content.isDeletedYn()) {
+            throw new CustomException(Result.NOT_FOUND_CONTENT);
+        }
+
+        List<String> imageNameList = contentImageRepository.findImageNameList(contentId);
+        List<ContentImage> contentImages = deleteAndSaveContentImage(multipartFile, imageNameList, content);
+        content.updateContent(contentNote, latitude, longitude, location, contentImages);
+
+        List<ContentResponse.ImageDetail> imageList = getContentImageResponse(content);
+        int views = Integer.parseInt(redisService.getValues(content.getId().toString()));
+
+        return ContentResponse.Update.response(
+                content,
+                views,
+                imageList
+        );
+    }
+
+    @Transactional
+    public Boolean deleteContent(
+            Long userId, Long contentId
+    ) {
+        Content content = existsContentAndUser(contentId, userId);
+        content.deleteContent();   // 게시물 삭제 시 상태값만 변경
+        return true;
+    }
+
+    @Transactional
     public Page<ContentResponse.GroupPage> groupListContent(
             Long userId, Long groupId, Integer page
     ) {
@@ -127,56 +149,7 @@ public class ContentService {
     }
 
     @Transactional
-    @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
-    public ContentResponse.Update updateContent(
-            Long userId, List<MultipartFile> multipartFile, Long contentId,
-            String contentNote, Double latitude, Double longitude, String location
-    ) {
-        validateUpdateContent(contentId);
-        Content content = existsContentAndUser(contentId, userId);
-
-        // 이미 삭제 처리된 게시물일 경우
-        if (content.isDeletedYn()) {
-            throw new CustomException(Result.NOT_FOUND_CONTENT);
-        }
-
-        List<String> imageNameList = contentImageRepository.findImageNameList(contentId);
-        List<ContentImage> contentImages = deleteAndSaveContentImage(multipartFile, imageNameList, content);
-        content.updateContent(contentNote, latitude, longitude, location, contentImages);
-
-        List<ContentDto.ImageResponseDto> imageList = getImageResponseDtos(content);
-        int views = Integer.parseInt(redisService.getValues(content.getId().toString()));
-
-        return ContentResponse.Update.response(
-                content,
-                views,
-                imageList
-        );
-    }
-
-    private static List<ContentDto.ImageResponseDto> getImageResponseDtos(Content content) {
-        List<ContentDto.ImageResponseDto> collect = null;
-
-        if (content.getContentImages() != null) {
-            collect = content.getContentImages()
-                    .stream()
-                    .map(ContentDto.ImageResponseDto::response).toList();
-        }
-
-        return collect;
-    }
-
-    @Transactional
-    public Boolean deleteContent(
-            Long userId, Long contentId
-    ) {
-        Content content = existsContentAndUser(contentId, userId);
-        content.deleteContent();   // 게시물 삭제 시 상태값만 변경
-        return true;
-    }
-
-    @Transactional
-    public List<ContentResponse.LocationSearchContent> listMyMap(
+    public List<ContentResponse.LocationSearch> listMyMap(
             Long userId, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude
     ) {
         User user = userService.getUser(userId);
@@ -189,7 +162,7 @@ public class ContentService {
 
         return myMapContents.stream()
                 .filter(content -> !content.isDeletedYn())
-                .map((Content content) -> ContentResponse.LocationSearchContent.response(
+                .map((Content content) -> ContentResponse.LocationSearch.response(
                                 content,
                                 getContentImageResponse(content),
                                 isCountDuplicateLocation(myGroupIdList, content)
@@ -197,14 +170,8 @@ public class ContentService {
                 ).toList();
     }
 
-    private Long isCountDuplicateLocation(List<Long> myGroupIdList, Content content) {
-        return contentRepository.countByLocationAndGroupIdInAndDeletedYn(
-                content.getLocation(), myGroupIdList, false
-        );
-    }
-
     @Transactional
-    public List<ContentDto.mapListContentDetail> listDetailMyMap(String location, Long userId) {
+    public List<ContentResponse.LocationDetail> listDetailMyMap(String location, Long userId) {
         User user = userService.getUser(userId);
         List<Long> myGroupIdList = user.getUserJoinGroups().stream()
                 .map(userJoinGroup -> userJoinGroup.getGroup().getId()).toList();
@@ -214,9 +181,9 @@ public class ContentService {
         return contentList.stream()
                 .filter(content -> !content.isDeletedYn())   // 삭제 처리되지 않은 게시물만 조회
                 .map((Content content) ->
-                        ContentDto.mapListContentDetail.response(
+                        ContentResponse.LocationDetail.response(
                                 content,
-                                getContentImageResponseDto(content)
+                                getContentImageResponse(content)
                         )
                 ).toList();
     }
@@ -236,17 +203,10 @@ public class ContentService {
 
 
     // method
-    private List<ContentResponse.ImageInfo> getContentImageResponse(Content content) {
+    private List<ContentResponse.ImageDetail> getContentImageResponse(Content content) {
         return content.getContentImages()
                 .stream()
-                .map(ContentResponse.ImageInfo::response)
-                .toList();
-    }
-
-    private List<ContentDto.ImageResponseDto> getContentImageResponseDto(Content content) {
-        return content.getContentImages()
-                .stream()
-                .map(ContentDto.ImageResponseDto::response)
+                .map(ContentResponse.ImageDetail::response)
                 .toList();
     }
 
@@ -289,15 +249,13 @@ public class ContentService {
         }
 
         if (multipartFile != null) {
-            List<ContentImage> contentImages = s3Service.uploadFiles(multipartFile, content);
-            return contentImages;
+            return s3Service.uploadFiles(multipartFile, content);
         }
         return null;
     }
 
 
     // validate
-
     private void validateUpdateContent(Long contentId) {
         if (!contentRepository.existsById(contentId)) {
             throw new CustomException(Result.NOT_FOUND_CONTENT);
@@ -350,7 +308,7 @@ public class ContentService {
     private Page<ContentResponse.GroupPage> getMyGroupPages(Long userId, Page<Content> contents) {
         User user = userService.getUser(userId);
 
-        Page<ContentResponse.GroupPage> myGroupPages = contents.map(
+        return contents.map(
                 (Content content) -> {
                     Long emotionStatus = isCheckAddEmotionAndGetStatus(user, content);
                     Boolean myBookmarkStatus = redisService.isCheckAddBookmark(user.getEmail(), content.getId());
@@ -364,8 +322,6 @@ public class ContentService {
                     );
                 }
         );
-
-        return myGroupPages;
     }
 
     private Long isCheckAddEmotionAndGetStatus(User user, Content content) {
@@ -374,5 +330,11 @@ public class ContentService {
         );
 
         return (emotionOptional.isEmpty()) ? -1 : emotionOptional.get().getEmotionStatus();
+    }
+
+    private Long isCountDuplicateLocation(List<Long> myGroupIdList, Content content) {
+        return contentRepository.countByLocationAndGroupIdInAndDeletedYn(
+                content.getLocation(), myGroupIdList, false
+        );
     }
 }

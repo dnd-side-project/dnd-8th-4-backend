@@ -1,6 +1,5 @@
 package dnd.diary.service.content;
 
-import dnd.diary.domain.comment.Comment;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.group.Group;
 import dnd.diary.domain.user.Authority;
@@ -10,8 +9,6 @@ import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.GroupRepository;
 import dnd.diary.repository.user.UserRepository;
-import dnd.diary.request.content.ContentDto;
-import dnd.diary.response.CustomResponseEntity;
 import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.redis.RedisService;
 import org.junit.jupiter.api.DisplayName;
@@ -29,7 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -93,6 +89,44 @@ class ContentServiceTest {
         assertThat(response)
                 .extracting("groupName", "userName", "content", "location")
                 .contains("테스트 그룹", "테스트 닉네임", "테스트 내용", "삼성 서비스 센터");
+    }
+
+    @DisplayName("유저가 자신이 작성한 글을 수정한다.")
+    @Test
+    void contentUpdate() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+
+        given(redisService.getValues(anyString()))
+                .willReturn("23");
+
+        // when
+        ContentResponse.Update response = contentService.updateContent(user.getId(), null, content.getId(), "하이", 2.0, 2.0, "명륜진사갈비");
+
+        // then
+        assertThat(response)
+                .extracting("userName", "content", "location", "latitude", "longitude")
+                .contains("테스트 닉네임", "하이", "명륜진사갈비", 2.0, 2.0);
+    }
+
+    @DisplayName("유저가 자신이 작성한 글을 삭제한다.")
+    @Test
+    void contentDelete() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+        Content content = getContentAndSave(user, group);
+
+        // when
+        Boolean response = contentService.deleteContent(user.getId(), content.getId());
+
+        // then
+        assertThat(response).isTrue();
+        Optional<Content> contentOptional = contentRepository.findByIdAndDeletedYn(content.getId(), false);
+
+        assertThat(contentOptional.isEmpty()).isTrue();
     }
 
     @DisplayName("유저가 선택한 그룹의 피드를 페이지로 조회한다.")
@@ -169,44 +203,6 @@ class ContentServiceTest {
                 );
     }
 
-    @DisplayName("유저가 자신이 작성한 글을 수정한다.")
-    @Test
-    void contentUpdate() {
-        // given
-        User user = getUserAndSave();
-        Group group = getGroupSave(user);
-        Content content = getContentAndSave(user, group);
-
-        given(redisService.getValues(anyString()))
-                .willReturn("23");
-
-        // when
-        ContentResponse.Update response = contentService.updateContent(user.getId(), null, content.getId(), "하이", 2.0, 2.0, "명륜진사갈비");
-
-        // then
-        assertThat(response)
-                .extracting("userName", "content", "location", "latitude", "longitude")
-                .contains("테스트 닉네임", "하이", "명륜진사갈비", 2.0, 2.0);
-    }
-
-    @DisplayName("유저가 자신이 작성한 글을 삭제한다.")
-    @Test
-    void contentDelete() {
-        // given
-        User user = getUserAndSave();
-        Group group = getGroupSave(user);
-        Content content = getContentAndSave(user, group);
-
-        // when
-        Boolean response = contentService.deleteContent(user.getId(), content.getId());
-
-        // then
-        assertThat(response).isTrue();
-        Optional<Content> contentOptional = contentRepository.findByIdAndDeletedYn(content.getId(), false);
-
-        assertThat(contentOptional.isEmpty()).isTrue();
-    }
-
     @DisplayName("유저가 위치를 검색하여 주변에 남겨진 피드들을 검색한다.")
     @Test
     void listMyMap() {
@@ -224,13 +220,39 @@ class ContentServiceTest {
         getContentAndSave(user, group, 37.802508, 127.076286);
 
         // when
-        List<ContentResponse.LocationSearchContent> response =
+        List<ContentResponse.LocationSearch> response =
                 contentService.listMyMap(user.getId(), 37.798631, 127.071024, 37.806840, 127.081482);
 
         // then
         assertThat(response).hasSize(1)
                 .extracting("location")
                 .contains("삼성 서비스 센터");
+    }
+
+    @DisplayName("주변에 남겨진 검색된 피드들을 중복된 장소의 피드를 포함하여 상세조회한다.")
+    @Test
+    void myMapListDetail() {
+        // given
+        User user = getUserAndSave();
+        Group group = getGroupSave(user);
+
+        UserJoinGroup userJoinGroup = UserJoinGroup.builder()
+                .user(user)
+                .group(group)
+                .build();
+
+        user.getUserJoinGroups().add(userJoinGroup);
+
+        getContentAndSave(user, group, 37.802508, 127.076286);
+
+        // when
+        List<ContentResponse.LocationDetail> response = contentService.listDetailMyMap("삼성 서비스 센터", user.getId());
+
+        // then
+        assertThat(response)
+                .hasSize(1)
+                .extracting("content")
+                .contains("테스트 내용");
     }
 
     // method
