@@ -83,11 +83,11 @@ public class EmotionService {
         }
     }
 
-    public List<ContentResponse.EmotionDetail> emotionList(Long contentId) {
+    public List<EmotionResponse.Detail> emotionList(Long contentId) {
         return emotionRepository.findByContentId(contentId)
                 .stream()
                 .filter(Emotion::isEmotionYn)
-                .map(ContentResponse.EmotionDetail::response)
+                .map(EmotionResponse.Detail::response)
                 .toList();
     }
 

@@ -28,7 +28,7 @@ public class EmotionController {
 
     // 피드 감정 리스트 조회
     @GetMapping("content/{contentId}/emotion")
-    public CustomResponseEntity<List<ContentResponse.EmotionDetail>> listEmotion(
+    public CustomResponseEntity<List<EmotionResponse.Detail>> listEmotion(
             @PathVariable(name = "contentId") final Long contentId
     ) {
         return CustomResponseEntity.success(emotionService.emotionList(contentId));

@@ -26,4 +26,20 @@ public class EmotionResponse {
                     .build();
         }
     }
+
+    @NoArgsConstructor
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
+    public static class Detail {
+        private Long id;
+        private Long emotionStatus;
+
+        public static EmotionResponse.Detail response(Emotion emotion) {
+            return EmotionResponse.Detail.builder()
+                    .id(emotion.getId())
+                    .emotionStatus(emotion.getEmotionStatus())
+                    .build();
+        }
+    }
 }
