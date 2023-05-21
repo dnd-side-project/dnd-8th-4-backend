@@ -19,6 +19,6 @@ public class BookmarkController {
             @AuthenticationPrincipal final Long userId,
             @RequestParam final Long contentId
     ) {
-        return bookmarkService.bookmarkAdd(userId, contentId);
+        return bookmarkService.processBookmarkTransaction(userId, contentId);
     }
 }

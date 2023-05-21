@@ -5,10 +5,7 @@ import dnd.diary.config.Jwt.JwtAccessDeniedHandler;
 import dnd.diary.config.Jwt.JwtAuthenticationEntryPoint;
 import dnd.diary.config.Jwt.TokenProvider;
 import dnd.diary.config.redis.RedisDao;
-import dnd.diary.controller.content.CommentController;
-import dnd.diary.controller.content.CommentLikeController;
-import dnd.diary.controller.content.ContentController;
-import dnd.diary.controller.content.EmotionController;
+import dnd.diary.controller.content.*;
 import dnd.diary.controller.user.UserController;
 import dnd.diary.service.content.CommentLikeService;
 import dnd.diary.service.content.CommentService;
@@ -29,7 +26,8 @@ import org.springframework.web.filter.CorsFilter;
         ContentController.class,
         CommentLikeController.class,
         CommentController.class,
-        EmotionController.class
+        EmotionController.class,
+        BookmarkController.class
 })
 @AutoConfigureMockMvc(addFilters = false)
 public abstract class ControllerTestSupport {
@@ -39,6 +37,9 @@ public abstract class ControllerTestSupport {
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @MockBean
+    protected BookmarkController bookmarkController;
 
     @MockBean
     protected EmotionService emotionService;

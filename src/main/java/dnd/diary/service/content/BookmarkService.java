@@ -25,7 +25,7 @@ public class BookmarkService {
 
     @Transactional
     @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
-    public CustomResponseEntity<BookmarkResponse> bookmarkAdd(
+    public CustomResponseEntity<BookmarkResponse> processBookmarkTransaction(
             Long userId, Long contentId
     ) {
         User user = getUser(userId);

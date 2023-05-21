@@ -61,7 +61,7 @@ class BookmarkServiceTest {
         Content content = getContentAndSave(user, group);
 
         // when
-        CustomResponseEntity<BookmarkResponse> response = bookmarkService.bookmarkAdd(user.getId(), content.getId());
+        CustomResponseEntity<BookmarkResponse> response = bookmarkService.processBookmarkTransaction(user.getId(), content.getId());
 
         // then
         Optional<Bookmark> bookmarkOptional = bookmarkRepository.findById(response.getData().getId());
@@ -83,7 +83,7 @@ class BookmarkServiceTest {
         );
 
         // when
-        bookmarkService.bookmarkAdd(user.getId(), content.getId());
+        bookmarkService.processBookmarkTransaction(user.getId(), content.getId());
 
         // then
         Optional<Bookmark> bookmarkOptional = bookmarkRepository.findById(bookmark.getId());
