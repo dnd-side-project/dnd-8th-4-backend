@@ -224,23 +224,6 @@ class ContentServiceTest {
         return userRepository.save(user);
     }
 
-    private User getUserAndSave(String email, String nickName) {
-        User user = User.builder()
-                .authorities(getAuthorities())
-                .email(email)
-                .password("abc123!")
-                .name("테스트 계정")
-                .nickName(nickName)
-                .phoneNumber("010-1234-5678")
-                .profileImageUrl("test.png")
-                .mainLevel(0L)
-                .subLevel(0.0)
-                .isNewNotification(Boolean.FALSE)
-                .build();
-
-        return userRepository.save(user);
-    }
-
     private static Set<Authority> getAuthorities() {
         return Collections.singleton(Authority.builder()
                 .authorityName("ROLE_USER")
@@ -273,16 +256,6 @@ class ContentServiceTest {
 
         groupRepository.save(group);
         return group;
-    }
-
-    private Comment getCommentAndSave(User user, Content content) {
-        Comment comment = Comment.builder()
-                .user(user)
-                .content(content)
-                .commentNote("테스트 내용")
-                .build();
-
-        return commentRepository.save(comment);
     }
 
 }
