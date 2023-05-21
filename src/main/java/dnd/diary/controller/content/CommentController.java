@@ -1,13 +1,13 @@
 package dnd.diary.controller.content;
 
-import dnd.diary.request.content.CommentDto;
+import dnd.diary.request.controller.comment.CommentRequest;
 import dnd.diary.response.CustomResponseEntity;
+import dnd.diary.response.content.CommentResponse;
 import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.content.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,29 +20,29 @@ public class CommentController {
 
     // 피드 댓글 작성
     @PostMapping("content/{contentId}/comment")
-    public CustomResponseEntity<CommentDto.AddCommentDto> addComment(
-            @AuthenticationPrincipal final UserDetails userDetails,
+    public CustomResponseEntity<CommentResponse.Add> addComment(
+            @AuthenticationPrincipal final Long userId,
             @PathVariable(name = "contentId") final Long contentId,
-            @Valid @RequestBody final CommentDto.AddCommentDto request
+            @Valid @RequestBody final CommentRequest.Add request
     ) {
-        return CustomResponseEntity.success(commentService.commentAdd(userDetails, contentId, request));
+        return CustomResponseEntity.success(commentService.commentAdd(userId, contentId, request.toServiceRequest()));
     }
 
     // 피드 댓글 조회
     @GetMapping("content/{contentId}/comment")
-    public CustomResponseEntity<Page<CommentDto.pageCommentDto>> pageComment(
-            @AuthenticationPrincipal final UserDetails userDetails,
+    public CustomResponseEntity<Page<CommentResponse.Detail>> pageComment(
+            @AuthenticationPrincipal final Long userId,
             @PathVariable(name = "contentId") final Long contentId,
             @RequestParam final Integer page
     ) {
-        return CustomResponseEntity.success(commentService.commentPage(userDetails, contentId, page));
+        return CustomResponseEntity.success(commentService.commentPage(userId, contentId, page));
     }
 
     // 피드 감정 리스트 조회
     @GetMapping("content/{contentId}/emotion")
     public CustomResponseEntity<List<ContentResponse.EmotionDetail>> listEmotion(
             @PathVariable(name = "contentId") final Long contentId
-    ){
+    ) {
         return CustomResponseEntity.success(commentService.emotionList(contentId));
     }
 }
