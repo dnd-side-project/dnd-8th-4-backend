@@ -15,7 +15,7 @@ public class BookmarkController {
     private final BookmarkService bookmarkService;
 
     @GetMapping("bookmark")
-    public CustomResponseEntity<BookmarkResponse> addBookmark(
+    public CustomResponseEntity<BookmarkResponse> processBookmarkTransaction(
             @AuthenticationPrincipal final Long userId,
             @RequestParam final Long contentId
     ) {

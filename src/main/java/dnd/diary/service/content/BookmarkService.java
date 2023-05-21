@@ -22,7 +22,6 @@ public class BookmarkService {
     private final UserRepository userRepository;
     private final ContentRepository contentRepository;
     private final BookmarkRepository bookmarkRepository;
-    private final RedisDao redisDao;
 
     @Transactional
     @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
