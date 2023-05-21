@@ -269,12 +269,24 @@ public class NotificationService {
 		return notificationList.size() - readCount;
 	}
 
-	// 게시글 작성 시 알림 생성
+	// 댓글 작성 시 알림 생성
 	public void sendToNotification(Long contentId, Comment comment) {
 		Content content = getContent(contentId);
 		if (!comment.getUser().getId().equals(content.getUser().getId())) {
 			Notification notification = Notification.toContentCommentEntity(
 					content, comment, content.getUser(), NotificationType.CONTENT_COMMENT);
+			notificationRepository.save(notification);
+
+			content.getUser().updateNewNotification();
+		}
+	}
+
+	// 감정 등록 시 알림 생성
+	public void sendToNotification(Long contentId, User user, Emotion emotion) {
+		Content content = getContent(contentId);
+		if (!user.getId().equals(content.getUser().getId())) {
+			Notification notification = Notification.toContentEmotionEntity(
+					content, emotion, content.getUser(), NotificationType.CONTENT_EMOTION);
 			notificationRepository.save(notification);
 
 			content.getUser().updateNewNotification();
