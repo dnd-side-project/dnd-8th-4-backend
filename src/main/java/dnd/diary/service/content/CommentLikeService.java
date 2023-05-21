@@ -26,7 +26,7 @@ public class CommentLikeService {
     private final NotificationService notificationService;
 
     @Transactional
-    public CustomResponseEntity<CommentLikeResponse> commentLikeSave(
+    public CustomResponseEntity<CommentLikeResponse> processCommentLikeTransaction(
             Long userId, Long commentId
     ) {
         validateCommentLikeSave(commentId);

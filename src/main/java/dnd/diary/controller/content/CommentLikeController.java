@@ -15,10 +15,10 @@ public class CommentLikeController {
     private final CommentLikeService commentLikeService;
 
     @GetMapping("content/comment/like")
-    public CustomResponseEntity<CommentLikeResponse> likeSaveComment(
+    public CustomResponseEntity<CommentLikeResponse> processCommentLikeTransaction(
             @AuthenticationPrincipal final Long userId,
             @RequestParam final Long commentId
     ) {
-        return commentLikeService.commentLikeSave(userId, commentId);
+        return commentLikeService.processCommentLikeTransaction(userId, commentId);
     }
 }
