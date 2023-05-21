@@ -163,7 +163,7 @@ public class ContentResponse {
         private Long emotionStatus;
         private Boolean bookmarkAddStatus;
         List<ContentResponse.ImageDetail> imageDetails;
-        List<ContentResponse.EmotionDetail> emotionDetails;
+        List<EmotionResponse.Detail> emotionDetails;
 
         public static ContentResponse.GroupPage response(
                 Content content, Long emotionStatus, String views, Boolean bookmarkAddStatus
@@ -194,7 +194,7 @@ public class ContentResponse {
                     .emotionDetails(content.getEmotions()
                             .stream()
                             .filter(Emotion::isEmotionYn)   // 공감이 추가된 상태인 경우에만 응답으로 추가
-                            .map(ContentResponse.EmotionDetail::response)
+                            .map(EmotionResponse.Detail::response)
                             .toList())
                     .build();
         }
@@ -353,22 +353,6 @@ public class ContentResponse {
                     .imageUrl(contentImage.getImageUrl())
                     .imageName(contentImage.getImageName())
                     .contentId(contentImage.getContent().getId())
-                    .build();
-        }
-    }
-
-    @NoArgsConstructor
-    @Getter
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @Builder
-    public static class EmotionDetail {
-        private Long id;
-        private Long emotionStatus;
-
-        public static ContentResponse.EmotionDetail response(Emotion emotion) {
-            return ContentResponse.EmotionDetail.builder()
-                    .id(emotion.getId())
-                    .emotionStatus(emotion.getEmotionStatus())
                     .build();
         }
     }
