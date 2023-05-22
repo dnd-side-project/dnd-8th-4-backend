@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -46,6 +47,10 @@ import static org.mockito.Mockito.mock;
 @ActiveProfiles("test")
 @Transactional
 class UserServiceTest {
+
+    static {
+        System.setProperty("com.amazonaws.sdk.disableEc2Metadata", "true");
+    }
 
     @MockBean
     private RedisService redisService;
@@ -88,7 +93,6 @@ class UserServiceTest {
                 "test@test.com", "abc123!", "테스트 계정",
                 "테스트 닉네임", "010-1234-5678"
         );
-
 
         // when
         UserResponse.Login response = userService.createUserAccount(request.toServiceRequest());
@@ -224,10 +228,10 @@ class UserServiceTest {
         getUserAndSave("test2@test.com", "테스트 계정2");
 
         // when
-        UserSearchResponse response = userService.searchUserList("테스트");
+        List<UserSearchResponse.UserSearchInfo> response = userService.searchUserList("테스트");
 
         // then
-        assertThat(response.getUserSearchInfoList())
+        assertThat(response)
                 .hasSize(2)
                 .extracting(UserSearchResponse.UserSearchInfo::getUserEmail, UserSearchResponse.UserSearchInfo::getUserNickName)
                 .contains(

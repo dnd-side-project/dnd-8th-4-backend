@@ -55,17 +55,15 @@ public class UserResponse {
     public static class Detail {
         private Long id;
         private String email;
-        private String password;
         private String name;
         private String nickName;
         private String phoneNumber;
         private String profileImageUrl;
 
         @Builder
-        private Detail(Long id, String email, String password, String name, String nickName, String phoneNumber, String profileImageUrl) {
+        private Detail(Long id, String email, String name, String nickName, String phoneNumber, String profileImageUrl) {
             this.id = id;
             this.email = email;
-            this.password = password;
             this.name = name;
             this.nickName = nickName;
             this.phoneNumber = phoneNumber;

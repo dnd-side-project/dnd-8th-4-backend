@@ -1,10 +1,128 @@
 [[user-createAccountUser]]
 === 회원가입 API
 
-==== HTTP Request
+==== HTTP Request Body
 include::{snippets}/user-createAccountUser/http-request.adoc[]
 include::{snippets}/user-createAccountUser/request-fields.adoc[]
 
 ==== HTTP Response
 include::{snippets}/user-createAccountUser/http-response.adoc[]
 include::{snippets}/user-createAccountUser/response-body.adoc[]
+
+=== 로그인 API
+
+==== HTTP Request Body
+include::{snippets}/user-login/http-request.adoc[]
+include::{snippets}/user-login/request-fields.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-login/http-response.adoc[]
+include::{snippets}/user-login/response-fields.adoc[]
+
+=== 내 정보 조회 API
+
+==== HTTP Request Header
+include::{snippets}/user-myDetail/request-headers.adoc[]
+include::{snippets}/user-myDetail/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-myDetail/http-response.adoc[]
+include::{snippets}/user-myDetail/response-fields.adoc[]
+
+=== 내 정보 수정 API
+
+==== HTTP Request Header
+include::{snippets}/user-update/request-headers.adoc[]
+
+==== HTTP Request Part
+include::{snippets}/user-update/request-parts.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/user-update/request-parameters.adoc[]
+include::{snippets}/user-update/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-update/http-response.adoc[]
+include::{snippets}/user-update/response-fields.adoc[]
+
+=== 로그아웃 API
+
+==== HTTP Request Header
+include::{snippets}/user-logout/request-headers.adoc[]
+include::{snippets}/user-logout/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-logout/http-response.adoc[]
+include::{snippets}/user-logout/response-fields.adoc[]
+
+=== 회원탈퇴 API
+
+==== HTTP Request Header
+include::{snippets}/user-delete/request-headers.adoc[]
+include::{snippets}/user-delete/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-delete/http-response.adoc[]
+include::{snippets}/user-delete/response-fields.adoc[]
+
+=== 유저 검색 API
+
+==== HTTP Request Header
+include::{snippets}/user-search/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/user-search/request-parameters.adoc[]
+include::{snippets}/user-search/http-response.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-search/http-response.adoc[]
+include::{snippets}/user-search/response-fields.adoc[]
+
+=== 북마크한 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/user-myBookmark/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/user-myBookmark/request-parameters.adoc[]
+include::{snippets}/user-myBookmark/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-myBookmark/http-response.adoc[]
+include::{snippets}/user-myBookmark/response-fields.adoc[]
+
+=== 내가 작성한 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/user-myContent/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/user-myContent/request-parameters.adoc[]
+include::{snippets}/user-myContent/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-myContent/http-response.adoc[]
+include::{snippets}/user-myContent/response-fields.adoc[]
+
+=== 내가 작성한 댓글의 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/user-myCommentWithContent/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/user-myCommentWithContent/request-parameters.adoc[]
+include::{snippets}/user-myCommentWithContent/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-myCommentWithContent/http-response.adoc[]
+include::{snippets}/user-myCommentWithContent/response-fields.adoc[]
+
+=== 이메일 검증 API
+
+==== HTTP Request Parameter
+include::{snippets}/user-emailCheck/request-parameters.adoc[]
+include::{snippets}/user-emailCheck/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-emailCheck/http-response.adoc[]
+include::{snippets}/user-emailCheck/response-fields.adoc[]
