@@ -306,13 +306,31 @@ class UserControllerDocsTest extends RestDocsSupport {
     @DisplayName("유저 회원탈퇴 API")
     @Test
     void userDelete() throws Exception {
+        given(userService.deleteUser(any(),anyString()))
+                .willReturn(true);
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.delete("/auth")
                                 .header("Authorization", "JWT AccessToken")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("user-delete",
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("insert the AccessToken")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("상태 메세지"),
+                                fieldWithPath("data").type(JsonFieldType.BOOLEAN)
+                                        .description("회원탈퇴 성공 여부")
+                        )
+                ));
     }
 
     @DisplayName("유저 검색 API")

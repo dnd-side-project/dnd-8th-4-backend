@@ -54,3 +54,13 @@ include::{snippets}/user-logout/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/user-logout/http-response.adoc[]
 include::{snippets}/user-logout/response-fields.adoc[]
+
+=== 회원탈퇴 API
+
+==== HTTP Request Header
+include::{snippets}/user-delete/request-headers.adoc[]
+include::{snippets}/user-delete/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-delete/http-response.adoc[]
+include::{snippets}/user-delete/response-fields.adoc[]
