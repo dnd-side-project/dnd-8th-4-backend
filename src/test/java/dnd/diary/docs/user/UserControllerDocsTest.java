@@ -5,6 +5,7 @@ import dnd.diary.docs.RestDocsSupport;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.request.service.UserServiceRequest;
 import dnd.diary.response.user.UserResponse;
+import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -306,7 +308,7 @@ class UserControllerDocsTest extends RestDocsSupport {
     @DisplayName("유저 회원탈퇴 API")
     @Test
     void userDelete() throws Exception {
-        given(userService.deleteUser(any(),anyString()))
+        given(userService.deleteUser(any(), anyString()))
                 .willReturn(true);
 
         // when // then
@@ -336,13 +338,48 @@ class UserControllerDocsTest extends RestDocsSupport {
     @DisplayName("유저 검색 API")
     @Test
     void searchUserList() throws Exception {
+        // given
+        given(userService.searchUserList(anyString()))
+                .willReturn(List.of(
+                        new UserSearchResponse.UserSearchInfo(1L, "test1@test.com", "테스트 닉네임1", "test1.png"),
+                        new UserSearchResponse.UserSearchInfo(2L, "test2@test.com", "테스트 닉네임2", "test2.png")
+                ));
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/user/search")
-                                .param("keyword", "test")
+                                .header("Authorization", "JWT AccessToken")
+                                .param("keyword", "테스트")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("user-search",
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("insert the AccessToken")
+                        ),
+                        requestParameters(
+                                parameterWithName("keyword")
+                                        .description("검색할 닉네임")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("상태 메세지"),
+                                fieldWithPath("data[]").type(JsonFieldType.ARRAY)
+                                        .description("검색된 유저 목록"),
+                                fieldWithPath("data[].userId").type(JsonFieldType.NUMBER)
+                                        .description("검색된 유저 ID / Long"),
+                                fieldWithPath("data[].userEmail").type(JsonFieldType.STRING)
+                                        .description("검색된 유저 이메일"),
+                                fieldWithPath("data[].userNickName").type(JsonFieldType.STRING)
+                                        .description("검색된 유저 닉네임"),
+                                fieldWithPath("data[].profileImageUrl").type(JsonFieldType.STRING)
+                                        .description("검색된 유저 프로필 사진 URL")
+                        )
+                ));
     }
 
     @DisplayName("북마크한 글 조회 API")

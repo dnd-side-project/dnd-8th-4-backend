@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -74,7 +75,7 @@ public class UserController {
 
     // 유저 검색
     @GetMapping("/user/search")
-    public CustomResponseEntity<UserSearchResponse> searchUserList(
+    public CustomResponseEntity<List<UserSearchResponse.UserSearchInfo>> searchUserList(
             @RequestParam String keyword
     ) {
         return CustomResponseEntity.success(userService.searchUserList(keyword));

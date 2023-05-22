@@ -64,3 +64,16 @@ include::{snippets}/user-delete/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/user-delete/http-response.adoc[]
 include::{snippets}/user-delete/response-fields.adoc[]
+
+=== 유저 검색 API
+
+==== HTTP Request Header
+include::{snippets}/user-search/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/user-search/request-parameters.adoc[]
+include::{snippets}/user-search/http-response.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-search/http-response.adoc[]
+include::{snippets}/user-search/response-fields.adoc[]
