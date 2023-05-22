@@ -77,3 +77,16 @@ include::{snippets}/user-search/http-response.adoc[]
 ==== HTTP Response
 include::{snippets}/user-search/http-response.adoc[]
 include::{snippets}/user-search/response-fields.adoc[]
+
+=== 북마크한 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/user-myBookmark/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/user-myBookmark/request-parameters.adoc[]
+include::{snippets}/user-myBookmark/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-myBookmark/http-response.adoc[]
+include::{snippets}/user-myBookmark/response-fields.adoc[]

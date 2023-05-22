@@ -4,11 +4,15 @@ import dnd.diary.controller.user.UserController;
 import dnd.diary.docs.RestDocsSupport;
 import dnd.diary.request.controller.user.UserRequest;
 import dnd.diary.request.service.UserServiceRequest;
+import dnd.diary.response.content.ContentResponse;
 import dnd.diary.response.user.UserResponse;
 import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.user.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -18,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -385,13 +390,150 @@ class UserControllerDocsTest extends RestDocsSupport {
     @DisplayName("북마크한 글 조회 API")
     @Test
     void myBookmarkList() throws Exception {
+
+        List<ContentResponse.ImageDetail> images = List.of(ContentResponse.ImageDetail.builder()
+                .id(1L)
+                .contentId(1L)
+                .imageName("테스트 이미지 이름")
+                .imageUrl("테스트 이미지 URL")
+                .build()
+        );
+
+        List<UserResponse.ContentList> contentLists = List.of(
+                UserResponse.ContentList.builder()
+                        .contentId(1L)
+                        .userId(1L)
+                        .profileImageUrl("test.png")
+                        .groupId(1L)
+                        .groupName("테스트 그룹")
+                        .groupImage("test.png")
+                        .content("테스트 내용")
+                        .createAt(LocalDateTime.of(2023, 4, 12, 13, 11))
+                        .views(23)
+                        .comments(3)
+                        .imageSize(1)
+                        .images(images)
+                        .build(),
+                UserResponse.ContentList.builder()
+                        .contentId(2L)
+                        .userId(2L)
+                        .profileImageUrl("test.png")
+                        .groupId(2L)
+                        .groupName("테스트 그룹")
+                        .groupImage("test.png")
+                        .content("테스트 내용")
+                        .createAt(LocalDateTime.of(2023, 7, 15, 13, 11))
+                        .views(2)
+                        .comments(1)
+                        .imageSize(1)
+                        .images(images)
+                        .build()
+        );
+
+        Page<UserResponse.ContentList> response =
+                new PageImpl<>(contentLists, PageRequest.of(0, 2), contentLists.size());
+
+        given(userService.listMyBookmark(any(), anyInt()))
+                .willReturn(response);
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/auth/my/bookmark")
+                                .header("Authorization", "JWT AccessToken")
                                 .param("page", "1")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("user-myBookmark",
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("insert the AccessToken")
+                        ),
+                        requestParameters(
+                                parameterWithName("page")
+                                        .description("요청할 페이지")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data.content[]").type(JsonFieldType.ARRAY)
+                                        .description("북마크한 피드 목록"),
+                                fieldWithPath("data.content[].contentId").type(JsonFieldType.NUMBER)
+                                        .description("북마크한 피드 ID / Long"),
+                                fieldWithPath("data.content[].userId").type(JsonFieldType.NUMBER)
+                                        .description("북마크한 피드의 유저 ID / Long"),
+                                fieldWithPath("data.content[].profileImageUrl").type(JsonFieldType.STRING)
+                                        .description("북마크한 피드의 유저 프로필 사진 URL"),
+                                fieldWithPath("data.content[].groupId").type(JsonFieldType.NUMBER)
+                                        .description("북마크한 피드의 그룹 ID / Long"),
+                                fieldWithPath("data.content[].groupName").type(JsonFieldType.STRING)
+                                        .description("북마크한 피드의 그룹 이름"),
+                                fieldWithPath("data.content[].groupImage").type(JsonFieldType.STRING)
+                                        .description("북마크한 피드의 그룹 이미지"),
+                                fieldWithPath("data.content[].content").type(JsonFieldType.STRING)
+                                        .description("북마크한 피드의 피드 내용"),
+                                fieldWithPath("data.content[].createAt").type(JsonFieldType.ARRAY)
+                                        .description("북마크한 피드의 작성 날짜"),
+                                fieldWithPath("data.content[].views").type(JsonFieldType.NUMBER)
+                                        .description("북마크한 피드의 조회수 / Integer"),
+                                fieldWithPath("data.content[].comments").type(JsonFieldType.NUMBER)
+                                        .description("북마크한 피드의 댓글 수"),
+                                fieldWithPath("data.content[].imageSize").type(JsonFieldType.NUMBER)
+                                        .description("북마크한 피드의 이미지 개수"),
+                                fieldWithPath("data.content[].images[]").type(JsonFieldType.ARRAY)
+                                        .description("북마크한 피드의 이미지 목록"),
+                                fieldWithPath("data.content[].images[].id").type(JsonFieldType.NUMBER)
+                                        .description("북마크한 피드의 이미지 ID / Long"),
+                                fieldWithPath("data.content[].images[].imageName").type(JsonFieldType.STRING)
+                                        .description("북마크한 피드의 이미지 이름"),
+                                fieldWithPath("data.content[].images[].imageUrl").type(JsonFieldType.STRING)
+                                        .description("북마크한 피드의 이미지 URL"),
+                                fieldWithPath("data.content[].images[].contentId").type(JsonFieldType.NUMBER)
+                                        .description("북마크한 피드 ID / Long"),
+                                fieldWithPath("data.pageable.sort.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬 정보가 비었는지 여부"),
+                                fieldWithPath("data.pageable.sort.sorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 되었는지 여부"),
+                                fieldWithPath("data.pageable.sort.unsorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 안 되었는지 여부"),
+                                fieldWithPath("data.pageable.offset").type(JsonFieldType.NUMBER)
+                                        .description("페이지 시작점"),
+                                fieldWithPath("data.pageable.pageNumber").type(JsonFieldType.NUMBER)
+                                        .description("현재 페이지 번호"),
+                                fieldWithPath("data.pageable.pageSize").type(JsonFieldType.NUMBER)
+                                        .description("페이지 크기"),
+                                fieldWithPath("data.pageable.paged").type(JsonFieldType.BOOLEAN)
+                                        .description("페이징 여부"),
+                                fieldWithPath("data.pageable.unpaged").type(JsonFieldType.BOOLEAN)
+                                        .description("페이징이 안된 여부"),
+                                fieldWithPath("data.last").type(JsonFieldType.BOOLEAN)
+                                        .description("마지막 페이지 여부"),
+                                fieldWithPath("data.totalPages").type(JsonFieldType.NUMBER)
+                                        .description("전체 페이지 수"),
+                                fieldWithPath("data.totalElements").type(JsonFieldType.NUMBER)
+                                        .description("전체 요소 수"),
+                                fieldWithPath("data.size").type(JsonFieldType.NUMBER)
+                                        .description("페이지 크기"),
+                                fieldWithPath("data.number").type(JsonFieldType.NUMBER)
+                                        .description("페이지 번호"),
+                                fieldWithPath("data.sort.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬 정보가 비었는지 여부"),
+                                fieldWithPath("data.sort.sorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 되었는지 여부"),
+                                fieldWithPath("data.sort.unsorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 안 되었는지 여부"),
+                                fieldWithPath("data.first").type(JsonFieldType.BOOLEAN)
+                                        .description("첫 페이지 여부"),
+                                fieldWithPath("data.numberOfElements").type(JsonFieldType.NUMBER)
+                                        .description("현재 페이지의 요소 수"),
+                                fieldWithPath("data.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("데이터가 비었는지 여부")
+
+                        )
+                ));
     }
 
     @DisplayName("작성한 글 조회 API")
