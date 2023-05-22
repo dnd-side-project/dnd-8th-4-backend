@@ -90,3 +90,16 @@ include::{snippets}/user-myBookmark/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/user-myBookmark/http-response.adoc[]
 include::{snippets}/user-myBookmark/response-fields.adoc[]
+
+=== 내가 작성한 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/user-myContent/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/user-myContent/request-parameters.adoc[]
+include::{snippets}/user-myContent/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-myContent/http-response.adoc[]
+include::{snippets}/user-myContent/response-fields.adoc[]
