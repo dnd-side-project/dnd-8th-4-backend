@@ -116,3 +116,13 @@ include::{snippets}/user-myCommentWithContent/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/user-myCommentWithContent/http-response.adoc[]
 include::{snippets}/user-myCommentWithContent/response-fields.adoc[]
+
+=== 이메일 검증 API
+
+==== HTTP Request Parameter
+include::{snippets}/user-emailCheck/request-parameters.adoc[]
+include::{snippets}/user-emailCheck/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-emailCheck/http-response.adoc[]
+include::{snippets}/user-emailCheck/response-fields.adoc[]

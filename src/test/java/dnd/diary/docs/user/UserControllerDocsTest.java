@@ -501,13 +501,13 @@ class UserControllerDocsTest extends RestDocsSupport {
     void searchMyContentList() throws Exception {
         Page<UserResponse.ContentList> response = getContentListPage();
         // given
-        given(userService.listSearchMyContent(any(),anyInt()))
+        given(userService.listSearchMyContent(any(), anyInt()))
                 .willReturn(response);
 
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/auth/my/content")
-                                .header("Authorization","JWT AccessToken")
+                                .header("Authorization", "JWT AccessToken")
                                 .param("page", "1")
                 )
                 .andDo(print())
@@ -609,13 +609,13 @@ class UserControllerDocsTest extends RestDocsSupport {
     void searchMyCommentList() throws Exception {
         // given
         Page<UserResponse.ContentList> response = getContentListPage();
-        given(userService.listSearchMyComment(any(),anyInt()))
+        given(userService.listSearchMyComment(any(), anyInt()))
                 .willReturn(response);
 
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/auth/my/comment")
-                                .header("Authorization","JWT AccessToken")
+                                .header("Authorization", "JWT AccessToken")
                                 .param("page", "1")
                 )
                 .andDo(print())
@@ -715,13 +715,32 @@ class UserControllerDocsTest extends RestDocsSupport {
     @DisplayName("이메일 검증 API")
     @Test
     void checkMatchEmail() throws Exception {
+        // given
+        given(userService.emailCheckMatch(anyString()))
+                .willReturn(true);
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/auth/check")
                                 .param("email", "1")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("user-emailCheck",
+                        preprocessResponse(prettyPrint()),
+                        requestParameters(
+                                parameterWithName("email")
+                                        .description("회원가입 하려는 이메일")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data").type(JsonFieldType.BOOLEAN)
+                                        .description("이메일 존재 여부")
+                        )
+                ));
     }
 
     // method
