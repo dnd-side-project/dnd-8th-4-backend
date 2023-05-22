@@ -167,6 +167,13 @@ public class UserService {
         return UserResponse.Update.response(user);
     }
 
+    @Transactional(readOnly = true)
+    public List<UserSearchResponse.UserSearchInfo> searchUserList(String keyword) {
+        List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCase(keyword);
+        int sampleGroupImageCount = userImageRepository.findAll().size();
+
+        return getUserSearchResponse(searchByKeywordList, sampleGroupImageCount);
+    }
 
     // method
 
@@ -184,33 +191,26 @@ public class UserService {
         return authentication;
     }
 
-    public UserSearchResponse searchUserList(String keyword) {
+    private List<UserSearchResponse.UserSearchInfo> getUserSearchResponse(List<User> searchByKeywordList, int sampleGroupImageCount) {
+        return searchByKeywordList.stream().map(user -> {
+            // 랜덤 이미지 인덱스 가져오기
+            long randomIdx = getRandomNumber(1, sampleGroupImageCount);
 
-        List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCase(keyword);
-        List<UserSearchResponse.UserSearchInfo> userSearchInfoList = new ArrayList<>();
+            // 해당 인덱스로 유저 이미지 가져오기
+            UserImage sampleUserImage = userImageRepository.findById(randomIdx).orElseThrow(
+                    () -> new CustomException(NOT_FOUND_USER_IMAGE)
+            );
 
-        for (User user : searchByKeywordList) {
-            // 유저 목록 검색 시 프로필 이미지는 기본 이미지 랜덤 세팅
-            int sampleGroupImageCount = userImageRepository.findAll().size();
-            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
             String imageUrl = sampleUserImage.getUserImageUrl();
 
-            UserSearchResponse.UserSearchInfo userSearchInfo = UserSearchResponse.UserSearchInfo.builder()
+            return UserSearchResponse.UserSearchInfo.builder()
                     .userId(user.getId())
                     .userEmail(user.getEmail())
                     .userNickName(user.getNickName())
                     .profileImageUrl(imageUrl)
                     .build();
-
-            userSearchInfoList.add(userSearchInfo);
-        }
-
-        return UserSearchResponse.builder()
-                .userSearchInfoList(userSearchInfoList)
-                .build();
+        }).toList();
     }
-
 
     // Validate
     private void validateRegister(UserServiceRequest.CreateUser request) {
@@ -286,10 +286,10 @@ public class UserService {
     private String setDefaultProfileImage() {
         String imageUrl = "";
 
-            int sampleGroupImageCount = userImageRepository.findAll().size();
-            int randomIdx = getRandomNumber(1, sampleGroupImageCount);
-            UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
-            imageUrl = sampleUserImage.getUserImageUrl();
+        int sampleGroupImageCount = userImageRepository.findAll().size();
+        int randomIdx = getRandomNumber(1, sampleGroupImageCount);
+        UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
+        imageUrl = sampleUserImage.getUserImageUrl();
 
         return imageUrl;
     }
