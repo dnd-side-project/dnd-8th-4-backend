@@ -47,6 +47,10 @@ import static org.mockito.Mockito.mock;
 @Transactional
 class UserServiceTest {
 
+    static {
+        System.setProperty("com.amazonaws.sdk.disableEc2Metadata", "true");
+    }
+
     @MockBean
     private RedisService redisService;
 
@@ -88,7 +92,6 @@ class UserServiceTest {
                 "test@test.com", "abc123!", "테스트 계정",
                 "테스트 닉네임", "010-1234-5678"
         );
-
 
         // when
         UserResponse.Login response = userService.createUserAccount(request.toServiceRequest());

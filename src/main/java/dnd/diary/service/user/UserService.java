@@ -88,7 +88,7 @@ public class UserService {
         return UserResponse.Login.response(user, accessToken, refreshToken);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserResponse.Detail findMyListUser(Long userId) {
         User user = getUser(userId);
         return UserResponse.Detail.response(user);

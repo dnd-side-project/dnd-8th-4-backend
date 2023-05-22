@@ -1,6 +1,5 @@
 package dnd.diary.docs.user;
 
-import dnd.diary.controller.ControllerTestSupport;
 import dnd.diary.controller.user.UserController;
 import dnd.diary.docs.RestDocsSupport;
 import dnd.diary.request.controller.user.UserRequest;
@@ -13,16 +12,23 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.will;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -165,15 +171,52 @@ class UserControllerDocsTest extends RestDocsSupport {
                 ));
     }
 
-    @DisplayName("정보조회 API")
+    @DisplayName("정보 조회 API")
     @Test
-    void findMyListUser() throws Exception {
+    @WithUserDetails()
+    void myDetail() throws Exception {
+        given(userService.findMyListUser(any()))
+                .willReturn(UserResponse.Detail.builder()
+                        .id(1L)
+                        .email("test@test.com")
+                        .name("테스트 계정")
+                        .nickName("테스트 닉네임")
+                        .phoneNumber("010-1234-5678")
+                        .profileImageUrl("test.png")
+                        .build());
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/auth/my/info")
+                                .header("Authorization", "JWT AccessToken")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("user-myDetail",
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("Insert the AccessToken")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("상태 메세지"),
+                                fieldWithPath("data.id").type(JsonFieldType.NUMBER)
+                                        .description("유저 ID / Long"),
+                                fieldWithPath("data.email").type(JsonFieldType.STRING)
+                                        .description("유저 이메일"),
+                                fieldWithPath("data.name").type(JsonFieldType.STRING)
+                                        .description("유저 이름"),
+                                fieldWithPath("data.nickName").type(JsonFieldType.STRING)
+                                        .description("유저 별명"),
+                                fieldWithPath("data.phoneNumber").type(JsonFieldType.STRING)
+                                        .description("유저 전화번호"),
+                                fieldWithPath("data.profileImageUrl").type(JsonFieldType.STRING)
+                                        .description("유저 프로필 이미지 URL")
+                        )
+                ));
     }
 
     @DisplayName("유저 정보 수정 API")
@@ -187,14 +230,47 @@ class UserControllerDocsTest extends RestDocsSupport {
                 "Hello, World!".getBytes()
         );
 
+        given(userService.userUpdateProfile(any(), anyString(), any(MultipartFile.class)))
+                .willReturn(UserResponse.Update.builder()
+                        .nickName("업데이트 닉네임")
+                        .profileImageUrl("update.png")
+                        .build()
+                );
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.multipart(HttpMethod.PATCH, URI.create("/auth"))
                                 .file(multipartFile)
+                                .header("Authorization", "JWT AccessToken")
                                 .param("nickName", "test")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("user-update",
+                        preprocessResponse(prettyPrint()),
+                        requestParts(
+                                partWithName("file")
+                                        .description("변경할 이미지")
+                        ),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("insert the AccessToken")
+                        ),
+                        requestParameters(
+                                parameterWithName("nickName")
+                                        .description("변경할 닉네임")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("상태 메세지"),
+                                fieldWithPath("data.nickName").type(JsonFieldType.STRING)
+                                        .description("변경된 닉네임"),
+                                fieldWithPath("data.profileImageUrl").type(JsonFieldType.STRING)
+                                        .description("변경된 프로필 사진 URL")
+                                )
+                ));
     }
 
     @DisplayName("유저 로그아웃 API")
