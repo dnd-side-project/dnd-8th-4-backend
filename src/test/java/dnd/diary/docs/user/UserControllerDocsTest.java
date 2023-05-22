@@ -607,13 +607,109 @@ class UserControllerDocsTest extends RestDocsSupport {
     @DisplayName("작성한 댓글의 글 조회 API")
     @Test
     void searchMyCommentList() throws Exception {
+        // given
+        Page<UserResponse.ContentList> response = getContentListPage();
+        given(userService.listSearchMyComment(any(),anyInt()))
+                .willReturn(response);
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/auth/my/comment")
+                                .header("Authorization","JWT AccessToken")
                                 .param("page", "1")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("user-myCommentWithContent",
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("insert the AccessToken")
+                        ),
+                        requestParameters(
+                                parameterWithName("page")
+                                        .description("요청할 페이지")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data.content[]").type(JsonFieldType.ARRAY)
+                                        .description("내가 작성한 댓글의 피드 목록"),
+                                fieldWithPath("data.content[].contentId").type(JsonFieldType.NUMBER)
+                                        .description("내가 작성한 댓글의 피드 ID / Long"),
+                                fieldWithPath("data.content[].userId").type(JsonFieldType.NUMBER)
+                                        .description("내가 작성한 댓글의 피드 유저 ID / Long"),
+                                fieldWithPath("data.content[].profileImageUrl").type(JsonFieldType.STRING)
+                                        .description("내가 작성한 댓글의 피드 유저 프로필 사진 URL"),
+                                fieldWithPath("data.content[].groupId").type(JsonFieldType.NUMBER)
+                                        .description("내가 작성한 댓글의 피드 그룹 ID / Long"),
+                                fieldWithPath("data.content[].groupName").type(JsonFieldType.STRING)
+                                        .description("내가 작성한 댓글의 피드 그룹 이름"),
+                                fieldWithPath("data.content[].groupImage").type(JsonFieldType.STRING)
+                                        .description("내가 작성한 댓글의 피드 그룹 이미지"),
+                                fieldWithPath("data.content[].content").type(JsonFieldType.STRING)
+                                        .description("내가 작성한 댓글의 피드 피드 내용"),
+                                fieldWithPath("data.content[].createAt").type(JsonFieldType.ARRAY)
+                                        .description("내가 작성한 댓글의 피드 작성 날짜"),
+                                fieldWithPath("data.content[].views").type(JsonFieldType.NUMBER)
+                                        .description("내가 작성한 댓글의 피드 조회수 / Integer"),
+                                fieldWithPath("data.content[].comments").type(JsonFieldType.NUMBER)
+                                        .description("내가 작성한 댓글의 피드 댓글 수"),
+                                fieldWithPath("data.content[].imageSize").type(JsonFieldType.NUMBER)
+                                        .description("내가 작성한 댓글의 피드 이미지 개수"),
+                                fieldWithPath("data.content[].images[]").type(JsonFieldType.ARRAY)
+                                        .description("내가 작성한 댓글의 피드 이미지 목록"),
+                                fieldWithPath("data.content[].images[].id").type(JsonFieldType.NUMBER)
+                                        .description("내가 작성한 댓글의 피드 이미지 ID / Long"),
+                                fieldWithPath("data.content[].images[].imageName").type(JsonFieldType.STRING)
+                                        .description("내가 작성한 댓글의 피드 이미지 이름"),
+                                fieldWithPath("data.content[].images[].imageUrl").type(JsonFieldType.STRING)
+                                        .description("내가 작성한 댓글의 피드 이미지 URL"),
+                                fieldWithPath("data.content[].images[].contentId").type(JsonFieldType.NUMBER)
+                                        .description("내가 작성한 댓글의 피드 ID / Long"),
+                                fieldWithPath("data.pageable.sort.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬 정보가 비었는지 여부"),
+                                fieldWithPath("data.pageable.sort.sorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 되었는지 여부"),
+                                fieldWithPath("data.pageable.sort.unsorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 안 되었는지 여부"),
+                                fieldWithPath("data.pageable.offset").type(JsonFieldType.NUMBER)
+                                        .description("페이지 시작점"),
+                                fieldWithPath("data.pageable.pageNumber").type(JsonFieldType.NUMBER)
+                                        .description("현재 페이지 번호"),
+                                fieldWithPath("data.pageable.pageSize").type(JsonFieldType.NUMBER)
+                                        .description("페이지 크기"),
+                                fieldWithPath("data.pageable.paged").type(JsonFieldType.BOOLEAN)
+                                        .description("페이징 여부"),
+                                fieldWithPath("data.pageable.unpaged").type(JsonFieldType.BOOLEAN)
+                                        .description("페이징이 안된 여부"),
+                                fieldWithPath("data.last").type(JsonFieldType.BOOLEAN)
+                                        .description("마지막 페이지 여부"),
+                                fieldWithPath("data.totalPages").type(JsonFieldType.NUMBER)
+                                        .description("전체 페이지 수"),
+                                fieldWithPath("data.totalElements").type(JsonFieldType.NUMBER)
+                                        .description("전체 요소 수"),
+                                fieldWithPath("data.size").type(JsonFieldType.NUMBER)
+                                        .description("페이지 크기"),
+                                fieldWithPath("data.number").type(JsonFieldType.NUMBER)
+                                        .description("페이지 번호"),
+                                fieldWithPath("data.sort.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬 정보가 비었는지 여부"),
+                                fieldWithPath("data.sort.sorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 되었는지 여부"),
+                                fieldWithPath("data.sort.unsorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 안 되었는지 여부"),
+                                fieldWithPath("data.first").type(JsonFieldType.BOOLEAN)
+                                        .description("첫 페이지 여부"),
+                                fieldWithPath("data.numberOfElements").type(JsonFieldType.NUMBER)
+                                        .description("현재 페이지의 요소 수"),
+                                fieldWithPath("data.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("데이터가 비었는지 여부")
+
+                        )
+                ));
     }
 
     @DisplayName("이메일 검증 API")

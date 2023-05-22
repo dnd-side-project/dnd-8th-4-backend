@@ -103,3 +103,16 @@ include::{snippets}/user-myContent/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/user-myContent/http-response.adoc[]
 include::{snippets}/user-myContent/response-fields.adoc[]
+
+=== 내가 작성한 댓글의 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/user-myCommentWithContent/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/user-myCommentWithContent/request-parameters.adoc[]
+include::{snippets}/user-myCommentWithContent/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-myCommentWithContent/http-response.adoc[]
+include::{snippets}/user-myCommentWithContent/response-fields.adoc[]
