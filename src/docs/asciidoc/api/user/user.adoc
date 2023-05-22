@@ -44,3 +44,13 @@ include::{snippets}/user-update/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/user-update/http-response.adoc[]
 include::{snippets}/user-update/response-fields.adoc[]
+
+=== 로그아웃 API
+
+==== HTTP Request Header
+include::{snippets}/user-logout/request-headers.adoc[]
+include::{snippets}/user-logout/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/user-logout/http-response.adoc[]
+include::{snippets}/user-logout/response-fields.adoc[]
