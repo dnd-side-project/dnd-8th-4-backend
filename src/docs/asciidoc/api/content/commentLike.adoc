@@ -1,0 +1,25 @@
+=== 댓글 좋아요 API (등록)
+
+==== HTTP Request Header
+include::{snippets}/commentLike-add/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/commentLike-add/request-parameters.adoc[]
+include::{snippets}/commentLike-add/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/commentLike-add/http-response.adoc[]
+include::{snippets}/commentLike-add/response-fields.adoc[]
+
+=== 댓글 좋아요 API (취소)
+
+==== HTTP Request Header
+include::{snippets}/commentLike-cancel/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/commentLike-cancel/request-parameters.adoc[]
+include::{snippets}/commentLike-cancel/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/commentLike-cancel/http-response.adoc[]
+include::{snippets}/commentLike-cancel/response-fields.adoc[]

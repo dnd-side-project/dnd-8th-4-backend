@@ -19,6 +19,6 @@ public class CommentLikeController {
             @AuthenticationPrincipal final Long userId,
             @RequestParam final Long commentId
     ) {
-        return commentLikeService.processCommentLikeTransaction(userId, commentId);
+        return CustomResponseEntity.success(commentLikeService.processCommentLikeTransaction(userId, commentId));
     }
 }

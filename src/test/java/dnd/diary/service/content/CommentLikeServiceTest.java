@@ -60,11 +60,11 @@ class CommentLikeServiceTest {
         Comment comment = getCommentAndSave(user, content);
 
         // when
-        CustomResponseEntity<CommentLikeResponse> response =
+        CommentLikeResponse response =
                 commentLikeService.processCommentLikeTransaction(user.getId(), comment.getId());
 
         // then
-        Long commentLikeId = response.getData().getId();
+        Long commentLikeId = response.getId();
         Optional<CommentLike> commentLikeOptional = commentLikeRepository.findById(commentLikeId);
 
         assertThat(commentLikeOptional.isPresent()).isTrue();
