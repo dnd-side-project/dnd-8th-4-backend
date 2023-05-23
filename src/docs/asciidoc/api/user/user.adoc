@@ -6,7 +6,7 @@ include::{snippets}/user-createAccountUser/request-fields.adoc[]
 
 ==== HTTP Response
 include::{snippets}/user-createAccountUser/http-response.adoc[]
-include::{snippets}/user-createAccountUser/response-body.adoc[]
+include::{snippets}/user-createAccountUser/response-fields.adoc[]
 
 === 로그인 API
 
