@@ -978,13 +978,87 @@ public class ContentControllerDocsTest extends RestDocsSupport {
     @DisplayName("지도 피드 상세 조회 API")
     @Test
     void myMapListDetail() throws Exception {
+        // given
+        ContentResponse.LocationDetail content1 = ContentResponse.LocationDetail.builder()
+                .contentId(1L)
+                .userProfileImage("default.png")
+                .groupId(1L)
+                .location("삼성 서비스 센터")
+                .content("테스트 내용")
+                .groupImage("default.png")
+                .groupName("테스트 그룹")
+                .createAt("2023-12-24")
+                .contentImageSize(2)
+                .contentImageUrl("피드 대표 이미지 URL")
+                .deletedYn(false)
+                .build();
+
+        ContentResponse.LocationDetail content2 = ContentResponse.LocationDetail.builder()
+                .contentId(2L)
+                .userProfileImage("default.png")
+                .groupId(2L)
+                .location("삼성 서비스 센터")
+                .content("테스트 내용")
+                .groupImage("default.png")
+                .groupName("테스트 그룹")
+                .createAt("2023-11-24")
+                .contentImageSize(1)
+                .contentImageUrl("피드 대표 이미지 URL")
+                .deletedYn(false)
+                .build();
+
+        given(contentService.listDetailMyMap(anyString(), any()))
+                .willReturn(List.of(content1, content2));
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/content/map/detail")
+                                .header("Authorization", "JWT AccessToken")
                                 .param("location", "테스트")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("content-mapDetail",
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("insert the AccessToken")
+                        ),
+                        requestParameters(
+                                parameterWithName("location")
+                                        .description("중복되는 지역의 이름")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data[]").type(JsonFieldType.ARRAY)
+                                        .description("피드 목록"),
+                                fieldWithPath("data[].contentId").type(JsonFieldType.NUMBER)
+                                        .description("피드 ID"),
+                                fieldWithPath("data[].userProfileImage").type(JsonFieldType.STRING)
+                                        .description("피드 작성 유저 프로필 사진"),
+                                fieldWithPath("data[].groupId").type(JsonFieldType.NUMBER)
+                                        .description("그룹 ID"),
+                                fieldWithPath("data[].location").type(JsonFieldType.STRING)
+                                        .description("피드 장소 이름"),
+                                fieldWithPath("data[].content").type(JsonFieldType.STRING)
+                                        .description("피드 내용"),
+                                fieldWithPath("data[].groupImage").type(JsonFieldType.STRING)
+                                        .description("피드가 작성된 그룹 이미지"),
+                                fieldWithPath("data[].groupName").type(JsonFieldType.STRING)
+                                        .description("피드가 작성된 그룹 이름"),
+                                fieldWithPath("data[].createAt").type(JsonFieldType.STRING)
+                                        .description("작성 날짜"),
+                                fieldWithPath("data[].contentImageSize").type(JsonFieldType.NUMBER)
+                                        .description("피드 총 이미지 수 / Integer"),
+                                fieldWithPath("data[].contentImageUrl").type(JsonFieldType.STRING)
+                                        .description("피드 이미지"),
+                                fieldWithPath("data[].deletedYn").type(JsonFieldType.BOOLEAN)
+                                        .description("피드 삭제 여부")
+                                )
+                ));
     }
 
     // method
