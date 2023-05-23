@@ -9,3 +9,16 @@ include::{snippets}/content-create/request-parts.adoc[]
 ==== HTTP Request Parameter
 include::{snippets}/content-create/request-parameters.adoc[]
 include::{snippets}/content-create/http-request.adoc[]
+
+=== 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-detail/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-detail/request-parameters.adoc[]
+include::{snippets}/content-detail/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-detail/http-response.adoc[]
+include::{snippets}/content-detail/response-fields.adoc[]
