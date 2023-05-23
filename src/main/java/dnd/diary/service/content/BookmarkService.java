@@ -25,41 +25,36 @@ public class BookmarkService {
 
     @Transactional
     @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
-    public CustomResponseEntity<BookmarkResponse> processBookmarkTransaction(
+    public BookmarkResponse processBookmarkTransaction(
             Long userId, Long contentId
     ) {
         User user = getUser(userId);
-        Bookmark bookmark = bookmarkRepository.findByUserIdAndContentId(
+        Bookmark isBookmarked = bookmarkRepository.findByUserIdAndContentId(
                 user.getId(), contentId
         );
 
         // 이미 북마크를 등록했다면 북마크 취소
-        if (bookmark != null) {
-            bookmarkRepository.delete(bookmark);
-            return CustomResponseEntity.successDeleteBookmark();
+        if (isBookmarked != null) {
+            bookmarkRepository.delete(isBookmarked);
+            return new BookmarkResponse();
         }
 
-        // 북마크 추가
-        return CustomResponseEntity.success(
-                BookmarkResponse.response(
-                        bookmarkRepository.save(
-                                Bookmark.builder()
-                                        .content(getContent(contentId))
-                                        .user(user)
-                                        .build()
-                        )
-                )
+        Bookmark bookmark = bookmarkRepository.save(
+                Bookmark.builder()
+                        .content(getContent(contentId))
+                        .user(user)
+                        .build()
         );
-
+        // 북마크 추가
+        return BookmarkResponse.response(bookmark);
     }
 
     // method
     private Content getContent(Long contentId) {
-        Content content = contentRepository.findById(contentId)
+        return contentRepository.findById(contentId)
                 .orElseThrow(
                         () -> new CustomException(Result.FAIL)
                 );
-        return content;
     }
 
     private User getUser(Long userId) {

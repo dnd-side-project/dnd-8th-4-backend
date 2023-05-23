@@ -16,3 +16,9 @@ include::api/user/user.adoc[]
 
 == Content API
 include::api/content/content.adoc[]
+include::api/content/emotion.adoc[]
+include::api/content/bookmark.adoc[]
+
+== Comment API
+include::api/content/comment.adoc[]
+include::api/content/commentLike.adoc[]
