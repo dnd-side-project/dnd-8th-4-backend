@@ -44,13 +44,6 @@ public class CustomResponseEntity<T> {
 				.build();
 	}
 
-	public static <T> CustomResponseEntity<T> successDeleteLike() {
-		return CustomResponseEntity.<T>builder()
-				.code(Result.COMMENT_LIKE_DELETE_OK.getCode())
-				.message(Result.COMMENT_LIKE_DELETE_OK.getMessage())
-				.build();
-	}
-
 	public static <T> CustomResponseEntity<T> fail() {
 		return CustomResponseEntity.<T>builder()
 			.code(Result.FAIL.getCode())

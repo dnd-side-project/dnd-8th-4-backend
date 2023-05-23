@@ -26,7 +26,7 @@ public class CommentLikeService {
     private final NotificationService notificationService;
 
     @Transactional
-    public CustomResponseEntity<CommentLikeResponse> processCommentLikeTransaction(
+    public CommentLikeResponse processCommentLikeTransaction(
             Long userId, Long commentId
     ) {
         validateCommentLikeSave(commentId);
@@ -48,7 +48,7 @@ public class CommentLikeService {
             // 자신의 댓글이 아닌 경우에 댓글 좋아요 알림 추가
             notificationService.sendToNotification(user, targetComment, commentLike);
 
-            return CustomResponseEntity.success(CommentLikeResponse.response(commentLike));
+            return CommentLikeResponse.response(commentLike);
 
             // 최초 등록이 아닐 경우
         } else {
@@ -56,15 +56,13 @@ public class CommentLikeService {
             // 댓글 좋아요 취소일 경우
             if (existsLike.isCommentLikeYn()) {
                 existsLike.cancelCommentLike();
-                return CustomResponseEntity.successDeleteLike();
+                return new CommentLikeResponse();
             }
 
             // 댓글 좋아요 취소 후 다시 등록할 경우
             else {
                 existsLike.addCommentLike();
-                return CustomResponseEntity.success(
-                        CommentLikeResponse.response(existsLike)
-                );
+                return CommentLikeResponse.response(existsLike);
             }
         }
     }
