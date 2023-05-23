@@ -13,3 +13,6 @@ endif::[]
 
 == User API
 include::api/user/user.adoc[]
+
+== Content API
+include::api/content/content.adoc[]
