@@ -13,3 +13,19 @@ include::{snippets}/comment-add/request-fields.adoc[]
 ==== HTTP Response
 include::{snippets}/comment-add/http-response.adoc[]
 include::{snippets}/comment-add/response-fields.adoc[]
+
+=== 피드 댓글 조회 API
+
+==== HTTP Request Header
+include::{snippets}/comment-detailPage/request-headers.adoc[]
+
+==== HTTP Request PathParameter
+include::{snippets}/comment-detailPage/path-parameters.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/comment-detailPage/request-parameters.adoc[]
+include::{snippets}/comment-detailPage/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/comment-detailPage/http-response.adoc[]
+include::{snippets}/comment-detailPage/response-fields.adoc[]
