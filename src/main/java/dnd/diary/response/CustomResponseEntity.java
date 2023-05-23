@@ -30,13 +30,6 @@ public class CustomResponseEntity<T> {
 			.build();
 	}
 
-	public static <T> CustomResponseEntity<T> successDeleteBookmark() {
-		return CustomResponseEntity.<T>builder()
-				.code(Result.BOOKMARK_DELETE_OK.getCode())
-				.message(Result.BOOKMARK_DELETE_OK.getMessage())
-				.build();
-	}
-
 	public static <T> CustomResponseEntity<T> fail() {
 		return CustomResponseEntity.<T>builder()
 			.code(Result.FAIL.getCode())
