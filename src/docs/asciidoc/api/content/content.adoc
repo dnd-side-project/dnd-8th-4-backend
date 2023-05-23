@@ -64,3 +64,16 @@ include::{snippets}/content-groupContent/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/content-groupContent/http-response.adoc[]
 include::{snippets}/content-groupContent/response-fields.adoc[]
+
+=== 전체 그룹 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-allGroupContent/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-allGroupContent/request-parameters.adoc[]
+include::{snippets}/content-allGroupContent/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-allGroupContent/http-response.adoc[]
+include::{snippets}/content-allGroupContent/response-fields.adoc[]
