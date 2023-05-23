@@ -1,6 +1,8 @@
 package dnd.diary.request.controller.content;
 
 import dnd.diary.request.service.content.CommentServiceRequest;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,8 +17,6 @@ public class CommentRequest {
 
         @NotBlank(message = "댓글 내용은 필수입니다.")
         private String commentNote;
-
-        @NotNull(message = "stickerId 값은 필수입ㄴ디ㅏ.")
         private Long stickerId;
 
         public CommentServiceRequest.Add toServiceRequest() {
