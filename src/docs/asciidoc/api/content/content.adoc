@@ -77,3 +77,16 @@ include::{snippets}/content-allGroupContent/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/content-allGroupContent/http-response.adoc[]
 include::{snippets}/content-allGroupContent/response-fields.adoc[]
+
+=== 피드 검색 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-search/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-search/request-parameters.adoc[]
+include::{snippets}/content-search/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-search/http-response.adoc[]
+include::{snippets}/content-search/response-fields.adoc[]

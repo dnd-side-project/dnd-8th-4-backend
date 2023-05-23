@@ -745,15 +745,148 @@ public class ContentControllerDocsTest extends RestDocsSupport {
         List<String> groupIdList = List.of("1");
         String[] groupIdArray = groupIdList.toArray(new String[0]);
 
+        ContentResponse.Create content1 = ContentResponse.Create.builder()
+                .id(1L)
+                .userName("테스트 계정")
+                .profileImageUrl("profile.png")
+                .content("테스트 내용")
+                .latitude(1.0)
+                .longitude(1.0)
+                .location("삼성 서비스 센터")
+                .views(0L)
+                .contentLink("contentLink")
+                .deletedYn(false)
+                .userId(1L)
+                .groupId(1L)
+                .collect(getImageDetails())
+                .build();
+
+        ContentResponse.Create content2 = ContentResponse.Create.builder()
+                .id(2L)
+                .userName("테스트 계정")
+                .profileImageUrl("profile.png")
+                .content("테스트 내용")
+                .latitude(2.0)
+                .longitude(2.0)
+                .location("삼성 서비스 센터")
+                .views(2L)
+                .contentLink("contentLink")
+                .deletedYn(false)
+                .userId(1L)
+                .groupId(1L)
+                .collect(getImageDetails())
+                .build();
+
+        List<ContentResponse.Create> list = List.of(content1, content2);
+
+        given(contentService.contentSearch(anyList(), anyString(), anyInt()))
+                .willReturn(new PageImpl<>(list, PageRequest.of(0, 2), list.size()));
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/content/group/search")
+                                .header("Authorization", "JWT AccessToken")
                                 .param("groupId", groupIdArray)
                                 .param("word", "a")
                                 .param("page", "1")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("content-search",
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("insert the AccessToken")
+                        ),
+                        requestParameters(
+                                parameterWithName("groupId")
+                                        .description("조회하려는 그룹 id / List<Long>"),
+                                parameterWithName("word")
+                                        .description("검색할 단어"),
+                                parameterWithName("page")
+                                        .description("요청 페이지")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data.content[]").type(JsonFieldType.ARRAY)
+                                        .description("피드 목록"),
+                                fieldWithPath("data.content[].id").type(JsonFieldType.NUMBER)
+                                        .description("피드 ID"),
+                                fieldWithPath("data.content[].userName").type(JsonFieldType.STRING)
+                                        .description("피드 작성자"),
+                                fieldWithPath("data.content[].profileImageUrl").type(JsonFieldType.STRING)
+                                        .description("피드 작성자 프로필 사진"),
+                                fieldWithPath("data.content[].content").type(JsonFieldType.STRING)
+                                        .description("피드 내용"),
+                                fieldWithPath("data.content[].latitude").type(JsonFieldType.NUMBER)
+                                        .description("피드 위도"),
+                                fieldWithPath("data.content[].longitude").type(JsonFieldType.NUMBER)
+                                        .description("피드 경도"),
+                                fieldWithPath("data.content[].location").type(JsonFieldType.STRING)
+                                        .description("피드 위치"),
+                                fieldWithPath("data.content[].views").type(JsonFieldType.NUMBER)
+                                        .description("피드 조회수"),
+                                fieldWithPath("data.content[].contentLink").type(JsonFieldType.STRING)
+                                        .description("피드 링크 주소"),
+                                fieldWithPath("data.content[].deletedYn").type(JsonFieldType.BOOLEAN)
+                                        .description("피드 삭제 여부"),
+                                fieldWithPath("data.content[].userId").type(JsonFieldType.NUMBER)
+                                        .description("피드 작성자 ID"),
+                                fieldWithPath("data.content[].groupId").type(JsonFieldType.NUMBER)
+                                        .description("피드 작성자 그룹 ID"),
+                                fieldWithPath("data.content[].collect[]").type(JsonFieldType.ARRAY)
+                                        .description("피드 이미지 목록"),
+                                fieldWithPath("data.content[].collect[].id").type(JsonFieldType.NUMBER)
+                                        .description("피드 이미지 ID"),
+                                fieldWithPath("data.content[].collect[].imageName").type(JsonFieldType.STRING)
+                                        .description("피드 이미지 이름"),
+                                fieldWithPath("data.content[].collect[].imageUrl").type(JsonFieldType.STRING)
+                                        .description("피드 이미지 URL"),
+                                fieldWithPath("data.content[].collect[].contentId").type(JsonFieldType.NUMBER)
+                                        .description("이미지가 삽입된 피드 ID"),
+                                fieldWithPath("data.pageable.sort.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬 정보가 비었는지 여부"),
+                                fieldWithPath("data.pageable.sort.sorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 되었는지 여부"),
+                                fieldWithPath("data.pageable.sort.unsorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 안 되었는지 여부"),
+                                fieldWithPath("data.pageable.offset").type(JsonFieldType.NUMBER)
+                                        .description("페이지 시작점"),
+                                fieldWithPath("data.pageable.pageNumber").type(JsonFieldType.NUMBER)
+                                        .description("현재 페이지 번호"),
+                                fieldWithPath("data.pageable.pageSize").type(JsonFieldType.NUMBER)
+                                        .description("페이지 크기"),
+                                fieldWithPath("data.pageable.paged").type(JsonFieldType.BOOLEAN)
+                                        .description("페이징 여부"),
+                                fieldWithPath("data.pageable.unpaged").type(JsonFieldType.BOOLEAN)
+                                        .description("페이징이 안된 여부"),
+                                fieldWithPath("data.last").type(JsonFieldType.BOOLEAN)
+                                        .description("마지막 페이지 여부"),
+                                fieldWithPath("data.totalPages").type(JsonFieldType.NUMBER)
+                                        .description("전체 페이지 수"),
+                                fieldWithPath("data.totalElements").type(JsonFieldType.NUMBER)
+                                        .description("전체 요소 수"),
+                                fieldWithPath("data.size").type(JsonFieldType.NUMBER)
+                                        .description("페이지 크기"),
+                                fieldWithPath("data.number").type(JsonFieldType.NUMBER)
+                                        .description("페이지 번호"),
+                                fieldWithPath("data.sort.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬 정보가 비었는지 여부"),
+                                fieldWithPath("data.sort.sorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 되었는지 여부"),
+                                fieldWithPath("data.sort.unsorted").type(JsonFieldType.BOOLEAN)
+                                        .description("정렬이 안 되었는지 여부"),
+                                fieldWithPath("data.first").type(JsonFieldType.BOOLEAN)
+                                        .description("첫 페이지 여부"),
+                                fieldWithPath("data.numberOfElements").type(JsonFieldType.NUMBER)
+                                        .description("현재 페이지의 요소 수"),
+                                fieldWithPath("data.empty").type(JsonFieldType.BOOLEAN)
+                                        .description("데이터가 비었는지 여부")
+                        )
+                ));
     }
 
     @DisplayName("지도 피드 검색 API")
