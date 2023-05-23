@@ -1,0 +1,11 @@
+=== 피드 작성 API
+
+==== HTTP Request Header
+include::{snippets}/content-create/request-headers.adoc[]
+
+==== HTTP Request Part
+include::{snippets}/content-create/request-parts.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-create/request-parameters.adoc[]
+include::{snippets}/content-create/http-request.adoc[]
