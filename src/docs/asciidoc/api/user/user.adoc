@@ -1,4 +1,3 @@
-[[user-createAccountUser]]
 === 회원가입 API
 
 ==== HTTP Request Body

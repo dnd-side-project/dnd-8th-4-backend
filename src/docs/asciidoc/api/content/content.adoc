@@ -1,0 +1,118 @@
+=== 피드 작성 API
+
+==== HTTP Request Header
+include::{snippets}/content-create/request-headers.adoc[]
+
+==== HTTP Request Part
+include::{snippets}/content-create/request-parts.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-create/request-parameters.adoc[]
+include::{snippets}/content-create/http-request.adoc[]
+
+=== 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-detail/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-detail/request-parameters.adoc[]
+include::{snippets}/content-detail/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-detail/http-response.adoc[]
+include::{snippets}/content-detail/response-fields.adoc[]
+
+=== 피드 수정 API
+
+==== HTTP Request Header
+include::{snippets}/content-update/request-headers.adoc[]
+
+==== HTTP Request Part
+include::{snippets}/content-update/request-parts.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-update/request-parameters.adoc[]
+include::{snippets}/content-update/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-update/http-response.adoc[]
+include::{snippets}/content-update/response-fields.adoc[]
+
+=== 피드 삭제 API
+
+==== HTTP Request Header
+include::{snippets}/board-delete/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/board-delete/request-parameters.adoc[]
+include::{snippets}/board-delete/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/board-delete/http-response.adoc[]
+include::{snippets}/board-delete/response-fields.adoc[]
+
+=== 그룹 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-groupContent/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-groupContent/request-parameters.adoc[]
+include::{snippets}/content-groupContent/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-groupContent/http-response.adoc[]
+include::{snippets}/content-groupContent/response-fields.adoc[]
+
+=== 전체 그룹 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-allGroupContent/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-allGroupContent/request-parameters.adoc[]
+include::{snippets}/content-allGroupContent/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-allGroupContent/http-response.adoc[]
+include::{snippets}/content-allGroupContent/response-fields.adoc[]
+
+=== 피드 검색 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-search/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-search/request-parameters.adoc[]
+include::{snippets}/content-search/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-search/http-response.adoc[]
+include::{snippets}/content-search/response-fields.adoc[]
+
+=== 지도 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-myMapList/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-myMapList/request-parameters.adoc[]
+include::{snippets}/content-myMapList/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-myMapList/http-response.adoc[]
+include::{snippets}/content-myMapList/response-fields.adoc[]
+
+=== 지도 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-mapDetail/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-mapDetail/request-parameters.adoc[]
+include::{snippets}/content-mapDetail/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-mapDetail/http-response.adoc[]
+include::{snippets}/content-mapDetail/response-fields.adoc[]

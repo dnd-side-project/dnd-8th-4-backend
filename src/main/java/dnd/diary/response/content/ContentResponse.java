@@ -19,7 +19,6 @@ public class ContentResponse {
         private Long id;
         private String userName;
         private String profileImageUrl;
-        @NotNull(message = "내용을 입력하지 않았습니다.")
         private String content;
         private Double latitude;
         private Double longitude;
@@ -208,7 +207,6 @@ public class ContentResponse {
         private Long id;
         private String userName;
         private String profileImageUrl;
-        @NotNull(message = "내용을 입력하지 않았습니다.")
         private String content;
         private Double latitude;
         private Double longitude;
