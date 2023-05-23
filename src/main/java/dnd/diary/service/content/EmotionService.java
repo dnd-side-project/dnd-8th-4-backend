@@ -36,7 +36,7 @@ public class EmotionService {
 
     @Transactional
     @CacheEvict(value = "Contents", key = "#contentId", cacheManager = "testCacheManager")
-    public CustomResponseEntity<EmotionResponse.Add> processEmotionTransaction(
+    public EmotionResponse.Add processEmotionTransaction(
             Long userId, Long contentId, EmotionServiceRequest.Add request
     ) {
         validateAddEmotion(request,contentId);
@@ -57,7 +57,7 @@ public class EmotionService {
             // 자신을 제외한 게시물 생성자에게 알림 생성
             notificationService.sendToNotification(contentId, user, emotion);
 
-            return CustomResponseEntity.success(EmotionResponse.Add.response(emotion));
+            return EmotionResponse.Add.response(emotion);
 
         } else {
             // 공감이 존재하는 상태에서
@@ -66,19 +66,19 @@ public class EmotionService {
                 // 같은 공감을 누를 경우 -> 취소
                 if (existsEmotionUser.getEmotionStatus().equals(request.getEmotionStatus())) {
                     existsEmotionUser.cancelEmotion();
-                    return CustomResponseEntity.successDeleteEmotion();
+                    return new EmotionResponse.Add();
                 }
 
                 // 다른 공감을 누를 경우 -> 변경
                 else {
                     existsEmotionUser.updateEmotion(request.getEmotionStatus());
-                    return CustomResponseEntity.success(EmotionResponse.Add.response(existsEmotionUser));
+                    return EmotionResponse.Add.response(existsEmotionUser);
                 }
 
             // 공감이 취소되었던 상태에서
             } else {
                 existsEmotionUser.updateEmotion(request.getEmotionStatus());
-                return CustomResponseEntity.success(EmotionResponse.Add.response(existsEmotionUser));
+                return EmotionResponse.Add.response(existsEmotionUser);
             }
         }
     }

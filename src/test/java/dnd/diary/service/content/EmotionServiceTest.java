@@ -67,11 +67,11 @@ class EmotionServiceTest {
 
         EmotionRequest.Add request = new EmotionRequest.Add(3L);
         // when
-        CustomResponseEntity<EmotionResponse.Add> response =
+        EmotionResponse.Add response =
                 emotionService.processEmotionTransaction(user.getId(), content.getId(), request.toServiceRequest());
 
         // then
-        assertThat(response.getData().getEmotionStatus())
+        assertThat(response.getEmotionStatus())
                 .isEqualTo(3L);
     }
 
@@ -87,11 +87,11 @@ class EmotionServiceTest {
         EmotionRequest.Add request = new EmotionRequest.Add(2L);
 
         // when
-        CustomResponseEntity<EmotionResponse.Add> response =
+        EmotionResponse.Add response =
                 emotionService.processEmotionTransaction(user.getId(), content.getId(), request.toServiceRequest());
 
         // then
-        assertThat(response.getData().getEmotionStatus())
+        assertThat(response.getEmotionStatus())
                 .isEqualTo(2L);
     }
 
@@ -127,8 +127,7 @@ class EmotionServiceTest {
         EmotionRequest.Add request = new EmotionRequest.Add(2L);
 
         // when
-        CustomResponseEntity<EmotionResponse.Add> response =
-                emotionService.processEmotionTransaction(user.getId(), content.getId(), request.toServiceRequest());
+        emotionService.processEmotionTransaction(user.getId(), content.getId(), request.toServiceRequest());
 
         // then
         Optional<Emotion> emotionOptional = emotionRepository.findById(emotion.getId());

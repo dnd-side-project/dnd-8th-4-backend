@@ -23,7 +23,9 @@ public class EmotionController {
             @PathVariable(name = "contentId") final Long contentId,
             @Valid @RequestBody final EmotionRequest.Add request
     ) {
-        return emotionService.processEmotionTransaction(userId, contentId, request.toServiceRequest());
+        return CustomResponseEntity.success(
+                emotionService.processEmotionTransaction(userId, contentId, request.toServiceRequest())
+        );
     }
 
     // 피드 감정 리스트 조회
