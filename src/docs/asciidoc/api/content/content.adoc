@@ -38,3 +38,16 @@ include::{snippets}/content-update/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/content-update/http-response.adoc[]
 include::{snippets}/content-update/response-fields.adoc[]
+
+=== 피드 삭제 API
+
+==== HTTP Request Header
+include::{snippets}/board-delete/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/board-delete/request-parameters.adoc[]
+include::{snippets}/board-delete/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/board-delete/http-response.adoc[]
+include::{snippets}/board-delete/response-fields.adoc[]

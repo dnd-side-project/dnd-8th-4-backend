@@ -262,7 +262,7 @@ public class ContentControllerDocsTest extends RestDocsSupport {
 
         // when // then
         mockMvc.perform(
-                        MockMvcRequestBuilders.multipart(HttpMethod.PUT,URI.create("/content"))
+                        MockMvcRequestBuilders.multipart(HttpMethod.PUT, URI.create("/content"))
                                 .file(file1)
                                 .file(file2)
                                 .header("Authorization", "JWT AccessToken")
@@ -344,13 +344,37 @@ public class ContentControllerDocsTest extends RestDocsSupport {
     @DisplayName("피드 삭제 API")
     @Test
     void contentDelete() throws Exception {
+        // given
+        given(contentService.deleteContent(any(), anyLong()))
+                .willReturn(true);
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.delete("/content")
+                                .header("Authorization", "JWT AccessToken")
                                 .param("contentId", "1")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("board-delete",
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("insert the AccessToken")
+                        ),
+                        requestParameters(
+                                parameterWithName("contentId")
+                                        .description("피드 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data").type(JsonFieldType.BOOLEAN)
+                                        .description("삭제 여부")
+                        )
+                ));
     }
 
     @DisplayName("그룹 피드 조회 API")
