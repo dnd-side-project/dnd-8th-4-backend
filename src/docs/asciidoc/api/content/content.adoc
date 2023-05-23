@@ -90,3 +90,16 @@ include::{snippets}/content-search/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/content-search/http-response.adoc[]
 include::{snippets}/content-search/response-fields.adoc[]
+
+=== 지도 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-myMapList/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-myMapList/request-parameters.adoc[]
+include::{snippets}/content-myMapList/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-myMapList/http-response.adoc[]
+include::{snippets}/content-myMapList/response-fields.adoc[]

@@ -892,16 +892,87 @@ public class ContentControllerDocsTest extends RestDocsSupport {
     @DisplayName("지도 피드 검색 API")
     @Test
     void myMapList() throws Exception {
+        ContentResponse.LocationSearch content1 = ContentResponse.LocationSearch.builder()
+                .id(1L)
+                .location("삼성 서비스 센터")
+                .latitude(1.0)
+                .longitude(1.0)
+                .userId(1L)
+                .groupId(1L)
+                .counts(1L)
+                .contentImageUrl("default.png")
+                .deletedYn(false)
+                .build();
+
+        ContentResponse.LocationSearch content2 = ContentResponse.LocationSearch.builder()
+                .id(2L)
+                .location("삼성 서비스 센터")
+                .latitude(1.0)
+                .longitude(1.0)
+                .userId(2L)
+                .groupId(1L)
+                .counts(1L)
+                .contentImageUrl("default.png")
+                .deletedYn(false)
+                .build();
+
+        given(contentService.listMyMap(any(), anyDouble(), anyDouble(), anyDouble(), anyDouble()))
+                .willReturn(List.of(content1, content2));
+
         // when // then
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/content/map")
+                                .header("Authorization", "JWT AccessToken")
                                 .param("startLatitude", "1")
                                 .param("startLongitude", "1")
                                 .param("endLatitude", "1")
                                 .param("endLongitude", "1")
                 )
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andDo(document("content-myMapList",
+                        preprocessResponse(prettyPrint()),
+                        requestHeaders(
+                                headerWithName("Authorization")
+                                        .description("insert the AccessToken")
+                        ),
+                        requestParameters(
+                                parameterWithName("startLatitude")
+                                        .description("좌상단 위도"),
+                                parameterWithName("startLongitude")
+                                        .description("좌상단 경도"),
+                                parameterWithName("endLatitude")
+                                        .description("우하단 위도"),
+                                parameterWithName("endLongitude")
+                                        .description("우하단 경도")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                        .description("상태 코드"),
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("응답 메시지"),
+                                fieldWithPath("data[]").type(JsonFieldType.ARRAY)
+                                        .description("피드 목록"),
+                                fieldWithPath("data[].id").type(JsonFieldType.NUMBER)
+                                        .description("피드 ID"),
+                                fieldWithPath("data[].location").type(JsonFieldType.STRING)
+                                        .description("피드 지역 이름"),
+                                fieldWithPath("data[].latitude").type(JsonFieldType.NUMBER)
+                                        .description("피드 경도"),
+                                fieldWithPath("data[].longitude").type(JsonFieldType.NUMBER)
+                                        .description("피드 위도"),
+                                fieldWithPath("data[].userId").type(JsonFieldType.NUMBER)
+                                        .description("피드 작성 유저 ID"),
+                                fieldWithPath("data[].groupId").type(JsonFieldType.NUMBER)
+                                        .description("피드 작성 그룹 ID"),
+                                fieldWithPath("data[].counts").type(JsonFieldType.NUMBER)
+                                        .description("중복된 피드 수"),
+                                fieldWithPath("data[].contentImageUrl").type(JsonFieldType.STRING)
+                                        .description("피드 이미지 URL"),
+                                fieldWithPath("data[].deletedYn").type(JsonFieldType.BOOLEAN)
+                                        .description("피드 삭제 여부")
+                        )
+                ));
     }
 
     @DisplayName("지도 피드 상세 조회 API")
