@@ -51,3 +51,16 @@ include::{snippets}/board-delete/http-request.adoc[]
 ==== HTTP Response
 include::{snippets}/board-delete/http-response.adoc[]
 include::{snippets}/board-delete/response-fields.adoc[]
+
+=== 그룹 피드 조회 API
+
+==== HTTP Request Header
+include::{snippets}/content-groupContent/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/content-groupContent/request-parameters.adoc[]
+include::{snippets}/content-groupContent/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/content-groupContent/http-response.adoc[]
+include::{snippets}/content-groupContent/response-fields.adoc[]
