@@ -61,10 +61,10 @@ class BookmarkServiceTest {
         Content content = getContentAndSave(user, group);
 
         // when
-        CustomResponseEntity<BookmarkResponse> response = bookmarkService.processBookmarkTransaction(user.getId(), content.getId());
+        BookmarkResponse response = bookmarkService.processBookmarkTransaction(user.getId(), content.getId());
 
         // then
-        Optional<Bookmark> bookmarkOptional = bookmarkRepository.findById(response.getData().getId());
+        Optional<Bookmark> bookmarkOptional = bookmarkRepository.findById(response.getId());
         assertThat(bookmarkOptional.isPresent()).isTrue();
     }
 

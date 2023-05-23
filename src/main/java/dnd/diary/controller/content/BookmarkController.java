@@ -19,6 +19,6 @@ public class BookmarkController {
             @AuthenticationPrincipal final Long userId,
             @RequestParam final Long contentId
     ) {
-        return bookmarkService.processBookmarkTransaction(userId, contentId);
+        return CustomResponseEntity.success(bookmarkService.processBookmarkTransaction(userId, contentId));
     }
 }

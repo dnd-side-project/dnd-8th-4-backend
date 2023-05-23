@@ -1,0 +1,25 @@
+=== 북마크 API (등록)
+
+==== HTTP Request Header
+include::{snippets}/bookmark-add/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/bookmark-add/request-parameters.adoc[]
+include::{snippets}/bookmark-add/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/bookmark-add/http-response.adoc[]
+include::{snippets}/bookmark-add/response-fields.adoc[]
+
+=== 북마크 API (취소)
+
+==== HTTP Request Header
+include::{snippets}/bookmark-cancel/request-headers.adoc[]
+
+==== HTTP Request Parameter
+include::{snippets}/bookmark-cancel/request-parameters.adoc[]
+include::{snippets}/bookmark-cancel/http-request.adoc[]
+
+==== HTTP Response
+include::{snippets}/bookmark-cancel/http-response.adoc[]
+include::{snippets}/bookmark-cancel/response-fields.adoc[]
