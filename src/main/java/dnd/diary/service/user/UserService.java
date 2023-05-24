@@ -40,7 +40,6 @@ import static dnd.diary.enumeration.Result.NOT_FOUND_USER;
 import static dnd.diary.enumeration.Result.NOT_FOUND_USER_IMAGE;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
@@ -71,7 +70,7 @@ public class UserService {
         return UserResponse.Login.response(user, accessToken, refreshToken);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserResponse.Login login(UserServiceRequest.Login request) {
         validateLogin(request);
 
@@ -94,12 +93,12 @@ public class UserService {
         return UserResponse.Detail.response(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Boolean emailCheckMatch(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<UserResponse.ContentList> listMyBookmark(Long userId, Integer page) {
 
         // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
@@ -107,7 +106,7 @@ public class UserService {
         return getContentLists(page, contentIdList);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<UserResponse.ContentList> listSearchMyComment(
             Long userId, Integer page
     ) {
@@ -117,7 +116,7 @@ public class UserService {
         return getContentLists(page, distinctContentIdListByUserId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<UserResponse.ContentList> listSearchMyContent(Long userId, Integer page) {
         User user = getUser(userId);
 
@@ -136,7 +135,7 @@ public class UserService {
         );
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Boolean logout(Long userId, String accessToken) {
         String email = getUser(userId).getEmail();
         Long accessTokenExpiration = tokenProvider.getExpiration(accessToken);

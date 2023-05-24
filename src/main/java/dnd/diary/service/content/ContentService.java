@@ -65,7 +65,7 @@ public class ContentService {
         return ContentResponse.Create.response(content);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ContentResponse.Detail detailContent(Long userId, Long contentId) {
         Content content = getContent(contentId);
         User user = userService.getUser(userId);
@@ -123,7 +123,7 @@ public class ContentService {
         return true;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<ContentResponse.GroupPage> groupListContent(
             Long userId, Long groupId, Integer page
     ) {
@@ -136,7 +136,7 @@ public class ContentService {
         return getMyGroupPages(userId, contents);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<ContentResponse.GroupPage> groupAllListContent(
             Long userId, List<Long> groupId, Integer page
     ) {
@@ -149,7 +149,7 @@ public class ContentService {
         return getMyGroupPages(userId, contents);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ContentResponse.LocationSearch> listMyMap(
             Long userId, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude
     ) {
@@ -171,7 +171,7 @@ public class ContentService {
                 ).toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ContentResponse.LocationDetail> listDetailMyMap(String location, Long userId) {
         User user = userService.getUser(userId);
         List<Long> myGroupIdList = user.getUserJoinGroups().stream()
@@ -189,7 +189,7 @@ public class ContentService {
                 ).toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<ContentResponse.Create> contentSearch(
             List<Long> groupId, String word, Integer page
     ) {
