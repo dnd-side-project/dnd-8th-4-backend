@@ -34,6 +34,23 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(status().isOk());
     }
 
+    @DisplayName("회원가입시 이메일을 입력하지 않으면 400 예외가 발생한다.")
+    @Test
+    void createUserAccountToNotEnteredEmail() throws Exception {
+        // given
+        UserRequest.CreateUser request =
+                new UserRequest.CreateUser(" ", "abc123", "테스트 계정", "테스트 닉네임", "010-1234-5678");
+
+        // when // then
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/auth")
+                                .content(objectMapper.writeValueAsString(request))
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
     @DisplayName("로그인 API")
     @Test
     void loginUser() throws Exception {

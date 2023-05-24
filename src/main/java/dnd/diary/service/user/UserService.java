@@ -19,7 +19,6 @@ import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.redis.RedisService;
 import dnd.diary.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -56,7 +55,7 @@ public class UserService {
 
     @Transactional
     public UserResponse.Login createUserAccount(UserServiceRequest.CreateUser request) {
-        validateRegister(request);
+        validateDuplicateNickName(request.getNickName());
 
         User user = userRepository.save(
                 createEntityUserFromDto(request)
@@ -72,7 +71,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse.Login login(UserServiceRequest.Login request) {
-        validateLogin(request);
+        validateMatchingPasswords(request.getEmail(), request.getPassword());
 
         User user = userRepository.findOneWithAuthoritiesByEmail(request.getEmail())
                 .orElseThrow(
@@ -81,7 +80,8 @@ public class UserService {
 
         // 토큰 발급
         String accessToken = tokenProvider.createToken(
-                user.getId(), getAuthentication(request.getEmail(), request.getPassword()));
+                user.getId(), getAuthentication(request.getEmail(), request.getPassword())
+        );
         String refreshToken = tokenProvider.createRefreshToken(request.getEmail());
 
         return UserResponse.Login.response(user, accessToken, refreshToken);
@@ -160,7 +160,9 @@ public class UserService {
         User user = getUser(userId);
 
         // 이미지 설정
-        String fileUrl = (file != null) ? s3Service.saveProfileImage(file) : setDefaultProfileImage();
+        String fileUrl = (file != null) ?
+                s3Service.saveProfileImage(file) : setDefaultProfileImage();
+
         user.updateUserProfile(nickName, fileUrl);
 
         return UserResponse.Update.response(user);
@@ -193,7 +195,7 @@ public class UserService {
     private List<UserSearchResponse.UserSearchInfo> getUserSearchResponse(List<User> searchByKeywordList, int sampleGroupImageCount) {
         return searchByKeywordList.stream().map(user -> {
             // 랜덤 이미지 인덱스 가져오기
-            long randomIdx = getRandomNumber(1, sampleGroupImageCount);
+            long randomIdx = getRandomNumber(sampleGroupImageCount);
 
             // 해당 인덱스로 유저 이미지 가져오기
             UserImage sampleUserImage = userImageRepository.findById(randomIdx).orElseThrow(
@@ -211,50 +213,8 @@ public class UserService {
         }).toList();
     }
 
-    // Validate
-    private void validateRegister(UserServiceRequest.CreateUser request) {
-        Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
-        Boolean existsByNickName = userRepository.existsByNickName(request.getNickName());
-        if (existsByEmail) {
-            throw new CustomException(Result.DUPLICATION_USER);
-        }
-        if (existsByNickName) {
-            throw new CustomException(Result.DUPLICATION_NICKNAME);
-        }
-    }
-
-    private void validateLogin(
-            UserServiceRequest.Login request
-    ) {
-        if (!userRepository.existsByEmail(request.getEmail())) {
-            throw new CustomException(Result.NOT_FOUND_USER);
-        }
-
-        if (!passwordEncoder.matches(
-                request.getPassword(),
-                userRepository.findOneWithAuthoritiesByEmail(request.getEmail())
-                        .orElseThrow(
-                                () -> new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD)
-                        ).getPassword())
-        ) {
-            throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
-        }
-    }
-
-    private String getFileExtension(String fileName) {
-        try {
-            return fileName.substring(fileName.lastIndexOf("."));
-        } catch (StringIndexOutOfBoundsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일(" + fileName + ") 입니다.");
-        }
-    }
-
-    private String createFileName(String fileName) {
-        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
-    }
-
-    private int getRandomNumber(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
+    private int getRandomNumber(int max) {
+        return (int) ((Math.random() * (max - 1)) + 1);
     }
 
     private User createEntityUserFromDto(UserServiceRequest.CreateUser request) {
@@ -286,7 +246,7 @@ public class UserService {
         String imageUrl = "";
 
         int sampleGroupImageCount = userImageRepository.findAll().size();
-        int randomIdx = getRandomNumber(1, sampleGroupImageCount);
+        int randomIdx = getRandomNumber(sampleGroupImageCount);
         UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
         imageUrl = sampleUserImage.getUserImageUrl();
 
@@ -310,5 +270,22 @@ public class UserService {
                         )
                 )
         );
+    }
+
+    // Validate
+    private void validateDuplicateNickName(String nickName) {
+        Boolean existsByNickName = userRepository.existsByNickName(nickName);
+        if (existsByNickName) {
+            throw new CustomException(Result.DUPLICATION_NICKNAME);
+        }
+    }
+
+    private void validateMatchingPasswords(String email, String enteredPassword) {
+        User findUser = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD)
+        );
+        if (passwordEncoder.matches(enteredPassword, findUser.getPassword()) == false) {
+            throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
+        }
     }
 }
