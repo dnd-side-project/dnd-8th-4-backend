@@ -328,8 +328,12 @@ class UserServiceTest {
         // given
         User user = getUserAndSave();
         Group group = getGroupSave(user);
-        Content content = getContentAndSave(user, group);
-        getCommentAndSave(user, content);
+        Content content1 = getContentAndSave(user, group);
+        Content content2 = getContentAndSave(user, group);
+        Content content3 = getContentAndSave(user, group);
+
+        getCommentAndSave(user, content1);
+        getCommentAndSave(user, content2);
 
         given(redisService.getValues(anyString()))
                 .willReturn("1");
@@ -338,9 +342,9 @@ class UserServiceTest {
         Page<UserResponse.ContentList> response = userService.listSearchMyComment(user.getId(), 1);
 
         // then
-        assertThat(response).hasSize(1)
+        assertThat(response).hasSize(2)
                 .extracting(UserResponse.ContentList::getContent)
-                .contains("테스트 내용");
+                .contains("테스트 내용", "테스트 내용");
     }
 
     @DisplayName("이메일이 현재 서비스 내에 존재하는지 여부를 확인한다.")
@@ -409,7 +413,6 @@ class UserServiceTest {
 
     private Content getContentAndSave(User user, Group group) {
         Content content = Content.builder()
-                .id(1L)
                 .user(user)
                 .group(group)
                 .content("테스트 내용")

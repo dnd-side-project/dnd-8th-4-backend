@@ -107,32 +107,22 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserResponse.ContentList> listSearchMyComment(
-            Long userId, Integer page
-    ) {
-        User user = getUser(userId);
-        List<Long> distinctContentIdListByUserId = commentRepository.findDistinctContentIdListByUserId(user.getId());
+    public Page<UserResponse.ContentList> listSearchMyComment(Long userId, Integer page) {
+        PageRequest pageRequest = PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt");
+        Page<Content> contentPage = contentRepository.searchMyCommentPosts(userId,pageRequest);
 
-        return getContentLists(page, distinctContentIdListByUserId);
+        return contentPage.map((Content content) ->
+                UserResponse.ContentList.response(content, getViews(content))
+        );
     }
 
     @Transactional(readOnly = true)
     public Page<UserResponse.ContentList> listSearchMyContent(Long userId, Integer page) {
-        User user = getUser(userId);
+        PageRequest pageable = PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt");
+        Page<Content> pages = contentRepository.findByUserIdAndDeletedYn(userId, false, pageable);
 
-        Page<Content> pageMyContent = contentRepository.findByUserIdAndDeletedYn(
-                user.getId(), false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        return pageMyContent.map((Content content) ->
-                UserResponse.ContentList.response(
-                        content,
-                        content.getContentImages()
-                                .stream()
-                                .map(ContentResponse.ImageDetail::response)
-                                .toList(),
-                        Integer.parseInt(redisService.getValues(content.getId().toString())))
-        );
+        return pages.map((Content content) ->
+                UserResponse.ContentList.response(content, getViews(content)));
     }
 
     @Transactional(readOnly = true)
@@ -173,8 +163,8 @@ public class UserService {
         return userRepository.searchNickname(keyword);
     }
 
-    // method
 
+    // method
     public User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_USER)
@@ -233,29 +223,19 @@ public class UserService {
         Page<Content> pageMyComment = contentRepository.findByIdInAndDeletedYn(
                 distinctContentIdListByUserId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-
         return pageMyComment.map((Content content) ->
-                UserResponse.ContentList.response(
-                        content,
-                        content.getContentImages()
-                                .stream()
-                                .map(ContentResponse.ImageDetail::response)
-                                .toList(),
-                        Integer.parseInt(
-                                redisService.getValues(content.getId().toString())
-                        )
-                )
+                UserResponse.ContentList.response(content, getViews(content))
         );
     }
 
     // Validate
+
     private void validateDuplicateNickName(String nickName) {
         Boolean existsByNickName = userRepository.existsByNickName(nickName);
         if (existsByNickName) {
             throw new CustomException(Result.DUPLICATION_NICKNAME);
         }
     }
-
     private void validateMatchingPasswords(String email, String enteredPassword) {
         User findUser = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD)
@@ -263,5 +243,9 @@ public class UserService {
         if (passwordEncoder.matches(enteredPassword, findUser.getPassword()) == false) {
             throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
         }
+    }
+
+    private Integer getViews(Content content) {
+        return redisService.getValuesInteger(content.getId());
     }
 }
