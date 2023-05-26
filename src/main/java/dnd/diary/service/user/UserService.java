@@ -170,10 +170,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserSearchResponse.UserSearchInfo> searchUserList(String keyword) {
-        List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCase(keyword);
-        int sampleGroupImageCount = userImageRepository.findAll().size();
-
-        return getUserSearchResponse(searchByKeywordList, sampleGroupImageCount);
+        return userRepository.searchNickname(keyword);
     }
 
     // method
@@ -190,27 +187,6 @@ public class UserService {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
-    }
-
-    private List<UserSearchResponse.UserSearchInfo> getUserSearchResponse(List<User> searchByKeywordList, int sampleGroupImageCount) {
-        return searchByKeywordList.stream().map(user -> {
-            // 랜덤 이미지 인덱스 가져오기
-            long randomIdx = getRandomNumber(sampleGroupImageCount);
-
-            // 해당 인덱스로 유저 이미지 가져오기
-            UserImage sampleUserImage = userImageRepository.findById(randomIdx).orElseThrow(
-                    () -> new CustomException(NOT_FOUND_USER_IMAGE)
-            );
-
-            String imageUrl = sampleUserImage.getUserImageUrl();
-
-            return UserSearchResponse.UserSearchInfo.builder()
-                    .userId(user.getId())
-                    .userEmail(user.getEmail())
-                    .userNickName(user.getNickName())
-                    .profileImageUrl(imageUrl)
-                    .build();
-        }).toList();
     }
 
     private int getRandomNumber(int max) {
