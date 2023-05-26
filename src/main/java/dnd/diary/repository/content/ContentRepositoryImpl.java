@@ -2,6 +2,7 @@ package dnd.diary.repository.content;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import dnd.diary.domain.bookmark.QBookmark;
 import dnd.diary.domain.content.Content;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +12,7 @@ import javax.persistence.EntityManager;
 
 import java.util.List;
 
+import static dnd.diary.domain.bookmark.QBookmark.*;
 import static dnd.diary.domain.comment.QComment.*;
 import static dnd.diary.domain.content.QContent.*;
 
@@ -38,5 +40,14 @@ public class ContentRepositoryImpl implements ContentCustomRepository{
                 .from(content1);
 
         return PageableExecutionUtils.getPage(contents, pageRequest, countQuery::fetchOne);
+    }
+
+    @Override
+    public List<Long> findContentIdList(Long userId) {
+        return queryFactory
+                .select(bookmark.content.id)
+                .from(bookmark)
+                .where(bookmark.user.id.eq(userId))
+                .fetch();
     }
 }

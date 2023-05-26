@@ -100,9 +100,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserResponse.ContentList> listMyBookmark(Long userId, Integer page) {
-
-        // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
-        List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userId).getId());
+        // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 QueryDSL로 얻어서 Content를 조회
+        List<Long> contentIdList = contentRepository.findContentIdList(userId);
         return getContentLists(page, contentIdList);
     }
 

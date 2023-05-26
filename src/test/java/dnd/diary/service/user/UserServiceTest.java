@@ -277,16 +277,22 @@ class UserServiceTest {
         // given
         User user = getUserAndSave();
         Group group = getGroupSave(user);
-        Content content = getContentAndSave(user, group);
+        Content content1 = getContentAndSave(user, group);
+        Content content2 = getContentAndSave(user, group);
+        Content content3 = getContentAndSave(user, group);
 
-        contentRepository.save(content);
-
-        Bookmark bookmark = Bookmark.builder()
+        Bookmark bookmark1 = Bookmark.builder()
                 .user(user)
-                .content(content)
+                .content(content1)
                 .build();
 
-        bookmarkRepository.save(bookmark);
+        Bookmark bookmark3 = Bookmark.builder()
+                .user(user)
+                .content(content3)
+                .build();
+
+        bookmarkRepository.save(bookmark1);
+        bookmarkRepository.save(bookmark3);
 
         given(redisService.getValues(anyString()))
                 .willReturn("1");
@@ -296,9 +302,9 @@ class UserServiceTest {
 
         // then
         assertThat(response)
-                .hasSize(1)
+                .hasSize(2)
                 .extracting(UserResponse.ContentList::getContent)
-                .contains("테스트 내용");
+                .contains("테스트 내용", "테스트 내용");
     }
 
     @DisplayName("유저가 자신이 작성한 글을 페이지 조회한다.")
