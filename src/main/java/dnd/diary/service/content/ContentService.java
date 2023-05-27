@@ -153,20 +153,15 @@ public class ContentService {
     public List<ContentResponse.LocationSearch> listMyMap(
             Long userId, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude
     ) {
-        User user = userService.getUser(userId);
+        List<Content> contents =
+                contentRepository.mapSearchMyGroupContent(endLatitude, startLatitude, startLongitude, endLongitude, userId);
 
-        List<Long> myGroupIdList = user.getUserJoinGroups().stream()
-                .map(userJoinGroup -> userJoinGroup.getGroup().getId()).toList();
-
-        List<Content> myMapContents = contentRepository.findByMapList(
-                myGroupIdList, endLatitude, startLatitude, startLongitude, endLongitude);
-
-        return myMapContents.stream()
+        return contents.stream()
                 .filter(content -> !content.isDeletedYn())
                 .map((Content content) -> ContentResponse.LocationSearch.response(
                                 content,
                                 getContentImageResponse(content),
-                                isCountDuplicateLocation(myGroupIdList, content)
+                                isCountDuplicateLocation(content, userId)
                         )
                 ).toList();
     }
@@ -335,9 +330,7 @@ public class ContentService {
         return (emotionOptional.isEmpty()) ? -1 : emotionOptional.get().getEmotionStatus();
     }
 
-    private Long isCountDuplicateLocation(List<Long> myGroupIdList, Content content) {
-        return contentRepository.countByLocationAndGroupIdInAndDeletedYn(
-                content.getLocation(), myGroupIdList, false
-        );
+    private Long isCountDuplicateLocation(Content content, Long userId) {
+        return contentRepository.countDuplicateLocation(content.getLocation(), userId);
     }
 }

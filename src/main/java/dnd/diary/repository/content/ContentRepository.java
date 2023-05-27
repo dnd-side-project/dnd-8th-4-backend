@@ -28,14 +28,5 @@ public interface ContentRepository extends JpaRepository<Content, Long>, Content
 
     List<Content> findByLocationAndGroupIdInAndDeletedYn(String location, List<Long> groupId, Boolean deletedYn);
 
-    Long countByLocationAndGroupIdInAndDeletedYn(String location, List<Long> groupId, Boolean deletedYn);
-
-    @Query("SELECT c FROM Content c WHERE c.group.id IN :groupIds AND c.latitude BETWEEN :startLatitude AND :endLatitude AND c.longitude BETWEEN :startLongitude AND :endLongitude")
-    List<Content> findByMapList(
-            @Param("groupIds") List<Long> groupIds, @Param("endLatitude") Double endLatitude,
-            @Param("startLatitude") Double startLatitude, @Param("startLongitude") Double startLongitude,
-            @Param("endLongitude") Double endLongitude
-    );
-
     Optional<Content> findByIdAndDeletedYn(Long contentId, Boolean deletedYn);
 }

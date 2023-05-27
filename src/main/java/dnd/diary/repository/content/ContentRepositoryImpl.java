@@ -8,6 +8,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import dnd.diary.domain.bookmark.QBookmark;
 import dnd.diary.domain.content.Content;
 import dnd.diary.domain.content.QContentImage;
+import dnd.diary.domain.group.QGroup;
+import dnd.diary.domain.user.QUser;
+import dnd.diary.domain.user.QUserJoinGroup;
 import dnd.diary.response.content.ContentResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +27,8 @@ import static dnd.diary.domain.comment.QComment.*;
 import static dnd.diary.domain.content.QContent.*;
 import static dnd.diary.domain.content.QContentImage.*;
 import static dnd.diary.domain.group.QGroup.group;
+import static dnd.diary.domain.user.QUser.*;
+import static dnd.diary.domain.user.QUserJoinGroup.userJoinGroup;
 
 public class ContentRepositoryImpl implements ContentCustomRepository {
 
@@ -84,5 +89,40 @@ public class ContentRepositoryImpl implements ContentCustomRepository {
                 .where(group.id.in(groupId), content1.deletedYn.isFalse());
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public List<Content> mapSearchMyGroupContent(Double endLatitude, Double startLatitude, Double startLongitude, Double endLongitude, Long userId) {
+
+        return queryFactory
+                .selectFrom(content1)
+                .innerJoin(content1.group, group)
+                .where(
+                        group.id.in(getMyGroupIds(userId)),
+                        content1.latitude.between(startLatitude, endLatitude),
+                        content1.longitude.between(startLongitude,endLongitude))
+                .fetch();
+    }
+
+    @Override
+    public Long countDuplicateLocation(String location, Long userId) {
+        return queryFactory
+                .select(content1.count())
+                .from(content1)
+                .innerJoin(content1.group, group)
+                .where(
+                        group.id.in(getMyGroupIds(userId)),
+                        content1.deletedYn.isFalse(),
+                        content1.location.eq(location))
+                .fetchOne();
+    }
+
+    private List<Long> getMyGroupIds(Long userId) {
+        return queryFactory.
+                select(userJoinGroup.group.id)
+                .from(userJoinGroup)
+                .innerJoin(userJoinGroup.user, user)
+                .where(user.id.eq(userId))
+                .fetch();
     }
 }
