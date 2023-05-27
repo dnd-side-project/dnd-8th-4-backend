@@ -19,7 +19,7 @@ public enum Result {
 	POSSIBLE_USE_EMAIL(0, "사용 가능한 이메일"),
 	DUPLICATION_USER(2201, "이미 존재하는 사용자"),
 	DUPLICATION_NICKNAME(2202, "이미 존재하는 닉네임"),
-	NOT_MATCHED_ID_OR_PASSWORD(2203,"아이디 또는 비밀번호를 잘못 입력하였습니다."),
+	NOT_MATCHED_ID_OR_PASSWORD(2203,"비밀번호를 잘못 입력하였습니다."),
 	NOT_FOUND_USER_IMAGE(2204, "사용자 기본 이미지가 존재하지 않음"),
 
 	// 그룹 관련

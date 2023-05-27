@@ -14,6 +14,7 @@ public class CustomExceptionResponse extends RuntimeException {
 		private Integer code;
 		private String message;
 		private T data;
+
 		public static CustomExceptionResponse.entryPointResponse response(CustomException customException){
 			return entryPointResponse
 					.builder()

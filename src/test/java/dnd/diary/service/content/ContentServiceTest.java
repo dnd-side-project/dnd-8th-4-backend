@@ -8,6 +8,7 @@ import dnd.diary.domain.user.UserJoinGroup;
 import dnd.diary.repository.content.CommentRepository;
 import dnd.diary.repository.content.ContentRepository;
 import dnd.diary.repository.group.GroupRepository;
+import dnd.diary.repository.group.UserJoinGroupRepository;
 import dnd.diary.repository.user.UserRepository;
 import dnd.diary.response.content.ContentResponse;
 import dnd.diary.service.redis.RedisService;
@@ -42,6 +43,9 @@ class ContentServiceTest {
     private ContentService contentService;
 
     @Autowired
+    private UserJoinGroupRepository userJoinGroupRepository;
+
+    @Autowired
     private CommentRepository commentRepository;
 
     @Autowired
@@ -52,6 +56,7 @@ class ContentServiceTest {
 
     @Autowired
     private ContentRepository contentRepository;
+
 
     @DisplayName("유저가 피드를 작성한다.")
     @Test
@@ -187,20 +192,28 @@ class ContentServiceTest {
         // given
         User user = getUserAndSave();
         Group group = getGroupSave(user);
-        getContentAndSave(user, group);
+
+        for (int i = 0; i < 10000; i++) {
+            getContentAndSave(user, group);
+        }
 
         List<Long> groups = List.of(group.getId());
 
         // when
+        long startTime = System.currentTimeMillis();
         Page<ContentResponse.Create> response = contentService.contentSearch(groups, "테스트", 1);
+        long stopTime = System.currentTimeMillis();
 
         // then
         assertThat(response)
-                .hasSize(1)
+                .hasSize(10)
                 .extracting("userName", "content", "latitude", "longitude", "location")
                 .contains(
                         tuple("테스트 닉네임", "테스트 내용", 0.0, 0.0, "삼성 서비스 센터")
                 );
+
+        long elapsedTime = stopTime - startTime;
+        System.out.println(elapsedTime);
     }
 
     @DisplayName("유저가 위치를 검색하여 주변에 남겨진 피드들을 검색한다.")
@@ -215,8 +228,10 @@ class ContentServiceTest {
                 .group(group)
                 .build();
 
-        user.getUserJoinGroups().add(userJoinGroup);
+        userJoinGroupRepository.save(userJoinGroup);
 
+        getContentAndSave(user, group, 37.802508, 127.076286);
+        getContentAndSave(user, group, 37.802508, 127.076286);
         getContentAndSave(user, group, 37.802508, 127.076286);
 
         // when
@@ -224,9 +239,13 @@ class ContentServiceTest {
                 contentService.listMyMap(user.getId(), 37.798631, 127.071024, 37.806840, 127.081482);
 
         // then
-        assertThat(response).hasSize(1)
-                .extracting("location")
-                .contains("삼성 서비스 센터");
+        assertThat(response).hasSize(3)
+                .extracting("location", "counts")
+                .contains(
+                        tuple("삼성 서비스 센터", 3L),
+                        tuple("삼성 서비스 센터", 3L),
+                        tuple("삼성 서비스 센터", 3L)
+                );
     }
 
     @DisplayName("주변에 남겨진 검색된 피드들을 중복된 장소의 피드를 포함하여 상세조회한다.")
@@ -281,7 +300,6 @@ class ContentServiceTest {
 
     private Content getContentAndSave(User user, Group group) {
         Content content = Content.builder()
-                .id(1L)
                 .user(user)
                 .group(group)
                 .content("테스트 내용")
@@ -309,7 +327,6 @@ class ContentServiceTest {
 
     private Content getContentAndSave(User user, Group group, Double latitude, Double longitude) {
         Content content = Content.builder()
-                .id(1L)
                 .user(user)
                 .group(group)
                 .content("테스트 내용")

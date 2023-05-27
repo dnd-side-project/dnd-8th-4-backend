@@ -135,9 +135,7 @@ public class UserResponse {
         }
 
         public static UserResponse.ContentList response(
-                Content content,
-                List<ContentResponse.ImageDetail> images,
-                Integer views
+                Content content, Integer views
         ) {
             return ContentList.builder()
                     .contentId(content.getId())
@@ -150,8 +148,11 @@ public class UserResponse {
                     .createAt(content.getCreatedAt())
                     .views(views)
                     .comments(content.getComments().size())
-                    .imageSize(images.size())
-                    .images(images)
+                    .imageSize(content.getContentImages().size())
+                    .images(content.getContentImages()
+                            .stream()
+                            .map(ContentResponse.ImageDetail::response)
+                            .toList())
                     .build();
         }
     }

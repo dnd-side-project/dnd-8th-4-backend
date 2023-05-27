@@ -19,7 +19,6 @@ import dnd.diary.response.user.UserSearchResponse;
 import dnd.diary.service.redis.RedisService;
 import dnd.diary.service.s3.S3Service;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -40,7 +39,6 @@ import static dnd.diary.enumeration.Result.NOT_FOUND_USER;
 import static dnd.diary.enumeration.Result.NOT_FOUND_USER_IMAGE;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class UserService {
 
@@ -57,7 +55,7 @@ public class UserService {
 
     @Transactional
     public UserResponse.Login createUserAccount(UserServiceRequest.CreateUser request) {
-        validateRegister(request);
+        validateDuplicateNickName(request.getNickName());
 
         User user = userRepository.save(
                 createEntityUserFromDto(request)
@@ -71,9 +69,9 @@ public class UserService {
         return UserResponse.Login.response(user, accessToken, refreshToken);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserResponse.Login login(UserServiceRequest.Login request) {
-        validateLogin(request);
+        validateMatchingPasswords(request.getEmail(), request.getPassword());
 
         User user = userRepository.findOneWithAuthoritiesByEmail(request.getEmail())
                 .orElseThrow(
@@ -82,7 +80,8 @@ public class UserService {
 
         // 토큰 발급
         String accessToken = tokenProvider.createToken(
-                user.getId(), getAuthentication(request.getEmail(), request.getPassword()));
+                user.getId(), getAuthentication(request.getEmail(), request.getPassword())
+        );
         String refreshToken = tokenProvider.createRefreshToken(request.getEmail());
 
         return UserResponse.Login.response(user, accessToken, refreshToken);
@@ -94,49 +93,38 @@ public class UserService {
         return UserResponse.Detail.response(user);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Boolean emailCheckMatch(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<UserResponse.ContentList> listMyBookmark(Long userId, Integer page) {
-
-        // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 JPA로 얻어서 Content를 조회
-        List<Long> contentIdList = bookmarkRepository.findContentIdList(getUser(userId).getId());
+        // 삭제된 게시글이 Exception을 일으키지 않도록 ContentId를 QueryDSL로 얻어서 Content를 조회
+        List<Long> contentIdList = contentRepository.findContentIdList(userId);
         return getContentLists(page, contentIdList);
     }
 
-    @Transactional
-    public Page<UserResponse.ContentList> listSearchMyComment(
-            Long userId, Integer page
-    ) {
-        User user = getUser(userId);
-        List<Long> distinctContentIdListByUserId = commentRepository.findDistinctContentIdListByUserId(user.getId());
+    @Transactional(readOnly = true)
+    public Page<UserResponse.ContentList> listSearchMyComment(Long userId, Integer page) {
+        PageRequest pageRequest = PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt");
+        Page<Content> contentPage = contentRepository.searchMyCommentPosts(userId,pageRequest);
 
-        return getContentLists(page, distinctContentIdListByUserId);
+        return contentPage.map((Content content) ->
+                UserResponse.ContentList.response(content, getViews(content))
+        );
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<UserResponse.ContentList> listSearchMyContent(Long userId, Integer page) {
-        User user = getUser(userId);
+        PageRequest pageable = PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt");
+        Page<Content> pages = contentRepository.findByUserIdAndDeletedYn(userId, false, pageable);
 
-        Page<Content> pageMyContent = contentRepository.findByUserIdAndDeletedYn(
-                user.getId(), false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-        );
-
-        return pageMyContent.map((Content content) ->
-                UserResponse.ContentList.response(
-                        content,
-                        content.getContentImages()
-                                .stream()
-                                .map(ContentResponse.ImageDetail::response)
-                                .toList(),
-                        Integer.parseInt(redisService.getValues(content.getId().toString())))
-        );
+        return pages.map((Content content) ->
+                UserResponse.ContentList.response(content, getViews(content)));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Boolean logout(Long userId, String accessToken) {
         String email = getUser(userId).getEmail();
         Long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
@@ -161,7 +149,9 @@ public class UserService {
         User user = getUser(userId);
 
         // 이미지 설정
-        String fileUrl = (file != null) ? s3Service.saveProfileImage(file) : setDefaultProfileImage();
+        String fileUrl = (file != null) ?
+                s3Service.saveProfileImage(file) : setDefaultProfileImage();
+
         user.updateUserProfile(nickName, fileUrl);
 
         return UserResponse.Update.response(user);
@@ -169,14 +159,11 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserSearchResponse.UserSearchInfo> searchUserList(String keyword) {
-        List<User> searchByKeywordList = userRepository.findByNickNameContainingIgnoreCase(keyword);
-        int sampleGroupImageCount = userImageRepository.findAll().size();
-
-        return getUserSearchResponse(searchByKeywordList, sampleGroupImageCount);
+        return userRepository.searchNickname(keyword);
     }
 
-    // method
 
+    // method
     public User getUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(NOT_FOUND_USER)
@@ -191,71 +178,8 @@ public class UserService {
         return authentication;
     }
 
-    private List<UserSearchResponse.UserSearchInfo> getUserSearchResponse(List<User> searchByKeywordList, int sampleGroupImageCount) {
-        return searchByKeywordList.stream().map(user -> {
-            // 랜덤 이미지 인덱스 가져오기
-            long randomIdx = getRandomNumber(1, sampleGroupImageCount);
-
-            // 해당 인덱스로 유저 이미지 가져오기
-            UserImage sampleUserImage = userImageRepository.findById(randomIdx).orElseThrow(
-                    () -> new CustomException(NOT_FOUND_USER_IMAGE)
-            );
-
-            String imageUrl = sampleUserImage.getUserImageUrl();
-
-            return UserSearchResponse.UserSearchInfo.builder()
-                    .userId(user.getId())
-                    .userEmail(user.getEmail())
-                    .userNickName(user.getNickName())
-                    .profileImageUrl(imageUrl)
-                    .build();
-        }).toList();
-    }
-
-    // Validate
-    private void validateRegister(UserServiceRequest.CreateUser request) {
-        Boolean existsByEmail = userRepository.existsByEmail(request.getEmail());
-        Boolean existsByNickName = userRepository.existsByNickName(request.getNickName());
-        if (existsByEmail) {
-            throw new CustomException(Result.DUPLICATION_USER);
-        }
-        if (existsByNickName) {
-            throw new CustomException(Result.DUPLICATION_NICKNAME);
-        }
-    }
-
-    private void validateLogin(
-            UserServiceRequest.Login request
-    ) {
-        if (!userRepository.existsByEmail(request.getEmail())) {
-            throw new CustomException(Result.NOT_FOUND_USER);
-        }
-
-        if (!passwordEncoder.matches(
-                request.getPassword(),
-                userRepository.findOneWithAuthoritiesByEmail(request.getEmail())
-                        .orElseThrow(
-                                () -> new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD)
-                        ).getPassword())
-        ) {
-            throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
-        }
-    }
-
-    private String getFileExtension(String fileName) {
-        try {
-            return fileName.substring(fileName.lastIndexOf("."));
-        } catch (StringIndexOutOfBoundsException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일(" + fileName + ") 입니다.");
-        }
-    }
-
-    private String createFileName(String fileName) {
-        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
-    }
-
-    private int getRandomNumber(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
+    private int getRandomNumber(int max) {
+        return (int) ((Math.random() * (max - 1)) + 1);
     }
 
     private User createEntityUserFromDto(UserServiceRequest.CreateUser request) {
@@ -287,7 +211,7 @@ public class UserService {
         String imageUrl = "";
 
         int sampleGroupImageCount = userImageRepository.findAll().size();
-        int randomIdx = getRandomNumber(1, sampleGroupImageCount);
+        int randomIdx = getRandomNumber(sampleGroupImageCount);
         UserImage sampleUserImage = userImageRepository.findById((long) randomIdx).orElseThrow(() -> new CustomException(NOT_FOUND_USER_IMAGE));
         imageUrl = sampleUserImage.getUserImageUrl();
 
@@ -298,18 +222,29 @@ public class UserService {
         Page<Content> pageMyComment = contentRepository.findByIdInAndDeletedYn(
                 distinctContentIdListByUserId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
         );
-
         return pageMyComment.map((Content content) ->
-                UserResponse.ContentList.response(
-                        content,
-                        content.getContentImages()
-                                .stream()
-                                .map(ContentResponse.ImageDetail::response)
-                                .toList(),
-                        Integer.parseInt(
-                                redisService.getValues(content.getId().toString())
-                        )
-                )
+                UserResponse.ContentList.response(content, getViews(content))
         );
+    }
+
+    // Validate
+
+    private void validateDuplicateNickName(String nickName) {
+        Boolean existsByNickName = userRepository.existsByNickName(nickName);
+        if (existsByNickName) {
+            throw new CustomException(Result.DUPLICATION_NICKNAME);
+        }
+    }
+    private void validateMatchingPasswords(String email, String enteredPassword) {
+        User findUser = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD)
+        );
+        if (passwordEncoder.matches(enteredPassword, findUser.getPassword()) == false) {
+            throw new CustomException(Result.NOT_MATCHED_ID_OR_PASSWORD);
+        }
+    }
+
+    private Integer getViews(Content content) {
+        return redisService.getValuesInteger(content.getId());
     }
 }

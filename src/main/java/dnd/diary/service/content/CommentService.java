@@ -67,7 +67,7 @@ public class CommentService {
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<CommentResponse.Detail> commentPage(
             Long userId, Long contentId, Integer page
     ) {

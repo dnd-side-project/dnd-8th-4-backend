@@ -1,8 +1,15 @@
+buildscript {
+	ext {
+		queryDslVersion = "5.0.0"
+	}
+}
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.1'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id "org.asciidoctor.jvm.convert" version "3.3.2" // Spring Boot RestDocs
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10" // QueryDsl
 }
 
 group = 'dnd'
@@ -27,6 +34,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	//querydsl
+	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+	annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
 
 	// RestDocs
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
@@ -92,4 +103,21 @@ bootJar {
 	from("${asciidoctor.outputDir}") {
 		into 'static/docs'
 	}
+}
+
+// QueryDsl
+
+def querydslDir = "$buildDir/generated/querydsl"
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+sourceSets {
+	main.java.srcDir querydslDir
+}
+configurations {
+	querydsl.extendsFrom compileClasspath
+}
+compileQuerydsl {
+	options.annotationProcessorPath = configurations.querydsl
 }

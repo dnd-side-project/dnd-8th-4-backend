@@ -32,6 +32,16 @@ public class RedisService {
         return values;
     }
 
+    public Integer getValuesInteger(Long key) {
+        String values = redisDao.getValues(key.toString());
+
+        if (values.isBlank()) {
+            throw new CustomException(REDIS_VALUE_NOT_FOUND);
+        }
+
+        return Integer.valueOf(values);
+    }
+
     public Boolean logoutFromRedis(String email, String accessToken, Long accessTokenExpiration) {
         redisDao.deleteValues(email);
         redisDao.setValues(accessToken, "logout", Duration.ofMillis(accessTokenExpiration));

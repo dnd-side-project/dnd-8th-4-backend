@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ContentRepository extends JpaRepository<Content, Long> {
+public interface ContentRepository extends JpaRepository<Content, Long>, ContentCustomRepository {
 
-    boolean existsByIdAndDeletedYn(Long contentId, Boolean deletedYn);
+    Boolean existsByIdAndDeletedYn(Long contentId, Boolean deletedYn);
 
     Optional<Content> findByIdAndUserIdAndDeletedYn(Long contentId, Long userId, Boolean deleteYn);
 
@@ -22,29 +22,11 @@ public interface ContentRepository extends JpaRepository<Content, Long> {
 
     Page<Content> findByGroupIdInAndDeletedYn(List<Long> groupId, Boolean deletedYn, Pageable pageable);
 
-    List<Content> findByIdInAndDeletedYn(List<Long> contentId, Boolean deletedYn);
-
     Page<Content> findByIdInAndDeletedYn(List<Long> contentId, Boolean deletedYn, Pageable pageable);
 
     Page<Content> findByUserIdAndDeletedYn(Long userId, Boolean deletedYn, Pageable pageable);
 
-    Page<Content> findByContentContainingAndGroupIdInAndDeletedYn(String word, List<Long> groupId, Boolean deletedYn, Pageable pageable);
-
     List<Content> findByLocationAndGroupIdInAndDeletedYn(String location, List<Long> groupId, Boolean deletedYn);
-
-    Long countByLocationAndGroupIdInAndDeletedYn(String location, List<Long> groupId, Boolean deletedYn);
-
-//    @Query(value = "SELECT * FROM content AS c \n" +
-//            "WHERE c.group_id IN (?1) AND c.latitude between ?3 and ?2 and c.longitude between ?4 and ?5",
-//            nativeQuery = true)
-//    List<Content> findByMapList(List<Long> group_id, Double endLatitude, Double startLatitude, Double startLongitude, Double endLongitude);
-
-    @Query("SELECT c FROM Content c WHERE c.group.id IN :groupIds AND c.latitude BETWEEN :startLatitude AND :endLatitude AND c.longitude BETWEEN :startLongitude AND :endLongitude")
-    List<Content> findByMapList(
-            @Param("groupIds") List<Long> groupIds, @Param("endLatitude") Double endLatitude,
-            @Param("startLatitude") Double startLatitude, @Param("startLongitude") Double startLongitude,
-            @Param("endLongitude") Double endLongitude
-    );
 
     Optional<Content> findByIdAndDeletedYn(Long contentId, Boolean deletedYn);
 }

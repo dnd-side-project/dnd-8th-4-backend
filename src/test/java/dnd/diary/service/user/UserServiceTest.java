@@ -107,6 +107,23 @@ class UserServiceTest {
         assertThat(response.getRefreshToken()).isNotBlank();
     }
 
+    @DisplayName("유저가 중복된 닉네임으로 회원가입을 하려는 경우 예외가 발생한다.")
+    @Test
+    void createUserAccountToDuplicateEnteredNickName() {
+        // given
+        User user = getUserAndSave();
+
+        UserRequest.CreateUser request = new UserRequest.CreateUser(
+                "test@test.com", "abc123!", "테스트 계정",
+                user.getNickName(), "010-1234-5678"
+        );
+
+        // when // then
+        assertThatThrownBy(() -> userService.createUserAccount(request.toServiceRequest()))
+                .extracting("result.code", "result.message")
+                .contains(2202, "이미 존재하는 닉네임");
+    }
+
     @DisplayName("유저가 로그인을 하고 토큰을 발급 받는다.")
     @Test
     void login() {
@@ -126,6 +143,20 @@ class UserServiceTest {
         assertThat(response.getProfileImageUrl()).isNotBlank();
         assertThat(response.getAccessToken()).isNotBlank();
         assertThat(response.getRefreshToken()).isNotBlank();
+    }
+
+    @DisplayName("유저가 로그인을 하고 토큰을 발급 받는다.")
+    @Test
+    void loginToNotMatchedPassword() {
+        getUserAndSave();
+
+        // given
+        UserRequest.Login request = new UserRequest.Login("test@test.com", "abc123");
+
+        // when // then
+        assertThatThrownBy(() -> userService.login(request.toServiceRequest()))
+                .extracting("result.code", "result.message")
+                .contains(2203, "비밀번호를 잘못 입력하였습니다.");
     }
 
     @DisplayName("유저가 자신의 정보를 조회한다.")
@@ -246,16 +277,22 @@ class UserServiceTest {
         // given
         User user = getUserAndSave();
         Group group = getGroupSave(user);
-        Content content = getContentAndSave(user, group);
+        Content content1 = getContentAndSave(user, group);
+        Content content2 = getContentAndSave(user, group);
+        Content content3 = getContentAndSave(user, group);
 
-        contentRepository.save(content);
-
-        Bookmark bookmark = Bookmark.builder()
+        Bookmark bookmark1 = Bookmark.builder()
                 .user(user)
-                .content(content)
+                .content(content1)
                 .build();
 
-        bookmarkRepository.save(bookmark);
+        Bookmark bookmark3 = Bookmark.builder()
+                .user(user)
+                .content(content3)
+                .build();
+
+        bookmarkRepository.save(bookmark1);
+        bookmarkRepository.save(bookmark3);
 
         given(redisService.getValues(anyString()))
                 .willReturn("1");
@@ -265,9 +302,9 @@ class UserServiceTest {
 
         // then
         assertThat(response)
-                .hasSize(1)
+                .hasSize(2)
                 .extracting(UserResponse.ContentList::getContent)
-                .contains("테스트 내용");
+                .contains("테스트 내용", "테스트 내용");
     }
 
     @DisplayName("유저가 자신이 작성한 글을 페이지 조회한다.")
@@ -297,8 +334,12 @@ class UserServiceTest {
         // given
         User user = getUserAndSave();
         Group group = getGroupSave(user);
-        Content content = getContentAndSave(user, group);
-        getCommentAndSave(user, content);
+        Content content1 = getContentAndSave(user, group);
+        Content content2 = getContentAndSave(user, group);
+        Content content3 = getContentAndSave(user, group);
+
+        getCommentAndSave(user, content1);
+        getCommentAndSave(user, content2);
 
         given(redisService.getValues(anyString()))
                 .willReturn("1");
@@ -307,9 +348,9 @@ class UserServiceTest {
         Page<UserResponse.ContentList> response = userService.listSearchMyComment(user.getId(), 1);
 
         // then
-        assertThat(response).hasSize(1)
+        assertThat(response).hasSize(2)
                 .extracting(UserResponse.ContentList::getContent)
-                .contains("테스트 내용");
+                .contains("테스트 내용", "테스트 내용");
     }
 
     @DisplayName("이메일이 현재 서비스 내에 존재하는지 여부를 확인한다.")
@@ -378,7 +419,6 @@ class UserServiceTest {
 
     private Content getContentAndSave(User user, Group group) {
         Content content = Content.builder()
-                .id(1L)
                 .user(user)
                 .group(group)
                 .content("테스트 내용")

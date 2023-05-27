@@ -65,7 +65,7 @@ public class ContentService {
         return ContentResponse.Create.response(content);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ContentResponse.Detail detailContent(Long userId, Long contentId) {
         Content content = getContent(contentId);
         User user = userService.getUser(userId);
@@ -123,7 +123,7 @@ public class ContentService {
         return true;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<ContentResponse.GroupPage> groupListContent(
             Long userId, Long groupId, Integer page
     ) {
@@ -136,7 +136,7 @@ public class ContentService {
         return getMyGroupPages(userId, contents);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<ContentResponse.GroupPage> groupAllListContent(
             Long userId, List<Long> groupId, Integer page
     ) {
@@ -149,29 +149,24 @@ public class ContentService {
         return getMyGroupPages(userId, contents);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ContentResponse.LocationSearch> listMyMap(
             Long userId, Double startLatitude, Double startLongitude, Double endLatitude, Double endLongitude
     ) {
-        User user = userService.getUser(userId);
+        List<Content> contents =
+                contentRepository.mapSearchMyGroupContent(endLatitude, startLatitude, startLongitude, endLongitude, userId);
 
-        List<Long> myGroupIdList = user.getUserJoinGroups().stream()
-                .map(userJoinGroup -> userJoinGroup.getGroup().getId()).toList();
-
-        List<Content> myMapContents = contentRepository.findByMapList(
-                myGroupIdList, endLatitude, startLatitude, startLongitude, endLongitude);
-
-        return myMapContents.stream()
+        return contents.stream()
                 .filter(content -> !content.isDeletedYn())
                 .map((Content content) -> ContentResponse.LocationSearch.response(
                                 content,
                                 getContentImageResponse(content),
-                                isCountDuplicateLocation(myGroupIdList, content)
+                                isCountDuplicateLocation(content, userId)
                         )
                 ).toList();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ContentResponse.LocationDetail> listDetailMyMap(String location, Long userId) {
         User user = userService.getUser(userId);
         List<Long> myGroupIdList = user.getUserJoinGroups().stream()
@@ -189,15 +184,11 @@ public class ContentService {
                 ).toList();
     }
 
-    @Transactional
-    public Page<ContentResponse.Create> contentSearch(
-            List<Long> groupId, String word, Integer page
-    ) {
+    @Transactional(readOnly = true)
+    public Page<ContentResponse.Create> contentSearch(List<Long> groupId, String word, Integer page) {
         // 삭제 처리되지 않은 게시물만 조회
-        Page<Content> contentPage = contentRepository
-                .findByContentContainingAndGroupIdInAndDeletedYn(
-                        word, groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-                );
+        Page<Content> contentPage =
+                contentRepository.searchMyGroupContent(word, groupId, PageRequest.of(page - 1, 10));
 
         return contentPage.map(ContentResponse.Create::response);
     }
@@ -339,9 +330,7 @@ public class ContentService {
         return (emotionOptional.isEmpty()) ? -1 : emotionOptional.get().getEmotionStatus();
     }
 
-    private Long isCountDuplicateLocation(List<Long> myGroupIdList, Content content) {
-        return contentRepository.countByLocationAndGroupIdInAndDeletedYn(
-                content.getLocation(), myGroupIdList, false
-        );
+    private Long isCountDuplicateLocation(Content content, Long userId) {
+        return contentRepository.countDuplicateLocation(content.getLocation(), userId);
     }
 }

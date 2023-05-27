@@ -88,7 +88,7 @@ public class ContentController {
         return CustomResponseEntity.success(contentService.groupAllListContent(userId, groupId, page));
     }
 
-    // 피드 검색 조회
+    // 피드 검색 조회2
     @GetMapping("content/group/search")
     public CustomResponseEntity<Page<ContentResponse.Create>> searchContent(
             @RequestParam final List<Long> groupId,
