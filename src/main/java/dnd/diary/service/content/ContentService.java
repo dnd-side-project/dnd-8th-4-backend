@@ -190,14 +190,10 @@ public class ContentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ContentResponse.Create> contentSearch(
-            List<Long> groupId, String word, Integer page
-    ) {
+    public Page<ContentResponse.Create> contentSearch(List<Long> groupId, String word, Integer page) {
         // 삭제 처리되지 않은 게시물만 조회
-        Page<Content> contentPage = contentRepository
-                .findByContentContainingAndGroupIdInAndDeletedYn(
-                        word, groupId, false, PageRequest.of(page - 1, 10, Sort.Direction.DESC, "createdAt")
-                );
+        Page<Content> contentPage =
+                contentRepository.searchMyGroupContent(word, groupId, PageRequest.of(page - 1, 10));
 
         return contentPage.map(ContentResponse.Create::response);
     }

@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface ContentRepository extends JpaRepository<Content, Long>, ContentCustomRepository {
 
-    boolean existsByIdAndDeletedYn(Long contentId, Boolean deletedYn);
+    Boolean existsByIdAndDeletedYn(Long contentId, Boolean deletedYn);
 
     Optional<Content> findByIdAndUserIdAndDeletedYn(Long contentId, Long userId, Boolean deleteYn);
 
@@ -25,8 +25,6 @@ public interface ContentRepository extends JpaRepository<Content, Long>, Content
     Page<Content> findByIdInAndDeletedYn(List<Long> contentId, Boolean deletedYn, Pageable pageable);
 
     Page<Content> findByUserIdAndDeletedYn(Long userId, Boolean deletedYn, Pageable pageable);
-
-    Page<Content> findByContentContainingAndGroupIdInAndDeletedYn(String word, List<Long> groupId, Boolean deletedYn, Pageable pageable);
 
     List<Content> findByLocationAndGroupIdInAndDeletedYn(String location, List<Long> groupId, Boolean deletedYn);
 

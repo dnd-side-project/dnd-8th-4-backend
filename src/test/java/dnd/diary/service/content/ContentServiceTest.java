@@ -187,20 +187,28 @@ class ContentServiceTest {
         // given
         User user = getUserAndSave();
         Group group = getGroupSave(user);
-        getContentAndSave(user, group);
+
+        for (int i = 0; i < 10000; i++) {
+            getContentAndSave(user, group);
+        }
 
         List<Long> groups = List.of(group.getId());
 
         // when
+        long startTime = System.currentTimeMillis();
         Page<ContentResponse.Create> response = contentService.contentSearch(groups, "테스트", 1);
+        long stopTime = System.currentTimeMillis();
 
         // then
         assertThat(response)
-                .hasSize(1)
+                .hasSize(10)
                 .extracting("userName", "content", "latitude", "longitude", "location")
                 .contains(
                         tuple("테스트 닉네임", "테스트 내용", 0.0, 0.0, "삼성 서비스 센터")
                 );
+
+        long elapsedTime = stopTime - startTime;
+        System.out.println(elapsedTime);
     }
 
     @DisplayName("유저가 위치를 검색하여 주변에 남겨진 피드들을 검색한다.")
@@ -281,7 +289,6 @@ class ContentServiceTest {
 
     private Content getContentAndSave(User user, Group group) {
         Content content = Content.builder()
-                .id(1L)
                 .user(user)
                 .group(group)
                 .content("테스트 내용")

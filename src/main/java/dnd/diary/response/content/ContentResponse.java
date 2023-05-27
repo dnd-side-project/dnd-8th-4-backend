@@ -14,6 +14,7 @@ public class ContentResponse {
 
     @NoArgsConstructor
     @Getter
+    @ToString
     public static class Create {
 
         private Long id;
